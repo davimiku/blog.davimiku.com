@@ -1,18 +1,25 @@
 import Link from 'next/link'
+import Headroom from 'react-headroom'
 import styles from './Header.module.scss'
 
 export function Header() {
   return (
-    <nav className={styles.nav}>
-      <h1>Next Blog</h1>
-      <div>
+    <Headroom>
+      <nav className={styles.nav}>
         <Link href='/'>
-          <a>Blog</a>
+          <a>
+            <h1>davimiku</h1>
+          </a>
         </Link>
-        <Link href='/'>
-          <a>About</a>
-        </Link>
-      </div>
-    </nav>
+        <div>
+          <Link href='/blog'>
+            <a>blog</a>
+          </Link>
+          <Link href='/projects'>
+            <a>projects</a>
+          </Link>
+        </div>
+      </nav>
+    </Headroom>
   )
 }
