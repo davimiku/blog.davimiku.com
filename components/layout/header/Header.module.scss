@@ -1,12 +1,13 @@
 @use "../../../styles/variables/colors";
 
 .nav {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+
   background: colors.$primary;
   width: auto;
   padding: 0 2rem;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
+
   font-size: 1rem;
 }
 
@@ -22,4 +23,20 @@
 
 .nav a:hover {
   text-decoration: underline;
+}
+
+.centerVertically {
+  display: flex;
+  align-items: center;
+}
+
+.themeContainer {
+  display: flex;
+  align-items: center;
+}
+
+.themeContainer svg {
+  height: 1.5rem;
+  width: 1.5rem;
+  fill: white;
 }

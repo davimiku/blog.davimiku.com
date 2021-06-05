@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Headroom from 'react-headroom'
+import { ThemeToggle } from '../../toggle/Toggle'
 import styles from './Header.module.scss'
 
 export function Header() {
@@ -11,13 +12,16 @@ export function Header() {
             <h1>davimiku</h1>
           </a>
         </Link>
-        <div>
+        <div className={styles.centerVertically}>
           <Link href='/blog'>
             <a>blog</a>
           </Link>
           <Link href='/projects'>
             <a>projects</a>
           </Link>
+        </div>
+        <div className={styles.themeContainer}>
+          <ThemeToggle theme='light' toggleTheme={() => {}} />
         </div>
       </nav>
     </Headroom>
