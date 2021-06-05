@@ -1,0 +1,20 @@
+@use "../../styles/variables/colors";
+
+.container > *,
+.container section > * {
+  margin-bottom: 0.5rem;
+}
+
+.container {
+  max-width: 70ch;
+  margin: 0 auto;
+
+  h1 {
+    font-size: 2.25rem;
+    color: colors.$primary;
+  }
+
+  h2 {
+    font-size: 1.875rem;
+  }
+}
