@@ -7,7 +7,8 @@ type ColorSchemeContextValue = {
   toggleColorScheme: () => void
 }
 
-const ColorSchemeContext = React.createContext<ColorSchemeContextValue>(null)
+export const ColorSchemeContext =
+  React.createContext<ColorSchemeContextValue>(null)
 
 /**
  * Provides the current color scheme as a context value.
@@ -41,11 +42,4 @@ export function ColorSchemeProvider({ children }: PropsWithChildren<{}>) {
       {children}
     </ColorSchemeContext.Provider>
   )
-}
-
-/**
- * Provides the current color scheme value and a function to toggle the value.
- */
-export function useColorScheme() {
-  return React.useContext(ColorSchemeContext)
 }
