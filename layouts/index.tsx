@@ -1,6 +1,10 @@
-import Head from 'next/head'
 import { PropsWithChildren } from 'react'
-import { Header } from '../components/layout/header/Header'
+import Head from 'next/head'
+
+import { Header } from 'components/layout/header'
+
+import styles from './Layout.module.scss'
+import { useColorSchemeClass } from '../hooks/useColorScheme'
 
 export type LayoutProps = {
   title: string
@@ -12,6 +16,7 @@ export default function Layout({
   title,
   description,
 }: PropsWithChildren<LayoutProps>) {
+  const className = useColorSchemeClass(styles, 'main')
   return (
     <>
       <Head>
@@ -21,7 +26,7 @@ export default function Layout({
         <title>{title}</title>
       </Head>
       <Header />
-      <main>{children}</main>
+      <main className={className}>{children}</main>
     </>
   )
 }
