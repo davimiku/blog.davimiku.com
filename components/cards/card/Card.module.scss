@@ -1,0 +1,14 @@
+.card {
+  border: 1px solid black;
+  border-radius: 0.5rem;
+
+  padding: 2rem;
+}
+
+.card--dark {
+  border-color: white;
+}
+
+.card h3 {
+  margin-top: 0;
+}
