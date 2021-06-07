@@ -1,4 +1,5 @@
 const withPlugins = require('next-compose-plugins')
+const withSvgr = require('next-plugin-svgr')
 const rehypePrism = require('@mapbox/rehype-prism')
 
 const mdx = require('next-mdx-enhanced')({
@@ -15,6 +16,7 @@ const nextConfig = { pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'mdx', 'md'] }
 module.exports = withPlugins(
   [
     mdx,
+    withSvgr,
     // you may add more plugins, and their configs, to this array
   ],
   nextConfig
