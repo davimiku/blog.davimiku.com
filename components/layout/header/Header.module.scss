@@ -25,17 +25,19 @@
   text-decoration: underline;
 }
 
-.centerVertically {
+.nav-links {
+  display: flex;
+  align-items: center;
+
+  list-style: none;
+}
+
+.theme-container {
   display: flex;
   align-items: center;
 }
 
-.themeContainer {
-  display: flex;
-  align-items: center;
-}
-
-.themeContainer svg {
+.theme-container svg {
   height: 1.5rem;
   width: 1.5rem;
   fill: white;

@@ -12,18 +12,29 @@ export function Header() {
             <h1>davimiku</h1>
           </a>
         </Link>
-        <div className={styles.centerVertically}>
-          <Link href='/blog'>
-            <a>blog</a>
-          </Link>
-          <Link href='/projects'>
-            <a>projects</a>
-          </Link>
-        </div>
-        <div className={styles.themeContainer}>
+        <ul className={styles['nav-links']}>
+          <HeaderNavLink href='/blog' linkText='blog' />
+          <HeaderNavLink href='/projects' linkText='projects' />
+        </ul>
+        <div className={styles['theme-container']}>
           <ThemeToggle />
         </div>
       </nav>
     </Headroom>
+  )
+}
+
+export type HeaderNavLinkProps = {
+  href: string
+  linkText: string
+}
+
+export function HeaderNavLink({ href, linkText }: HeaderNavLinkProps) {
+  return (
+    <li>
+      <Link href={href}>
+        <a>{linkText}</a>
+      </Link>
+    </li>
   )
 }

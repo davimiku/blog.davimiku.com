@@ -5,5 +5,5 @@ export type CardGridProps = {
 }
 
 export function CardGrid({ cards }: CardGridProps) {
-  return <div className={styles.cardGrid}>{cards}</div>
+  return <div className={styles['card-grid']}>{cards}</div>
 }
