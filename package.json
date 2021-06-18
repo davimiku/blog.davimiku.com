@@ -10,14 +10,14 @@
   "dependencies": {
     "@mapbox/rehype-prism": "^0.6.0",
     "classnames": "^2.3.1",
-    "next": "10.2.3",
+    "next": "^11.0.0",
     "next-compose-plugins": "^2.2.1",
     "next-mdx-enhanced": "^5.0.0",
     "next-plugin-svgr": "^1.0.0",
     "next-seo": "^4.25.1",
     "prism-themes": "^1.7.0",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-headroom": "^3.1.1",
     "react-toggle": "^4.1.2",
     "sass": "^1.35.1"

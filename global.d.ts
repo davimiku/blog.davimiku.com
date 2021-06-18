@@ -31,3 +31,18 @@ declare module '*.svg' {
   >
   export default content
 }
+
+/**
+ * Typescript definitions not available
+ */
+declare module 'next-mdx-enhanced'
+
+/**
+ * Typescript definitions not available
+ */
+declare module '@mapbox/rehype-prism'
+
+/**
+ * Typescript definitions not available
+ */
+declare module 'next-plugin-svgr'

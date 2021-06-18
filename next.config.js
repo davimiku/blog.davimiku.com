@@ -9,15 +9,19 @@ const mdx = require('next-mdx-enhanced')({
   rehypePlugins: [rehypePrism],
 })
 
-// you may tweak other base Next options in this object
-// we are using it to tell Next to also handle .md and .mdx files
-const nextConfig = { pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'mdx', 'md'] }
+const nextConfig = {
+  // TODO: Upgrade to Webpack 5 (handle breaking changes)
+  webpack5: false,
+
+  /** Added .mdx and .md for static HTML generation from Markdown */
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'mdx', 'md'],
+}
 
 module.exports = withPlugins(
   [
     mdx,
     withSvgr,
-    // you may add more plugins, and their configs, to this array
+    // more plugins go here
   ],
   nextConfig
 )
