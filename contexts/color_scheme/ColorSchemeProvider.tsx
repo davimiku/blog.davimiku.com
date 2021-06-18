@@ -13,6 +13,13 @@ export const ColorSchemeContext =
 /**
  * Provides the current color scheme as a context value.
  *
+ * On initialization, the default value of the color scheme
+ * is determined by the user's preference in their operating
+ * system, defaulting to light otherwise.
+ *
+ * This value is also automatically updated if the user changes
+ * their preference while on the page.
+ *
  * To obtain the context value from any component within this
  * provider:
  *
@@ -33,8 +40,37 @@ export const ColorSchemeContext =
 export function ColorSchemeProvider({ children }: PropsWithChildren<{}>) {
   const [colorScheme, setColorScheme] = React.useState<ColorScheme>('dark')
 
+  // true if the user hasn't toggled the color scheme themselves
+  const [isUsingDefault, setIsUsingDefault] = React.useState(true)
+
+  function setDefaultDark(event: MediaQueryListEvent) {
+    if (event.matches && isUsingDefault) {
+      setColorScheme('dark')
+    }
+  }
+
+  function setDefaultLight(event: MediaQueryListEvent) {
+    if (event.matches && isUsingDefault) {
+      setColorScheme('light')
+    }
+  }
+
+  React.useEffect(() => {
+    const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    darkMediaQuery.addEventListener('change', setDefaultDark)
+
+    const lightMediaQuery = window.matchMedia('(prefers-color-scheme: light)')
+    lightMediaQuery.addEventListener('change', setDefaultLight)
+
+    return () => {
+      darkMediaQuery.removeEventListener('change', setDefaultDark)
+      lightMediaQuery.removeEventListener('change', setDefaultLight)
+    }
+  }, [])
+
   function toggleColorScheme() {
     setColorScheme((scheme) => (scheme === 'dark' ? 'light' : 'dark'))
+    setIsUsingDefault(false)
   }
 
   return (

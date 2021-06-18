@@ -21,7 +21,7 @@ export function Header() {
           </Link>
         </div>
         <div className={styles.themeContainer}>
-          <ThemeToggle theme='light' toggleTheme={() => {}} />
+          <ThemeToggle />
         </div>
       </nav>
     </Headroom>
