@@ -13,8 +13,8 @@ export function Header() {
           </a>
         </Link>
         <ul className={styles['nav-links']}>
-          <HeaderNavLink href='/blog' linkText='blog' />
           <HeaderNavLink href='/projects' linkText='projects' />
+          <HeaderNavLink href='/blog' linkText='blog' />
         </ul>
         <div className={styles['theme-container']}>
           <ThemeToggle />
