@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { CardGrid } from 'components/cards/card_grid'
-import { ProjectCard } from 'components/cards/project/ProjectCard'
-import { sampleData } from './sample_data'
+import { ProjectSummaryCard } from 'components/cards/project/ProjectSummaryCard'
+import { projects } from 'data'
 
 /**
  * Portfolio site - Typescript
@@ -31,8 +31,8 @@ export default function Home() {
 
       <h2>Projects</h2>
       <CardGrid
-        cards={sampleData.map(({ repo, projectInfo }) => (
-          <ProjectCard key={repo.id} repo={repo} projectInfo={projectInfo} />
+        cards={projects.map((project) => (
+          <ProjectSummaryCard key={project.repo.name} project={project} />
         ))}
       />
 

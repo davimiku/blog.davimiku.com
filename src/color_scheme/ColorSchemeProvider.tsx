@@ -56,12 +56,14 @@ export function ColorSchemeProvider({ children }: PropsWithChildren<{}>) {
   }
 
   React.useEffect(() => {
+    // Watch for the user changing their preferences
     const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     darkMediaQuery.addEventListener('change', setDefaultDark)
 
     const lightMediaQuery = window.matchMedia('(prefers-color-scheme: light)')
     lightMediaQuery.addEventListener('change', setDefaultLight)
 
+    // Clean up event listeners if the context is unmounted (it won't be since it's at the root)
     return () => {
       darkMediaQuery.removeEventListener('change', setDefaultDark)
       lightMediaQuery.removeEventListener('change', setDefaultLight)
