@@ -1,6 +1,6 @@
 import { NextSeo } from 'next-seo'
 import { ReactNode } from 'react'
-import { FeaturedImage } from '../../components/blog/FeaturedImage'
+import { FeaturedImage } from 'components/blog/FeaturedImage'
 
 import styles from './blog.module.scss'
 
