@@ -1,11 +1,11 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
-import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
 
 import { Card } from 'components/cards/card'
 import { Project } from 'types/projects'
 import React from 'react'
 import { TechnologyBadge } from 'components/badges/technology'
+import { ExternalLink } from 'components/link/ExternalLink'
 
 export type ProjectSummaryCardProps = {
   project: Project
@@ -30,13 +30,11 @@ export function ProjectSummaryCard({ project }: ProjectSummaryCardProps) {
         </p>
       </Card.Body>
       <Card.Footer>
-        <a href={repo.url} target='_blank' rel='noreferrer'>
+        <ExternalLink href={repo.url}>
           <FontAwesomeIcon icon={faGithub} />
           &nbsp;
           {repo.name}
-          &nbsp;
-          <FontAwesomeIcon icon={faExternalLinkAlt} />
-        </a>
+        </ExternalLink>
       </Card.Footer>
     </Card>
   )
