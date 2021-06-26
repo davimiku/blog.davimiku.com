@@ -1,7 +1,7 @@
 import 'prism-themes/themes/prism-vsc-dark-plus.css'
 import '../styles/globals.scss'
 import Layout from '../layouts'
-import { ColorSchemeProvider } from 'contexts/color_scheme'
+import { ColorSchemeProvider } from 'color_scheme'
 
 function MyApp({ Component, pageProps }) {
   return (

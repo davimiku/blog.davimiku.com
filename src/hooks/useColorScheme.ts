@@ -1,7 +1,7 @@
 import React from 'react'
 import classnames from 'classnames'
 
-import { ColorSchemeContext } from 'contexts/color_scheme'
+import { ColorSchemeContext } from 'color_scheme'
 
 export type ScssModuleStyles = {
   readonly [key: string]: string
