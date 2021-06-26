@@ -27,12 +27,13 @@ export type CardTitleProps = {
 }
 
 Card.Title = function ({ title, href }: CardTitleProps) {
+  const className = styles['card-title']
   const inner = href ? (
     <Link href={href}>
-      <a>{title}</a>
+      <a className={className}>{title}</a>
     </Link>
   ) : (
-    title
+    <span className={className}>{title}</span>
   )
   return <h2>{inner}</h2>
 }

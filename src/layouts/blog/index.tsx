@@ -1,6 +1,8 @@
 import { NextSeo } from 'next-seo'
 import { ReactNode } from 'react'
+
 import { FeaturedImage } from 'components/blog/FeaturedImage'
+import Layout from 'layouts'
 
 import styles from './blog.module.scss'
 
@@ -20,7 +22,7 @@ export type BlogsPageProps = {
 export default function BlogsPage({ children, frontMatter }: BlogsPageProps) {
   const { title, tagline } = frontMatter
   return (
-    <>
+    <Layout title={title} description={tagline}>
       <NextSeo title={title} description={tagline} />
       <article className={styles.container}>
         <h1>{title}</h1>
@@ -28,6 +30,6 @@ export default function BlogsPage({ children, frontMatter }: BlogsPageProps) {
         <FeaturedImage title={title} />
         <section>{children}</section>
       </article>
-    </>
+    </Layout>
   )
 }

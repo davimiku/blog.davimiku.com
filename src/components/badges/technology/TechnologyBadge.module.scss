@@ -1,7 +1,7 @@
 @use "../../../styles/variables/colors";
 
 .badge {
-  border: 1px solid colors.$primary;
+  border: 1px solid colors.$accent-darker;
   border-radius: 0.5rem;
 
   padding: 0.25rem 0.5rem;
@@ -9,5 +9,5 @@
 }
 
 .badge--dark {
-  border-color: white;
+  border-color: colors.$accent;
 }
