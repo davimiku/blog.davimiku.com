@@ -7,13 +7,6 @@ export type ProjectCardProps = {
   projectInfo: ProjectInfo
 }
 
-/*
-
-technologies
-topics learned
-tagline
-*/
-
 export function ProjectCard({ repo, projectInfo }: ProjectCardProps) {
   return (
     <Card>
@@ -27,6 +20,7 @@ export function ProjectCard({ repo, projectInfo }: ProjectCardProps) {
         <a href={repo.html_url} target='_blank' rel='noreferrer'>
           <span className='fab fa-github'>&nbsp;</span>
           {repo.full_name}
+          <span className='fas fa-external-link-alt' />
         </a>
       </Card.Footer>
     </Card>
