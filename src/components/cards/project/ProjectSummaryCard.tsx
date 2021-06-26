@@ -1,5 +1,11 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faGithub } from '@fortawesome/free-brands-svg-icons'
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
+
 import { Card } from 'components/cards/card'
 import { Project } from 'types/projects'
+import React from 'react'
+import { TechnologyBadge } from 'components/badges/technology'
 
 export type ProjectSummaryCardProps = {
   project: Project
@@ -10,16 +16,26 @@ export function ProjectSummaryCard({ project }: ProjectSummaryCardProps) {
   return (
     <Card>
       <Card.Header>
-        <Card.Title title={project.name} />
+        <Card.Title
+          title={project.name}
+          href={`/projects#${project.repo.name}`}
+        />
       </Card.Header>
       <Card.Body>
         <p>{project.tagline}</p>
+        <p>
+          {project.technologies.map((technology) => (
+            <TechnologyBadge key={technology} technology={technology} />
+          ))}
+        </p>
       </Card.Body>
       <Card.Footer>
         <a href={repo.url} target='_blank' rel='noreferrer'>
-          <span className='fab fa-github'>&nbsp;</span>
+          <FontAwesomeIcon icon={faGithub} />
+          &nbsp;
           {repo.name}
-          <span className='fas fa-external-link-alt' />
+          &nbsp;
+          <FontAwesomeIcon icon={faExternalLinkAlt} />
         </a>
       </Card.Footer>
     </Card>

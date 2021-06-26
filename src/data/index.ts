@@ -1,4 +1,3 @@
-import { GitHubRepository } from 'types/github'
 import { Project } from 'types/projects'
 
 export const projects: Project[] = [
@@ -16,9 +15,10 @@ export const projects: Project[] = [
   },
   {
     name: 'AudNauseum',
-    tagline: 'Loop-based digital recorder/sampler (audio looper)',
+    tagline: 'Loop-based digital recorder & sampler (audio looper)',
     technologies: ['Python', 'PyQt', 'numpy'],
     topics: ['audio processing', 'gui', 'state machine'],
+    imageUrl: '/images/projects/audnauseum.png',
     repo: {
       name: 'AudNauseum',
       path: 'AudNauseum/AudNauseum',
@@ -28,7 +28,7 @@ export const projects: Project[] = [
   },
   {
     name: 'davimiku.github.io',
-    tagline: 'This website!',
+    tagline: 'This website! Static site generator powered by Next.js',
     technologies: ['Typescript', 'Next.js', 'MDX'],
     topics: ['static site generation', 'blog'],
     repo: {

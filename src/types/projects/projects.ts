@@ -5,6 +5,9 @@ export type Project = {
   /** Short, catchy description of the project */
   tagline: string
 
+  /** URL to an image for the project */
+  imageUrl?: string
+
   /** Technologies / languages / frameworks / tools used in this project */
   technologies: string[]
 
