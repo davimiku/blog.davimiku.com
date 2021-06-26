@@ -15,7 +15,9 @@ export function Card({
   )
 }
 
-Card.Header = function ({ children }: PropsWithChildren<{}>) {
+export type CardHeaderProps = Record<string, unknown>
+
+Card.Header = function ({ children }: PropsWithChildren<CardHeaderProps>) {
   return <header className={styles['card-header']}>{children}</header>
 }
 
@@ -35,11 +37,15 @@ Card.Title = function ({ title, href }: CardTitleProps) {
   return <h2>{inner}</h2>
 }
 
-Card.Body = function ({ children }: PropsWithChildren<{}>) {
+export type CardBodyProps = Record<string, unknown>
+
+Card.Body = function ({ children }: PropsWithChildren<CardBodyProps>) {
   return <section className={styles['card-body']}>{children}</section>
 }
 
-Card.Footer = function ({ children }: PropsWithChildren<{}>) {
+export type CardFooterProps = Record<string, unknown>
+
+Card.Footer = function ({ children }: PropsWithChildren<CardFooterProps>) {
   const className = useColorSchemeClass(styles, 'card-footer')
   return <footer className={className}>{children}</footer>
 }

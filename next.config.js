@@ -3,7 +3,7 @@ const withSvgr = require('next-plugin-svgr')
 const rehypePrism = require('@mapbox/rehype-prism')
 
 const mdx = require('next-mdx-enhanced')({
-  layoutPath: 'layouts/blog',
+  layoutPath: 'src/layouts/blog',
   defaultLayout: true,
   fileExtensions: ['mdx', 'md'],
   rehypePlugins: [rehypePrism],

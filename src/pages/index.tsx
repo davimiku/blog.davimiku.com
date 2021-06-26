@@ -4,16 +4,6 @@ import { projects } from 'data'
 import Layout from 'layouts'
 
 /**
- * Portfolio site - Typescript
- * JSONata        - Rust
- * json_parser    - Rust
- *
- * AudNauseum     - Python
- * Wasteagram     - Dart
- *
- */
-
-/**
  * Component for the "home" page server at path '/'
  */
 export default function Home() {
