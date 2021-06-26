@@ -8,11 +8,13 @@ export function Header() {
   return (
     <Headroom>
       <nav className={styles['nav']}>
-        <Link href='/'>
-          <a>
-            <h1>davimiku</h1>
-          </a>
-        </Link>
+        <div>
+          <h1>
+            <Link href='/'>
+              <a>davimiku</a>
+            </Link>
+          </h1>
+        </div>
         <ul className={styles['nav-links']}>
           <HeaderNavLink href='/' linkText='home' />
           <HeaderNavLink href='/projects' linkText='projects' />
