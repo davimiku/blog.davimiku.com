@@ -1,10 +1,17 @@
-import { PropsWithChildren } from 'react'
+import { HTMLAttributes, PropsWithChildren } from 'react'
 import { useColorSchemeClass } from 'hooks/useColorScheme'
 import styles from './Card.module.scss'
 
-export function Card({ children }: PropsWithChildren<{}>) {
+export function Card({
+  children,
+  ...rest
+}: PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
   const cardClass = useColorSchemeClass(styles, 'card')
-  return <article className={cardClass}>{children}</article>
+  return (
+    <article className={cardClass} {...rest}>
+      {children}
+    </article>
+  )
 }
 
 export type CardTitleProps = {
