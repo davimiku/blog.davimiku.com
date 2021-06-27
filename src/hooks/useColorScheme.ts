@@ -23,11 +23,11 @@ export function useColorScheme() {
  *
  * For example:
  * ```scss
- * main {
+ * .my-main {
  *   padding: 0 5rem;
  * }
  *
- * main--dark {
+ * .my-main--dark {
  *  background-color: black;
  *  color: white;
  * }

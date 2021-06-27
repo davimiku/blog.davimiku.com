@@ -46,12 +46,14 @@ export function ColorSchemeProvider({ children }: PropsWithChildren<{}>) {
   function setDefaultDark(event: MediaQueryListEvent) {
     if (event.matches && isUsingDefault) {
       setColorScheme('dark')
+      document.body.classList.add('dark')
     }
   }
 
   function setDefaultLight(event: MediaQueryListEvent) {
     if (event.matches && isUsingDefault) {
       setColorScheme('light')
+      document.body.classList.remove('dark')
     }
   }
 
@@ -59,9 +61,17 @@ export function ColorSchemeProvider({ children }: PropsWithChildren<{}>) {
     // Watch for the user changing their preferences
     const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     darkMediaQuery.addEventListener('change', setDefaultDark)
+    if (darkMediaQuery.matches) {
+      setColorScheme('dark')
+      document.body.classList.add('dark')
+    }
 
     const lightMediaQuery = window.matchMedia('(prefers-color-scheme: light)')
     lightMediaQuery.addEventListener('change', setDefaultLight)
+    if (lightMediaQuery.matches) {
+      setColorScheme('light')
+      document.body.classList.remove('dark')
+    }
 
     // Clean up event listeners if the context is unmounted (it won't be since it's at the root)
     return () => {
@@ -73,6 +83,7 @@ export function ColorSchemeProvider({ children }: PropsWithChildren<{}>) {
   function toggleColorScheme() {
     setColorScheme((scheme) => (scheme === 'dark' ? 'light' : 'dark'))
     setIsUsingDefault(false)
+    document.body.classList.toggle('dark')
   }
 
   return (

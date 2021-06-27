@@ -16,6 +16,21 @@ a {
   box-sizing: border-box;
 }
 
+h1,
+h2,
+h3 {
+  color: colors.$primary;
+}
+
+body.dark {
+  background-color: black;
+  h1,
+  h2,
+  h3 {
+    color: colors.$secondary;
+  }
+}
+
 /* Toggle global styles */
 .react-toggle {
   touch-action: pan-x;
