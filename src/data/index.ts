@@ -2,15 +2,15 @@ import { Project } from 'types/projects'
 
 export const projects: Project[] = [
   {
-    name: 'JSON Parser',
-    tagline: 'Parser for JSON using iterative and combinator strategies',
+    name: 'JSONata',
+    tagline: 'Implementation of JSON Query and Transformation language',
     technologies: ['Rust'],
-    topics: ['parsers', 'combinator parsers', 'json'],
+    topics: ['interpreters', 'JSON', 'parser', 'functional programming'],
     repo: {
-      name: 'json_parser',
-      path: 'davimiku/json_parser',
-      url: 'https://github.com/davimiku/json_parser',
-      description: 'Implementation of a parser for JSON data',
+      name: 'jsonata-rs',
+      path: 'davimiku/jsonata-rs',
+      url: 'https://github.com/davimiku/jsonata-rs',
+      description: 'Implementation of JSONata query language in Rust ',
     },
   },
   {
@@ -29,7 +29,7 @@ export const projects: Project[] = [
   {
     name: 'davimiku.github.io',
     tagline: 'This website! Static site generator powered by Next.js',
-    technologies: ['Typescript', 'Next.js', 'MDX'],
+    technologies: ['Typescript', 'Next.js', 'SCSS'],
     topics: ['static site generation', 'blog'],
     repo: {
       name: 'davimiku.github.io',
@@ -39,21 +39,15 @@ export const projects: Project[] = [
     },
   },
   {
-    name: 'YouReport',
-    tagline: 'Mobile app for citizens to report issues to local government',
-    technologies: ['Flutter', 'Dart', 'Firebase'],
-    topics: [
-      'mobile app',
-      'cloud storage',
-      'cloud analytics',
-      'material design',
-    ],
+    name: 'JSON Parser',
+    tagline: 'Parser for JSON using iterative and combinator strategies',
+    technologies: ['Rust'],
+    topics: ['parsers', 'combinator parsers', 'json'],
     repo: {
-      name: 'you_report',
-      path: 'davimiku/you_report',
-      url: 'https://github.com/davimiku/you_report',
-      description:
-        'Mobile app for citizens to report issues to local government',
+      name: 'json_parser',
+      path: 'davimiku/json_parser',
+      url: 'https://github.com/davimiku/json_parser',
+      description: 'Implementation of a parser for JSON data',
     },
   },
 ]
