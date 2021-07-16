@@ -1,12 +1,17 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faRust, faPython } from '@fortawesome/free-brands-svg-icons'
+import { FaPython, FaSass } from 'react-icons/fa'
+import { SiRust, SiTypescript } from 'react-icons/si'
+import { IoLogoVercel } from 'react-icons/io5'
 
 import styles from './TechnologyBadge.module.scss'
 import { useColorSchemeClass } from 'hooks/useColorScheme'
 
 const iconMap = {
-  rust: faRust,
-  python: faPython,
+  rust: SiRust,
+  python: FaPython,
+  scss: FaSass,
+  sass: FaSass,
+  typescript: SiTypescript,
+  'next.js': IoLogoVercel,
 }
 
 export type TechnologyBadgeProps = {
@@ -15,12 +20,12 @@ export type TechnologyBadgeProps = {
 
 export function TechnologyBadge({ technology }: TechnologyBadgeProps) {
   const className = useColorSchemeClass(styles, 'badge')
-  const icon = iconMap[technology.toLowerCase()] ? (
-    <FontAwesomeIcon icon={iconMap[technology.toLowerCase()]} />
-  ) : null
+  const Icon = iconMap[technology.toLowerCase()] ?? null
+  console.log(Icon)
   return (
     <span className={className}>
-      {icon}&nbsp;{technology}
+      {Icon ? <Icon /> : null}
+      &nbsp;{technology}
     </span>
   )
 }

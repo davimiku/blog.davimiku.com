@@ -1,5 +1,4 @@
-import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FaExternalLinkAlt } from 'react-icons/fa'
 import { PropsWithChildren } from 'react'
 
 export type ExternalLinkProps = {
@@ -14,7 +13,7 @@ export function ExternalLink({
     <a href={href} target='_blank' rel='noreferrer'>
       {children}
       &nbsp;
-      <FontAwesomeIcon icon={faExternalLinkAlt} />
+      <FaExternalLinkAlt />
     </a>
   )
 }

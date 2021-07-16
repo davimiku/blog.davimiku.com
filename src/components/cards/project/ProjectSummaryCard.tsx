@@ -1,5 +1,4 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGithub } from '@fortawesome/free-brands-svg-icons'
+import { FaGithub } from 'react-icons/fa'
 
 import { Card } from 'components/cards/card'
 import { Project } from 'types/projects'
@@ -31,7 +30,7 @@ export function ProjectSummaryCard({ project }: ProjectSummaryCardProps) {
       </Card.Body>
       <Card.Footer>
         <ExternalLink href={repo.url}>
-          <FontAwesomeIcon icon={faGithub} />
+          <FaGithub />
           &nbsp;
           {repo.name}
         </ExternalLink>

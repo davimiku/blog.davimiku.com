@@ -1,5 +1,4 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGithub } from '@fortawesome/free-brands-svg-icons'
+import { FaGithub } from 'react-icons/fa'
 
 import { Project } from 'types/projects'
 import { ExternalLink } from 'components/link/ExternalLink'
@@ -20,7 +19,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       </Card.Body>
       <Card.Footer>
         <ExternalLink href={project.repo.url}>
-          <FontAwesomeIcon icon={faGithub} />
+          <FaGithub />
           &nbsp;
           {project.repo.name}
         </ExternalLink>
