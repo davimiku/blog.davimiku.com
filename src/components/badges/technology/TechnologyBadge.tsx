@@ -2,8 +2,7 @@ import { FaPython, FaSass } from 'react-icons/fa'
 import { SiRust, SiTypescript } from 'react-icons/si'
 import { IoLogoVercel } from 'react-icons/io5'
 
-import styles from './TechnologyBadge.module.scss'
-import { useColorSchemeClass } from 'hooks/useColorScheme'
+import { Badge } from '../badge/Badge'
 
 const iconMap = {
   rust: SiRust,
@@ -19,13 +18,11 @@ export type TechnologyBadgeProps = {
 }
 
 export function TechnologyBadge({ technology }: TechnologyBadgeProps) {
-  const className = useColorSchemeClass(styles, 'badge')
   const Icon = iconMap[technology.toLowerCase()] ?? null
-  console.log(Icon)
   return (
-    <span className={className}>
+    <Badge>
       {Icon ? <Icon /> : null}
       &nbsp;{technology}
-    </span>
+    </Badge>
   )
 }
