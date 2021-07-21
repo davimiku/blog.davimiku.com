@@ -6,10 +6,11 @@ import Layout from 'layouts'
 
 import styles from './blog.module.scss'
 
-type FrontMatter = {
+export type FrontMatter = {
   title: string
+  slug: string
   tagline: string
-  publishedAt: Date
+  publishedAt?: Date
   tags?: string[]
   __resourcePath: string
 }
