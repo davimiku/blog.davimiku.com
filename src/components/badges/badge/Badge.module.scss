@@ -8,8 +8,12 @@
 
   padding: 0.25rem 0.5rem;
   margin: 0 0.25rem;
-}
 
-.badge--dark {
-  border-color: colors.$accent;
+  &--dark {
+    border-color: colors.$accent;
+  }
+
+  svg {
+    vertical-align: middle;
+  }
 }
