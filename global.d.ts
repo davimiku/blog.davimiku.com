@@ -3,16 +3,18 @@ declare module '*.mdx' {
 
   export type FrontMatter = {
     title: string
+    slug: string
     tagline: string
-    publishedAt: Date
+    publishedAt?: Date
     tags?: string[]
     __resourcePath: string
   }
 
   export type ParsedFrontMatter = {
     title: string
+    slug: string
     tagline: string
-    publishedAt: string
+    publishedAt?: string
     tags?: string[]
     __resourcePath: string
   }
