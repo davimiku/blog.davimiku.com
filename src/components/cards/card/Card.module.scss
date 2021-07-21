@@ -6,6 +6,8 @@
 
   padding: 2rem;
 
+  max-width: 22rem;
+
   h2 {
     margin-top: 0;
   }
@@ -14,10 +16,14 @@
 .card-header {
   border-bottom: 1px dotted;
   border-bottom-color: inherit;
-}
 
-.card-header a:hover {
-  text-decoration: underline;
+  a {
+    border-bottom: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
 }
 
 .card-body {
