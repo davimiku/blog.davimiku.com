@@ -1,5 +1,10 @@
 import { Project } from 'types/projects'
 
+// NOTE: Typescript aliases for path imports do not work on the paths below
+// because these are not Typescript imports! Relative path directly to the file
+// is needed.
+import { frontMatter as jsonParserRust } from '../pages/blog/json-parser-rust.mdx'
+
 export const projects: Project[] = [
   {
     name: 'JSONata',
@@ -29,7 +34,7 @@ export const projects: Project[] = [
   {
     name: 'davimiku.github.io',
     tagline: 'This website! Static site generator powered by Next.js',
-    technologies: ['Typescript', 'Next.js', 'SCSS'],
+    technologies: ['Typescript', 'SCSS'],
     topics: ['static site generation', 'blog'],
     repo: {
       name: 'davimiku.github.io',
@@ -51,3 +56,5 @@ export const projects: Project[] = [
     },
   },
 ]
+
+export const blogs = [jsonParserRust]
