@@ -1,6 +1,6 @@
 import { CardGrid } from 'components/cards/card_grid'
 import { ProjectSummaryCard } from 'components/cards/project/ProjectSummaryCard'
-import { projects } from 'data'
+import { projects, blogs } from 'data'
 import Layout from 'layouts'
 
 /**
@@ -21,7 +21,11 @@ export default function Home() {
       />
 
       <h2>Blog posts</h2>
-      <CardGrid cards={[]} />
+      <CardGrid
+        cards={blogs.map((blog) => (
+          <BlogSummaryCard key={blog.slug} blog={blog} />
+        ))}
+      />
     </Layout>
   )
 }
