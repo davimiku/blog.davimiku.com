@@ -2,7 +2,7 @@ import { FaPython, FaSass } from 'react-icons/fa'
 import { SiRust, SiTypescript } from 'react-icons/si'
 import { IoLogoVercel } from 'react-icons/io5'
 
-import { Badge } from '../badge/Badge'
+import { Badge } from 'components/badges'
 
 const iconMap = {
   rust: SiRust,
