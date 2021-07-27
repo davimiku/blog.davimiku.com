@@ -34,9 +34,12 @@ h2 {
 body.dark {
   background-color: black;
   h1,
-  h2,
   h3 {
     color: colors.$secondary;
+  }
+
+  h2 {
+    color: colors.$tertiary;
   }
 }
 
