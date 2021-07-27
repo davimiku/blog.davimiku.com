@@ -11,14 +11,23 @@ export type BlogListingProps = {
 }
 
 export function BlogListing({ blog }: BlogListingProps) {
+  const { publishedAt } = blog
+  const isPublished = Boolean(blog.publishedAt)
+
   return (
     <li className={styles['blog-listing']}>
-      <Link href={formatPath(blog.__resourcePath)}>
-        <a>
-          <h2>{blog.title}</h2>
-        </a>
-      </Link>
-      <PublishDate date={blog.publishedAt} />
+      {/* TODO: Refactor to separate component */}
+      {isPublished ? (
+        <Link href={isPublished ? formatPath(blog.__resourcePath) : ''}>
+          <a>
+            <h2>{blog.title}</h2>
+          </a>
+        </Link>
+      ) : (
+        <h2 className={styles['wip']}>{blog.title}</h2>
+      )}
+
+      <PublishDate date={publishedAt} />
       <p>{blog.tagline}</p>
       <ul>
         {blog.tags.map((tag) => (
