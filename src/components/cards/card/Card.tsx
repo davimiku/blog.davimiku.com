@@ -24,9 +24,10 @@ Card.Header = function ({ children }: PropsWithChildren<CardHeaderProps>) {
 export type CardTitleProps = {
   title: string
   href?: string
+  headingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 }
 
-Card.Title = function ({ title, href }: CardTitleProps) {
+Card.Title = function ({ title, href, headingLevel = 'h3' }: CardTitleProps) {
   const className = styles['card-title']
   const inner = href ? (
     <Link href={href}>
@@ -35,7 +36,8 @@ Card.Title = function ({ title, href }: CardTitleProps) {
   ) : (
     <span className={className}>{title}</span>
   )
-  return <h2>{inner}</h2>
+  const Heading = headingLevel
+  return <Heading>{inner}</Heading>
 }
 
 export type CardBodyProps = Record<string, unknown>
