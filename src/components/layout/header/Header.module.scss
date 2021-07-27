@@ -1,12 +1,13 @@
 @use "../../../styles/variables/colors";
 
 .nav {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 
   background: colors.$primary;
   width: auto;
-  padding: 0 5vw;
+  padding: 0.5rem 2vw;
 
   font-size: 1rem;
   color: white;
