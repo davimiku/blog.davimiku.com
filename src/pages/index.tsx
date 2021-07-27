@@ -30,12 +30,12 @@ export default function Home() {
         I strive for a deep understanding of any topic that I am studying.
         Recently, I have become interested in the topic of{' '}
         <em>compilers and interpreters</em>. The current project that I am
-        focusing on is an implementation of the{' '}
+        focusing on is an implementation of{' '}
         <ExternalLink href='https://jsonata.org'>
-          JSONata Query and Transformation language
+          JSONata Query and Transformation
         </ExternalLink>{' '}
-        in Rust. In the future, I hope to apply this knowledge further by
-        creating my own programming language. I have found that studying
+        language in Rust. In the future, I hope to apply this knowledge further
+        by creating my own programming language. I have found that studying
         programming languages has brought me a deeper understanding of how
         software works.
       </p>
