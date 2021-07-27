@@ -1,8 +1,7 @@
-import { IoIosConstruct } from 'react-icons/io'
-
 import { FrontMatter } from 'layouts/blog'
 import { Card } from 'components/cards/card'
-import { Badge, TechnologyBadge } from 'components/badges'
+import { TechnologyBadge } from 'components/badges'
+import { PublishDate } from 'components/blog/publish_date'
 
 import styles from './BlogSummaryCard.module.scss'
 
@@ -21,14 +20,7 @@ export function BlogSummaryCard({ blog }: BlogCardProps) {
         />
       </Card.Header>
       <Card.Body>
-        {/* TODO: Extract date and WIP notice to separate components */}
-        {isPublished ? null : (
-          <Badge>
-            <IoIosConstruct />
-            &nbsp;Work in progress&nbsp;
-            <IoIosConstruct />
-          </Badge>
-        )}
+        <PublishDate date={blog.publishedAt} />
         <p>{blog.tagline}</p>
       </Card.Body>
       <Card.Footer>

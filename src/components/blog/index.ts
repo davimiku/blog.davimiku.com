@@ -1,1 +1,1 @@
-export * from './BlogListing'
+export * from './listing'

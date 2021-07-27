@@ -1,9 +1,6 @@
-import Link from 'next/link'
-
 import Layout from 'layouts'
 import { blogs } from 'data'
-
-const formatPath = (path: string) => path.replace(/\.mdx$/, '')
+import { BlogListing } from 'components/blog'
 
 export default function BlogIndex() {
   return (
@@ -11,19 +8,7 @@ export default function BlogIndex() {
       <h1>Blog</h1>
       <ul>
         {blogs.map((blog) => (
-          <li key={blog.__resourcePath}>
-            <Link href={formatPath(blog.__resourcePath)}>
-              <a>
-                <h2>{blog.title}</h2>
-                <p>{blog.tagline}</p>
-              </a>
-            </Link>
-            <ul>
-              {blog.tags.map((tag) => (
-                <li key={tag}>{tag}</li>
-              ))}
-            </ul>
-          </li>
+          <BlogListing blog={blog} key={blog.__resourcePath} />
         ))}
       </ul>
     </Layout>
