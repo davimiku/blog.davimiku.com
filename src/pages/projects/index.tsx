@@ -1,6 +1,6 @@
 import { projects } from 'data'
 import Layout from 'layouts'
-import { ProjectDescription } from './ProjectDescription'
+import { ProjectDescription } from 'components/cards/project/ProjectDescription'
 
 export default function Projects() {
   return (
