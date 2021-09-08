@@ -4,18 +4,20 @@ import { Project } from 'types/projects'
 import { ExternalLink } from 'components/link/ExternalLink'
 import { Card } from 'components/cards/card'
 
+import styles from './ProjectDescription.module.scss'
+
 export type ProjectCardProps = {
   project: Project
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectDescription({ project }: ProjectCardProps) {
   return (
-    <Card id={project.repo.name}>
+    <article className={styles['project-description']}>
       <Card.Header>
-        <Card.Title title={project.name} />
+        <Card.Title headingLevel='h2' title={project.name} />
       </Card.Header>
       <Card.Body>
-        <ProjectCardBody {...project} />
+        <ProjectDescriptionBody {...project} />
       </Card.Body>
       <Card.Footer>
         <ExternalLink href={project.repo.url}>
@@ -24,14 +26,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
           {project.repo.name}
         </ExternalLink>
       </Card.Footer>
-    </Card>
+    </article>
   )
 }
 
-function ProjectCardBody(project: Project) {
+function ProjectDescriptionBody(project: Project) {
   return (
     <>
       <p>{project.tagline}</p>
+      {project.description ? <p>{project.description}</p> : null}
       <p>Technologies used:</p>
       <ul>
         {project.technologies.map((technology) => (
