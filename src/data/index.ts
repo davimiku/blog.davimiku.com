@@ -19,6 +19,20 @@ export const projects: Project[] = [
     },
   },
   {
+    name: 'davimiku.github.io',
+    tagline: 'Static site generated with Next.js and React',
+    description:
+      'Responsive design implemented without "breakpoints" (width-based media queries) as a personal challenge.',
+    technologies: ['Typescript', 'Next.js', 'React', 'SCSS'],
+    topics: ['static site generation', 'fluid design', 'blog'],
+    repo: {
+      name: 'davimiku.github.io',
+      path: 'davimiku/davimiku.github.io',
+      url: 'https://github.com/davimiku/davimiku.github.io',
+      description: 'My personal website',
+    },
+  },
+  {
     name: 'AudNauseum',
     tagline: 'Loop-based digital recorder & sampler (audio looper)',
     technologies: ['Python', 'PyQt', 'numpy'],
@@ -29,18 +43,6 @@ export const projects: Project[] = [
       path: 'AudNauseum/AudNauseum',
       url: 'https://github.com/AudNauseum/AudNauseum',
       description: 'Software emulated loop-based digital recorder/sampler',
-    },
-  },
-  {
-    name: 'davimiku.github.io',
-    tagline: 'This website! Static site generator powered by Next.js',
-    technologies: ['Typescript', 'SCSS'],
-    topics: ['static site generation', 'blog'],
-    repo: {
-      name: 'davimiku.github.io',
-      path: 'davimiku/davimiku.github.io',
-      url: 'https://github.com/davimiku/davimiku.github.io',
-      description: 'My personal website',
     },
   },
   {
