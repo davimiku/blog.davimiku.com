@@ -7,13 +7,15 @@
   border-radius: 0.5rem;
 
   padding: 0.25rem 0.5rem;
-  margin: 0 0.25rem;
+  margin: 0 0.25rem 0.25rem 0.25rem;
 
   &--dark {
     border-color: colors.$accent;
   }
 
   svg {
+    // Push the logo slightly up to align with the text
     vertical-align: middle;
+    margin-bottom: 2px;
   }
 }

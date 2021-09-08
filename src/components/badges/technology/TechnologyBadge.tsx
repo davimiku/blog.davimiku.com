@@ -1,4 +1,4 @@
-import { FaPython, FaSass } from 'react-icons/fa'
+import { FaPython, FaReact, FaSass } from 'react-icons/fa'
 import { SiRust, SiTypescript } from 'react-icons/si'
 import { IoLogoVercel } from 'react-icons/io5'
 
@@ -10,6 +10,7 @@ const iconMap = {
   scss: FaSass,
   sass: FaSass,
   typescript: SiTypescript,
+  react: FaReact,
   'next.js': IoLogoVercel,
 }
 
