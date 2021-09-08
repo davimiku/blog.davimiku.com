@@ -1,6 +1,6 @@
 .main {
   margin: 0 auto;
-  max-width: 105ch;
+  max-width: 110ch;
 
   // Fluidly scale padding down to 1rem at small screen widths
   --relative-padding: calc(100vw - 320px);
@@ -11,4 +11,8 @@
 .main--dark {
   background-color: black;
   color: white;
+}
+
+.main h1 {
+  font-size: clamp(2.25rem, 4vw, 4rem);
 }
