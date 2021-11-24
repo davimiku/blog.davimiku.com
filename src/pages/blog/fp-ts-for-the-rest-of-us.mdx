@@ -1,0 +1,294 @@
+---
+title: fp-ts for the Rest of Us
+tagline: Time to begin the Airing of Grievances
+tags:
+  - fp-ts
+  - functional programming
+  - TypeScript
+---
+
+# Airing of Grievances
+
+OK, so you've heard about `fp-ts` or functional programming somewhere. Maybe you're curious to learn it, or
+maybe you heard that it could be a helpful tool, or maybe you were forced to use it because something
+else you're using depends on `fp-ts`. 
+
+Either way, let's go ahead and open up the [fp-ts docs](https://gcanti.github.io/fp-ts/)! Ah, here we go, it says...
+
+> Disclaimer. Teaching functional programming is out of scope of this project, so the documentation 
+assumes you already know what FP is.
+
+Umm, OK. A bit ominous, but not a big deal. We've figured things out from looking at the docs before, right?
+Let's take a look down the [modules](https://gcanti.github.io/fp-ts/modules/) list and take
+a look at the first one that's familiar.
+
+Ahh, [Apply](https://gcanti.github.io/fp-ts/modules/Apply.ts.html) sounds good! We know about
+`Function.prototype.apply`, and that's kind of functional-ish (well, it has **Function** in the name),
+so this will probably be similar, right? OK, let's take a look:
+
+> Instances must satisfy the following law in addition to the Functor laws:
+> * Associative composition: `F.ap(F.ap(F.map(fbc, bc => ab => a => bc(ab(a))), fab), fa) <-> F.ap(fbc, F.ap(fab, fa))`
+> Formally, Apply represents a strong lax semi-monoidal endofunctor.
+
+[WTF man gif]
+
+Ignoring those funny words (whatever they mean!) we can't even make heads or tails of the code. It's [gobbledygook](https://www.vocabulary.com/dictionary/gobbledygook)!
+What's all this stuff? `fbc`? `<->`? `bc(ab(a))`? Why does it have to be so **hard**?
+
+# Feats of Strength
+
+Now that the Airing of Grievances is over, let's begin the Feats of Strength! This will be by far the longest section of
+this article.
+
+First off, we need to get familiar with some notation. Being able to read the documentation is half
+the battle!
+
+Let's start with a little TypeScript<Footnote>1</Footnote>:
+
+```ts
+type MyType = {
+    transform: (a: A) => B
+}
+```
+
+To write this out: A value that is type `MyType` has a `transform` function. That `transform` function takes a 
+parameter of type `A` and returns a parameter of type `B`.
+
+TypeScript uses the syntax `(a: A) => B` for the function signature. If you think about it though, the lowercase
+`a` is unnecessary -- TypeScript doesn't actually care what we name our parameter. So going forwards we'll say `A => B`
+is a function that has an input of type `A` and an output of type `B`.
+
+Let's take a look at our first `fp-ts` type, the Semigroup.
+
+## Semigroup
+
+[fp-ts Semigroup documentation](https://gcanti.github.io/fp-ts/modules/Semigroup.ts.html)
+
+### Semigroup - What is it?
+
+A Semigroup is a thing which can be combined with another thing of the same type to produce another
+thing of the same type.
+
+<SkepticalSkunk>
+Ok... this doesn't sound that interesting... maybe an example?
+</SkepticalSkunk>
+
+```TypeScript
+10 + 20
+```
+
+A `number` (with respect to addition) is an example of a Semigroup because it can be combined
+(added) to a `number` which produces another `number`.
+
+Semigroups must satisfy the [Associative property](https://en.wikipedia.org/wiki/Associative_property),
+for example:
+
+```JavaScript
+(10 + 20) + 30 === 10 + (20 + 30)
+```
+
+The `fp-ts` documentation linked above uses the word `concat` which implies...
+
+<CuriousBeaver>
+Arrays in JavaScript are Semigroups?
+</CuriousBeaver>
+
+That's right -- JavaScript arrays can be combined (concatenated) with other arrays to produce arrays.
+The concatenation is associative, meaning that:
+
+```JavaScript
+// This order of concatenation
+arr1.concat(arr2.concat(arr3))
+
+// is equivalent to this order of concatentation
+(arr1.concat(arr2)).concat(arr3)
+```
+
+String concatenation is associative well.
+
+### Semigroup - What isn't it?
+
+While many primitives are Semigroups, not everything is a Semigroup including many/most user-defined types. 
+
+Consider a hypothetical `Invoice`:
+
+```TypeScript
+type Invoice = {
+  customer: Customer
+  vendor: Vendor
+  products: Product[]
+  amount: number
+  shipping: ShippingDetails
+}
+```
+
+An `Invoice` doesn't have a meaningful way to be combined with another `Invoice` to produce an `Invoice` (what would it mean
+to add a `Vendor` to another `Vendor`?). However, certain properties of the `Invoice` are Semigroups, such as the `amount` field
+which is a `number`. We'll come back to this later.
+
+### Semigroup - Why does it matter?
+
+When evaluating a concept for usefulness (why does it matter?) there are many considerations, but it somewhat comes down to these two:
+
+* **Practical**: Can I use this concept directly in my program/application/library?
+* **Conceptual**: Will knowing this concept help me understand another concept which has practical value?
+
+Value can be found on either or both axes.
+
+An example of the **practical** implications of the Semigroup is directly related to its Associative property. In the example below,
+given that the variables are an instance of some `S` which is a Semigroup, we said that this is true:
+
+```JavaScript
+s1 + (s2 + s3) === (s1 + s2) + s3
+```
+
+At the surface level, this seems trivial, but it's quite significant because this grants _safe parallelization_. The combinations
+can be calculated in any order (so could be calculated on different threads, processes, or even machines) and the final result will
+be the same, guaranteed because of the underlying mathematical concepts. While this example with `number`s **is** trivial, applying
+the same concept to any large calculation or batch job could significantly simplify how you have to reason about parallel code.
+
+At a **conceptual** level, we've already learned a lot just from this first example (phew! Great job for making it this far!). We
+have learned:
+
+* A bit of notation of the `fp-ts` library (we'll see more still)
+* Functional programming concepts are composed of mathematical concepts
+* We can start with the fundamentals and slowly build those up into a larger understanding
+
+Let's now meet the next member of the crew, the `Monoid`.
+
+## Monoid
+
+[fp-ts Monoid documentation](https://gcanti.github.io/fp-ts/modules/Monoid.ts.html)
+
+### Monoid - What is it?
+
+### Monoid - Why does it matter?
+
+If we had a specific problem in mind, such as summing the total `amount` across all 
+the `Invoice`s for a given `Vendor`, we would first `filter` to get the array of items for that `Vendor`.
+
+From that array, we can `map` to
+
+## Functor
+
+[fp-ts Functor documentation](https://gcanti.github.io/fp-ts/modules/Functor.ts.html)
+
+A Functor is a thing with a value "inside" it. If that value has a type `A`, we would say that it is a `Functor<A>`.
+ If there is a `map` function takes a function as its parameter which
+is `A => B`. The `map` function returns a `Functor<B>`.
+
+An important implication that may not be obvious is that the Functor is also a container of `A`, meaning,
+in some way or another it contains a value(s) that has type `A`.
+
+[Functor diagram with a box of A]
+
+Formally speaking, a Functor and its `map` function must satisfy the following two laws:
+
+* Identity
+* Composition
+
+In the rest of this `Functor` section, we'll go through the notation in detail, hopefully to form
+the building blocks of understanding to go faster in following sections.
+
+### Functor - Identity
+
+Identity shows up in math a lot. As a quick aside, Identity is stuff like `x + 0 = x` and
+`x * 1 = x`. The [identity element](https://en.wikipedia.org/wiki/Identity_element) for addition is `0`
+(you can add `0` to a number and you get back the same number) and the multiplicative identity is `1`.
+The identity is going to show up in **a lot** of the topics in this article, not just `Functor`.
+
+For a practical example, this shows up in JavaScript when you call `Array.prototype.reduce`. Let's say
+you were using it to sum the number in an array (addition), you would pass `0` as the initial value
+to the `reduce` function (because it's the **identity**). Similarly if you were taking the product
+of the numbers in the array, you'd pass `1` (the **identity**) as the initial value to `reduce`.
+
+The following must be true for something to be a `Functor` (from the fp-ts documentation):
+
+```
+F.map(fa, a => a) <-> fa
+```
+
+The fp-ts documentation uses an abbreviated notation. Here are the "translations" of this
+notation to something that looks a little more like TypeScript:
+
+* `F.map`: A `map` function within the `F` namespace that takes 2 arguments
+* `fa`: `Functor<A>`, the first argument
+* `a => a`: a function that is `A => A`, the second argument
+
+This means that if we `map` a `Functor<A>` with a function that is `A => A`, 
+then we still get a `Functor<A>` back.
+
+### Functor - Composition
+
+Composition is another mathematical concept. The following must also be true for something
+to be a `Functor`, from the `fp-ts` documentation:
+
+```
+F.map(fa, a => bc(ab(a))) <-> F.map(F.map(fa, ab), bc)
+```
+
+We've gone over the notation for `F.map` and `fa` above. Here's the translation of the other notation:
+
+* `ab`: An instance of a function that is `A => B`
+* `bc`: An instance of a function that is `B => C`
+
+Composition here means that to get from `Functor<A>` to `Functor<C>`, a Functor can either:
+
+1. Be mapped with a function that is `A => B => C`; or
+2. Be mapped with a function that is `A => B` and then mapped with another function that is `B => C`
+
+### Functor - Why does it matter?
+
+The `Functor` is a fundamental building block in our understanding of `fp-ts` and functional programming in general. 
+The idea of a "container" with a value `A` that can be mapped to a "container" of value `B` comes up time and time again. 
+Functional programming is very much about building up from fundamental concepts.
+
+Functors show up everywhere in JavaScript/TypeScript! The thing "inside" the "container" doesn't have to be a single value.
+It could be a list of values (a JavaScript `Array` is a functor!) or stream of values (an [Observable](https://rxjs.dev/api/operators/map)
+is a Functor), a value that may or may not exist ([Maybe](https://jrsinclair.com/articles/2016/marvellously-mysterious-javascript-maybe-monad/)) or even 
+a value that is yet to be calculated ([Task](https://gcanti.github.io/fp-ts/modules/Task.ts.html))!.
+
+The Composition law also gives us a _practical_ benefit. If we know that we're working with a Functor (such as an `Array`), 
+we can **compose** functions together to avoid mapping over the Functor multiple times (ex. iterating multiple times over an Array). 
+Above, for #1 we called `map` once and for #2 we called `map` twice, and with composition we know that these are equivalent.
+
+JavaScript is an [eagerly evaluated language](), but other languages such as Rust (which got the idea from Haskell) will automatically
+apply this law to iterators.
+
+```Rust
+let orders = vec![ /*  a list of customer orders  */];
+
+let discountedPrices: Vec<f64> = orders.iter()
+  .map(getOrderPrice)
+  .map(calculateDiscount)
+  .collect()
+```
+
+Iterators in Rust are Functors and are lazily evaluated, so the compiler can automatically the optimization of composing
+`getOrderPrice` and `calculateDiscount` on each element when it's evaluated rather than iterating through the list twice.
+
+<HistoryOwl>
+Mapping is [originally from](https://en.wikipedia.org/wiki/Map_(mathematics)) mathematics, and 
+[apparently](https://en.wikipedia.org/wiki/Map_(higher-order_function)#Language_comparison)
+was originally discovered in the Lisp programming language in 1959.
+</HistoryOwl>
+
+## 
+
+
+# fp-ts Miracles
+
+
+Several times throughout this article, I referred to a something as having been "discovered".
+This might have seemed like strange wording, but it was intentional. Functional programming is rooted
+in math, and mathematical concepts are often referred to as having been 'discovered'. 
+For more discussion, especially to read different opinions, search "is math discovered or invented" 
+in your favorite search engine.
+
+This does not mean that the `fp-ts` library was "discovered", of course this library was specifically
+implemented. 
+
+<Footnote id={1}>
+This article refers to both TypeScript and JavaScript but **not** interchangeably. It uses TypeScript when
+discussing the type system, but JavaScript for core language features such as arrays.
+</Footnote>
