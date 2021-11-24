@@ -1,0 +1,212 @@
+---
+title: Are implementation patterns the way that programming languages evolve?
+tagline: Patterns represent duplication that could be abstracted into a language feature
+tags:
+  - Implementation patterns
+  - Design patterns
+  - Language design
+---
+
+## Notes
+
+> Has anyone ever considered that design patterns are the way that programming languages evolve? 
+
+https://wiki.c2.com/?AreDesignPatternsMissingLanguageFeatures
+
+> "Pattern" generally implies there is some kind of duplication. 
+> Duplication should ideally be factored out (OnceAndOnlyOnce) so that only the differences remain.
+
+ VisitorPattern  .............. GenericFunctions (MultipleDispatch)
+ FactoryPattern  .............. MetaClasses, closures
+ SingletonPattern ............. MetaClasses
+ IteratorPattern............... AnonymousFunctions 
+              (used with HigherOrderFunctions, 
+               MapFunction, FilterFunction, etc.)
+ InterpreterPattern............ Macros (extending the language)
+               EvalFunction, MetaCircularInterpreter
+               Support for parser generation (for differing syntax)
+ CommandPattern ............... Closures, LexicalScope, 
+               AnonymousFunctions, FirstClassFunctions
+ HandleBodyPattern............. Delegation, Macros, MetaClasses
+ RunAndReturnSuccessor......... TailCallOptimization
+ Abstract-Factory,
+ Flyweight,
+ Factory-Method,
+ State, Proxy,
+ Chain-of-Responsibility....... FirstClass types (Norvig)
+ Mediator, Observer............ Method combination (Norvig)
+ BuilderPattern................ Multi Methods (Norvig)
+ FacadePattern................. Modules (Norvig)
+ StrategyPattern............... higher order functions (Gene Michael Stover?), ControlTable
+ AssociationList................Dictionaries, maps, HashTables
+                    (these go by numerous names in different languages)
+
+https://wiki.c2.com/?DesignPatterns
+One can argue that many of the GoF patterns are not fundamental to OO design, but rather work 
+around limitations in particular implementations of OO. For example, several patterns in the 
+GoF book that work well in Java or C++ are unneeded in languages with a more powerful OO 
+approach; especially the creational patterns, which are very much to do with getting around 
+the problems of constructors in C++, Java, C#, etc., not working just like any other method.
+
+Likewise, VisitorPattern is a workaround for closed classes, and thus isn't particularly useful 
+in a language with open classes.
+
+https://wiki.c2.com/?LanguageSmell
+
+> Some patterns can be rendered unnecessary in languages that have built-in support for solving the problem they are trying to solve
+
+https://en.wikipedia.org/wiki/Software_design_pattern
+
+[my notes]
+In Java, iteration over a collection was an implementation pattern.
+
+1. Create an iterator
+2. Use a `while` loop with the condition `it.hasNext()`
+3. Get the actual item of the collection using `it.next()`.
+4. Do something with the item  <-- Here is the only business logic, the rest is boilerplate
+
+```java
+Iterator it = noodles.iterator();
+while (it.hasNext()) {
+    Noodle n = (Noodle) it.next();
+    n.doSomething();
+}
+```
+
+It was a missing language feature for the first three steps of the Iteration Recipe above.
+[end my notes]
+
+# Draft
+
+The original "implementation patterns"
+
+[glossary ]
+* Business logic
+* snip
+
+## The Past
+
+The following section, "The Past", includes implementation patterns from the earlier days of 
+
+### If-Else Pattern
+
+{[According to Paul Graham](http://www.paulgraham.com/icad.html), Fortran I didn't have If-Else}
+
+**Example Business Requirement**: We have an integer `x` and if `x` is equal to 1 we want to do "A" thing, otherwise we want to do "B" thing.
+
+Currently, we only have access to assembly language () in order to 
+
+(the code will have sections for the comparison, the "A" thing, and the "B" thing)
+1. Create a label before the "B" thing.
+2. Create a label after the "B" thing.
+3. Add a move for value of `x` to the `eax` register.
+4. Add a `cmp   eax, 1` for the comparison itself.  <-- this is business logic
+5. Add a `jne` to the label before the "B" thing. 
+6. Code the business logic of "A" thing
+7. Add a `jmp` at the end of the "A" thing to jump to the end of the "B" thing.
+8. Code the business logic of the "B" thing
+
+Implementing our recipe translates to the following pseudo-assembly:
+
+```asm
+; snip
+
+mov     eax, x    ; imagine `x` is a value from somewhere
+cmp     eax, 1    ; compare the value we call `x` to 1
+jne     .Label1   ; jump to "B" thing if `x` wasn't equal to 1
+
+; do "A" thing (business logic)
+jmp     .Label2   ; jump *past* the "B" thing
+
+.Label1:
+; do "B" thing (business logic)
+
+.Label2:
+
+; snip
+```
+
+In the "If-Else Pattern" above, much of the code is for the pattern itself and not the actual business logic.
+
+To reiterate the statement from the opening section of this article, this is not a criticism of assembly language in any way (or any language used as an example).
+This article attempts to show examples of "implementation patterns" that lead to language evolution. 
+Language designers have observed these implementation patterns and built language features to solve the same problems that these patterns are solving.
+Patterns imply repetition, and repetition represents something that could be abstracted away with a different language feature.
+
+Higher-level languages have generally implemented this "If-Else Pattern" as a language feature. One such language is C:
+
+```c
+int main() {
+    /* snip */
+
+    /* `x` has a value from somewhere else */
+    if (x == 1) {
+        /* "A" thing */
+    } else {
+        /* "B" thing */
+    }
+
+    /* snip */
+}
+```
+
+The labels and jump statements are (roughly speaking) abstracted into the keywords `if` and `else`, and the comparison is (roughly speaking) abstracted into the `==` operator.
+
+### `loop`
+
+**Example**: We have something that we want to do, and we want to do it `N` times.
+
+To implement this requirement in assembly, we need to use the "Loop Pattern". Opening up our recipe book for the "Loop Pattern", we find:
+
+(the code has sections for initialization, checking before each iteration, and the business logic)
+
+
+
+```c
+int main() {
+    /* snip */
+
+    /* N has a value from somewhere else */
+    for (int i = 0; i < N; i++) {
+        /* Do something */
+    }
+
+    /* snip */
+}
+```
+
+<Disclaimer>
+These "patterns" would have existed before assembly code, when people were coding directly in machine code and/or physical mediums such as punch cards. I use a generic "pseudo-assembly" language for the examples in this section because:
+
+1. Machine language does not translate well into a blog article
+2. I have no knowledge of how machine code works (my assembly knowledge is barely above zero, in fact, I'm eager to be done with this section and move the examples to higher-level languages)
+</Disclaimer>
+
+## The Present
+
+[list of patterns not in GoF]
+https://en.wikipedia.org/wiki/Software_design_pattern
+
+Lazy initialization
+Resource acquisition is initialization
+Dependency injection
+Object pool
+
+Extension Object - Agile Software Development, Principles, Patterns, and Practices
+Marker - Effective Java
+Module
+Twin - simulates multiple inheritance
+
+Null object
+
+Safe Concurrency
+
+
+
+
+## The Future
+
+* Dependency injection
+* Algebraic effects
+* * Koka
+* * Eff
