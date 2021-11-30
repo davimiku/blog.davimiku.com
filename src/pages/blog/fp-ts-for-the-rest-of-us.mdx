@@ -87,24 +87,43 @@ for example:
 (10 + 20) + 30 === 10 + (20 + 30)
 ```
 
-The `fp-ts` documentation linked above uses the word `concat` which implies...
+The `fp-ts` documentation linked above implements a Semigroup as:
+
+```TypeScript
+interface Semigroup<A> {
+  readonly concat: (x: A, y: A) => A
+}
+```
 
 <CuriousBeaver>
 Arrays in JavaScript are Semigroups?
 </CuriousBeaver>
 
-That's right -- JavaScript arrays can be combined (concatenated) with other arrays to produce arrays.
+That's right! JavaScript arrays can be combined (concatenated) with other arrays to produce arrays.
 The concatenation is associative, meaning that:
 
 ```JavaScript
 // This order of concatenation
-arr1.concat(arr2.concat(arr3))
+( arr1.concat(arr2) ).concat(arr3)
 
 // is equivalent to this order of concatentation
-(arr1.concat(arr2)).concat(arr3)
+arr1.concat( arr2.concat(arr3) )
 ```
 
-String concatenation is associative well.
+String concatenation is associative also.
+
+<SkepticalSkunk>
+Hold on a minute... you said that numbers and strings are Semigroups, and yet they don't have a <code>concat</code> 
+function! And the Array <code>concat</code> function takes one parameter, not two.  What gives?
+</SkepticalSkunk>
+
+Great question, we should also distinguish between two cases:
+
+1. Certain types of data are discovered to be Semigroups because they fulfill the mathematical requirements to be a Semigroup
+2. The `fp-ts` library **implementation of** this concept
+
+The `fp-ts` documentation linked above also contains an example how a string semigroup can be defined in terms of the `fp-ts`
+implementation.
 
 ### Semigroup - What isn't it?
 
@@ -124,16 +143,16 @@ type Invoice = {
 
 An `Invoice` doesn't have a meaningful way to be combined with another `Invoice` to produce an `Invoice` (what would it mean
 to add a `Vendor` to another `Vendor`?). However, certain properties of the `Invoice` are Semigroups, such as the `amount` field
-which is a `number`. We'll come back to this later.
+which is a `number`.
 
 ### Semigroup - Why does it matter?
 
 When evaluating a concept for usefulness (why does it matter?) there are many considerations, but it somewhat comes down to these two:
 
 * **Practical**: Can I use this concept directly in my program/application/library?
-* **Conceptual**: Will knowing this concept help me understand another concept which has practical value?
+* **Conceptual**: Will knowing this concept help me understand another concept which has practical implications?
 
-Value can be found on either or both axes.
+Either or both can be valuable.
 
 An example of the **practical** implications of the Semigroup is directly related to its Associative property. In the example below,
 given that the variables are an instance of some `S` which is a Semigroup, we said that this is true:
@@ -145,7 +164,7 @@ s1 + (s2 + s3) === (s1 + s2) + s3
 At the surface level, this seems trivial, but it's quite significant because this grants _safe parallelization_. The combinations
 can be calculated in any order (so could be calculated on different threads, processes, or even machines) and the final result will
 be the same, guaranteed because of the underlying mathematical concepts. While this example with `number`s **is** trivial, applying
-the same concept to any large calculation or batch job could significantly simplify how you have to reason about parallel code.
+the same concept to any large calculation or batch job could be a significant help in reasoning about parallel code.
 
 At a **conceptual** level, we've already learned a lot just from this first example (phew! Great job for making it this far!). We
 have learned:
@@ -162,23 +181,151 @@ Let's now meet the next member of the crew, the `Monoid`.
 
 ### Monoid - What is it?
 
+A `Monoid` is a Semigroup that also has an "empty" value.
+
+Examples of "empty" values are:
+
+* Empty string (`""`) for strings
+* Empty array (`[]`) for arrays
+* Zero `0` for numbers
+* Zero `0n` for bigint
+
+The `fp-ts` library implements a `Monoid` as:
+
+```TypeScript
+interface Monoid<A> extends Semigroup<A> {
+  readonly empty: A
+}
+```
+
+<CuriousBeaver>
+It seems like all of the Semigroups from before are also Monoids. Are there any Semigroups
+that are <strong>not</strong> Monoids?
+</CuriousBeaver>
+
+Great question... the practical answer is - for primitives and standard types, _not really_. All of the examples we've worked with
+so far have a value that can be reasonably considered as the "empty" value. Perhaps there are some user-defined types where this
+might not be true. There are other theoretical answers to this question on [math.stackexchange.com](TODO), but beware, we've
+only dipped our toes into the math side of things so far in this article, by clicking that link you will dive fully in.
+
+### Monoid - Example
+
+`Monoid` extends the definition of `Semigroup` such that the value can also be combined with the "empty" value (and due to 
+the Associative property, the order of combination with "empty" does not matter). One example where this comes into play in 
+JavaScript when using the `Array.prototype.reduce` function, we provide the starting (read: "empty") value as the second
+argument to the function.
+
+For a contrived example, consider an object that represents a frequency of vowels found in a sentence (let's not consider
+`y` as a vowel).
+
+```TypeScript
+type VowelFrequency = {
+  a: number
+  e: number
+  i: number
+  o: number
+  u: number
+}
+```
+
+The "empty" value for this data type is:
+
+```TypeScript
+const emptyVowelFrequency = {
+  a: 0,
+  e: 0,
+  i: 0,
+  o: 0,
+  u: 0
+}
+```
+
+The concatenation function can be defined as:
+
+```TypeScript
+function concatVowelFrequencies(first: VowelFrequency, second: VowelFrequency): VowelFrequency {
+  return {
+    a: first.a + second.a,
+    e: first.e + second.e,
+    i: first.i + second.i,
+    o: first.o + second.o,
+    u: first.u + second.u,
+  }
+}
+```
+
+Finally, the monoid can be implemented using the `fp-ts` library as:
+
+```TypeScript
+import { Monoid } from 'fp-ts/Monoid'
+
+const monoidVowelFrequencies: Monoid<VowelFrequency> = {
+  concat: concatVowelFrequencies,
+  empty: emptyVowelFrequency,
+}
+```
+
+If we had an array of the vowel frequencies of every line in this article, we can concat/combine them all
+using the utility functions provided by `fp-ts`.
+
+```TypeScript
+import { concatAll } from 'fp-ts/Monoid'
+
+const data: VowelFrequency[] = [ /* somebody spent a while counting */ ]
+
+// TODO: check this
+const totalFrequency: VowelFrequency = concatAll(monoidVowelFrequencies)(data)
+```
+
+### Monoid - Relationship to Other Concepts
+
+This ties into the `filter`/`map`/`reduce` paradigm as well (TODO - link?). 
+
+<Conversation>
+<CuriousBeaver>Hey, <code>filter</code>, <code>map</code>, <code>reduce</code>, I've heard of those!</CuriousBeaver>
+</Conversation>
+
+Given an array of strings for each line of this article, we can:
+
+1. `filter`: Perhaps we only wanted to consider paragraphs and not code blocks, we'd filter first
+2. `map`: Execute a `string => VowelFrequency` function to map the `string` to the frequency
+3. `reduce`: Execute a `(VowelFrequency, VowelFrequency) => VowelFrequency` function with the "empty" value to reduce many items
+down to a single total.
+
+<Conversation>
+<SkepticalSkunk>
+Couldn't you have just counted the vowel frequency from a <code>string</code> of this article's text?
+</SkepticalSkunk>
+
+<Author>
+Maybe, or maybe not! Maybe the string would be too big to fit in memory and we need to process in chunks. Maybe we're counting vowels for 
+multiple articles (different files) and we want to parallelize the task. Maybe we run a "Vowel Counting as a Service" API and 
+our customers send their content to us via websockets or some other asynchronous streaming technology. But maybe we could do it that
+way too, I said this was a contrived example so I get a pass on this.
+</Author>
+
+<SkepticalSkunk>...</SkepticalSkunk>
+
+<Author>...</Author>
+</Conversation>
+
 ### Monoid - Why does it matter?
 
-If we had a specific problem in mind, such as summing the total `amount` across all 
-the `Invoice`s for a given `Vendor`, we would first `filter` to get the array of items for that `Vendor`.
-
-From that array, we can `map` to
+**practical** - The "empty" value is necessary for providing a starting value for the concatenation/reduction.
+**conceptual** - Understanding the fundamental concepts of Semigroups and Monoids allows us to have a mental framework of 
+breaking a large task into its smaller parts, and understanding the characteristics of each part.
 
 ## Functor
 
 [fp-ts Functor documentation](https://gcanti.github.io/fp-ts/modules/Functor.ts.html)
 
-A Functor is a thing with a value "inside" it. If that value has a type `A`, we would say that it is a `Functor<A>`.
- If there is a `map` function takes a function as its parameter which
-is `A => B`. The `map` function returns a `Functor<B>`.
+### Functor - What is it?
 
-An important implication that may not be obvious is that the Functor is also a container of `A`, meaning,
-in some way or another it contains a value(s) that has type `A`.
+A Functor is a thing with a value "inside" it. If that value has a type `A`, we would say that it is a `Functor<A>`.
+If there is a `map` function takes a function as its parameter which is `A => B`. The `map` function returns a `Functor<B>`.
+
+An important implication that may not be obvious is that the Functor is a "container"<Footnote>2<Footnote> of `A`, meaning
+in some way or another it "contains" a value(s) that has type `A`.
 
 [Functor diagram with a box of A]
 
@@ -187,20 +334,7 @@ Formally speaking, a Functor and its `map` function must satisfy the following t
 * Identity
 * Composition
 
-In the rest of this `Functor` section, we'll go through the notation in detail, hopefully to form
-the building blocks of understanding to go faster in following sections.
-
 ### Functor - Identity
-
-Identity shows up in math a lot. As a quick aside, Identity is stuff like `x + 0 = x` and
-`x * 1 = x`. The [identity element](https://en.wikipedia.org/wiki/Identity_element) for addition is `0`
-(you can add `0` to a number and you get back the same number) and the multiplicative identity is `1`.
-The identity is going to show up in **a lot** of the topics in this article, not just `Functor`.
-
-For a practical example, this shows up in JavaScript when you call `Array.prototype.reduce`. Let's say
-you were using it to sum the number in an array (addition), you would pass `0` as the initial value
-to the `reduce` function (because it's the **identity**). Similarly if you were taking the product
-of the numbers in the array, you'd pass `1` (the **identity**) as the initial value to `reduce`.
 
 The following must be true for something to be a `Functor` (from the fp-ts documentation):
 
@@ -214,9 +348,17 @@ notation to something that looks a little more like TypeScript:
 * `F.map`: A `map` function within the `F` namespace that takes 2 arguments
 * `fa`: `Functor<A>`, the first argument
 * `a => a`: a function that is `A => A`, the second argument
+* `<->`: is equivalent to (mathematical equivalence, not necessarily the same as JavaScript `===`)
 
 This means that if we `map` a `Functor<A>` with a function that is `A => A`, 
-then we still get a `Functor<A>` back.
+then we still get a `Functor<A>` back (it might not be JavaScript `===` equivalent if it's a reference type, but
+it's the same value mathematically).
+
+<HistoryOwl>
+The term "map" is [originally from mathematics](https://en.wikipedia.org/wiki/Map_(mathematics)), and 
+[apparently](https://en.wikipedia.org/wiki/Map_(higher-order_function)#Language_comparison)
+was originally discovered in the Lisp programming language in 1959.
+</HistoryOwl>
 
 ### Functor - Composition
 
@@ -240,9 +382,6 @@ Composition here means that to get from `Functor<A>` to `Functor<C>`, a Functor 
 ### Functor - Why does it matter?
 
 The `Functor` is a fundamental building block in our understanding of `fp-ts` and functional programming in general. 
-The idea of a "container" with a value `A` that can be mapped to a "container" of value `B` comes up time and time again. 
-Functional programming is very much about building up from fundamental concepts.
-
 Functors show up everywhere in JavaScript/TypeScript! The thing "inside" the "container" doesn't have to be a single value.
 It could be a list of values (a JavaScript `Array` is a functor!) or stream of values (an [Observable](https://rxjs.dev/api/operators/map)
 is a Functor), a value that may or may not exist ([Maybe](https://jrsinclair.com/articles/2016/marvellously-mysterious-javascript-maybe-monad/)) or even 
@@ -252,11 +391,11 @@ The Composition law also gives us a _practical_ benefit. If we know that we're w
 we can **compose** functions together to avoid mapping over the Functor multiple times (ex. iterating multiple times over an Array). 
 Above, for #1 we called `map` once and for #2 we called `map` twice, and with composition we know that these are equivalent.
 
-JavaScript is an [eagerly evaluated language](), but other languages such as Rust (which got the idea from Haskell) will automatically
-apply this law to iterators.
+JavaScript is an [eagerly evaluated language](TODO), but other languages such as Rust (which probably got the idea from Haskell) 
+will automatically apply this law to iterators.
 
 ```Rust
-let orders = vec![ /*  a list of customer orders  */];
+let orders: Vec<Order> = vec![ /* a list of customer orders */];
 
 let discountedPrices: Vec<f64> = orders.iter()
   .map(getOrderPrice)
@@ -264,14 +403,8 @@ let discountedPrices: Vec<f64> = orders.iter()
   .collect()
 ```
 
-Iterators in Rust are Functors and are lazily evaluated, so the compiler can automatically the optimization of composing
+Iterators in Rust are Functors and are lazily evaluated, so the compiler can automatically apply the optimization of **composing**
 `getOrderPrice` and `calculateDiscount` on each element when it's evaluated rather than iterating through the list twice.
-
-<HistoryOwl>
-Mapping is [originally from](https://en.wikipedia.org/wiki/Map_(mathematics)) mathematics, and 
-[apparently](https://en.wikipedia.org/wiki/Map_(higher-order_function)#Language_comparison)
-was originally discovered in the Lisp programming language in 1959.
-</HistoryOwl>
 
 ## 
 
@@ -289,6 +422,12 @@ This does not mean that the `fp-ts` library was "discovered", of course this lib
 implemented. 
 
 <Footnote id={1}>
-This article refers to both TypeScript and JavaScript but **not** interchangeably. It uses TypeScript when
-discussing the type system, but JavaScript for core language features such as arrays.
+This article refers to both TypeScript and JavaScript but <strong>not</strong> interchangeably. It uses TypeScript when
+discussing the type system, but JavaScript for language features such as arrays.
+</Footnote>
+
+<Footnote id={2}>
+Container is a loose term but it'll have to do for now. One could argue that for a eventually calculated value (like a 
+[Task](TODO), which might <strong>never</strong> be calculated), that it's not really a container. 
+For the sake of this explanation, we'll continue to use the term "container".
 </Footnote>
