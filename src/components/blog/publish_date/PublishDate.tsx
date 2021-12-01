@@ -1,6 +1,7 @@
-import { Badge } from 'components/badges'
 import React from 'react'
 import { IoIosConstruct } from 'react-icons/io'
+
+import { Badge } from 'components/badges'
 
 export type PublishDateProps = {
   date?: Date
