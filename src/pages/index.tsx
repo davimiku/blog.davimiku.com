@@ -16,15 +16,14 @@ export default function Home() {
       <p>
         Hello! My name is David and I am a software developer who focuses on
         full-stack web development. I frequently work with Typescript, though I
-        will learn and use any tool that is right for the job. Besides
-        Typescript, I often work with Python, Java, and Rust.
+        enjoy learning and using new tools. Besides Typescript, I often work
+        with Python, Java, and Rust.
       </p>
+
       <h2>About Me</h2>
       <p>
-        I enjoy learning, experimenting, and understanding the fundamentals. I
-        am passionate about the usage of semantic HTML (yes I know, a strange
-        thing to be passionate about!) and I am working on upskilling on web
-        accessibility.
+        At my day job, I develop process automation tools for healthcare
+        providers.
       </p>
       <p>
         I strive for a deep understanding of any topic that I am studying.
@@ -34,10 +33,8 @@ export default function Home() {
         <ExternalLink href='https://jsonata.org'>
           JSONata Query and Transformation
         </ExternalLink>{' '}
-        language in Rust. In the future, I hope to apply this knowledge further
-        by creating my own programming language. I have found that studying
-        programming languages has brought me a deeper understanding of how
-        software works.
+        language in Rust. I have found that studying programming languages has
+        brought me a deeper understanding of how software works.
       </p>
 
       <h2>Projects</h2>
