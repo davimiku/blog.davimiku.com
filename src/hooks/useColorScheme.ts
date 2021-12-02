@@ -37,7 +37,7 @@ export function useColorScheme() {
  * ```ts
  * import styles from './Main.module.scss'
  *
- * const mainClassName = useColorSchemeClass(styles, 'main')
+ * const mainClassName = useColorSchemeClass(styles, 'my-main')
  * ```
  */
 export function useColorSchemeClass(
