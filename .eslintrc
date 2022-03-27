@@ -1,12 +1,12 @@
 {
   "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
   "extends": [
-    "plugin:prettier/recommended",
-    "prettier",
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:mdx/recommended"
+    "plugin:mdx/recommended",
+    "prettier"
   ],
   "env": {
     "node": true
@@ -31,7 +31,10 @@
     "react/no-unused-prop-types": 0,
     "import/export": 0,
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["error"],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "varsIgnorePattern": "^_" }
+    ],
     "@typescript-eslint/explicit-module-boundary-types": "off"
   }
 }
