@@ -4,7 +4,7 @@ import { IoIosConstruct } from 'react-icons/io'
 import { Badge } from 'components/badges'
 
 export type PublishDateProps = {
-  date?: Date
+  date?: string
 }
 
 export function PublishDate({ date }: PublishDateProps) {
@@ -17,5 +17,5 @@ export function PublishDate({ date }: PublishDateProps) {
       </Badge>
     )
   }
-  return <span>{date.toDateString()}</span>
+  return <span>{new Date(date).toDateString()}</span>
 }

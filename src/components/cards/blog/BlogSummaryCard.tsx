@@ -1,31 +1,28 @@
-import { FrontMatter } from 'layouts/blog'
 import { Card } from 'components/cards/card'
 import { TechnologyBadge } from 'components/badges'
 import { PublishDate } from 'components/blog/publish_date'
 
 import styles from './BlogSummaryCard.module.scss'
+import { Meta } from 'data'
 
 export type BlogCardProps = {
-  blog: FrontMatter
+  meta: Meta
 }
 
-export function BlogSummaryCard({ blog }: BlogCardProps) {
-  const isPublished = Boolean(blog.publishedAt)
+export function BlogSummaryCard({ meta }: BlogCardProps) {
+  const isPublished = Boolean(meta.publishedOn)
   return (
-    <Card id={`link-${blog.slug}`}>
+    <Card id={`link-${meta.slug}`}>
       <Card.Header>
-        <Card.Title
-          title={blog.title}
-          href={isPublished ? `/blog/${blog.slug}` : null}
-        />
+        <Card.Title title={meta.title} href={isPublished ? `/blog/${meta.slug}` : undefined} />
       </Card.Header>
       <Card.Body>
-        <PublishDate date={blog.publishedAt} />
-        <p>{blog.tagline}</p>
+        <PublishDate date={meta.publishedOn} />
+        <p>{meta.tagline}</p>
       </Card.Body>
       <Card.Footer>
         <div className={styles['badge-container']}>
-          {blog.tags?.map((tag) => (
+          {meta.tags?.map(tag => (
             <TechnologyBadge key={tag} technology={tag} />
           ))}
         </div>

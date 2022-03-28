@@ -1,11 +1,10 @@
----
-title: Writing a JSON parser in Rust
-tagline: Learn the fundamentals of lexing and parsing to build a JSON parser from scratch
-tags:
-  - Lexers
-  - Parsers
-  - Rust
----
+export const meta = {
+  title: 'Tutorial: Writing a JSON parser in Rust',
+  slug: 'tutorial-json-parser-rust',
+  tagline: 'Learn the fundamentals of lexing and parsing to build a JSON parser from scratch',
+  tags: ['Lexers', 'Parsers', 'Rust'],
+  publishedOn: '2022-03-27',
+}
 
 import { Spoiler } from '../../components/blog/spoiler'
 
@@ -100,7 +99,7 @@ Finally, add this enum to our overall `Value` enum.
 
 ```rust
 pub enum Value {
-  // ...
+  // ...snip...
 
   /// Number value
   Number(Number),
@@ -149,15 +148,12 @@ fn example_print(token: Token) {
 ```
 
 ```rust
-// Note "Result as FmtResult", I typically avoid shadowing the regular `Result`
-// enum for clarity, although it can be convenient at times.
-use std::fmt::{Display, Formatter, Result as FmtResult, Write};
+use std::fmt;
 
-// ...
+// ...snip...
 
-//
-impl Display for TokenKind {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+impl fmt::Display for TokenKind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::FmtResult {
         match self {
             TokenKind::LeftBracket => f.write_char('['),
             TokenKind::RightBracket => f.write_char(']'),
@@ -175,9 +171,8 @@ impl Display for TokenKind {
     }
 }
 
-//
-impl Display for Token {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.write_fmt(format_args!(
             "token '{}' at row {}, col {}",
             self.kind, self.location.row, self.location.col,

@@ -1,5 +1,5 @@
 import Layout from 'layouts'
-import { blogs } from 'data'
+import { blogsMeta } from 'data'
 import { BlogListing } from 'components/blog'
 
 export default function BlogIndex() {
@@ -7,8 +7,8 @@ export default function BlogIndex() {
     <Layout title='Blogs' description='Blog Posts'>
       <h1>Blog</h1>
       <ul>
-        {blogs.map((blog) => (
-          <BlogListing blog={blog} key={blog.__resourcePath} />
+        {blogsMeta.map(meta => (
+          <BlogListing meta={meta} key={meta.__resourcePath} />
         ))}
       </ul>
     </Layout>

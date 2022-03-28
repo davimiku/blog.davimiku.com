@@ -1,9 +1,18 @@
 import { Project } from 'types/projects'
 
+export type Meta = {
+  title: string
+  slug: string
+  tagline: string
+  publishedOn?: string
+  tags?: string[]
+  __resourcePath: string
+}
+
 // NOTE: Typescript aliases for path imports do not work on the paths below
 // because these are not Typescript imports! Relative path directly to the file
 // is needed.
-import { frontMatter as jsonParserRust } from '../pages/blog/json-parser-rust.mdx'
+import * as JsonParserRust from '../pages/blog/json-parser-rust.mdx'
 
 export const projects: Project[] = [
   {
@@ -59,4 +68,5 @@ export const projects: Project[] = [
   },
 ]
 
-export const blogs = [jsonParserRust]
+const blogs = [JsonParserRust]
+export const blogsMeta = blogs.map(blog => blog.meta)

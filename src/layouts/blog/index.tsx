@@ -10,7 +10,7 @@ export type FrontMatter = {
   title: string
   slug: string
   tagline: string
-  publishedAt?: Date
+  publishedOn?: Date
   tags?: string[]
   __resourcePath: string
 }

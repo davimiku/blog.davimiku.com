@@ -1,25 +1,8 @@
 declare module '*.mdx' {
   import { ReactNode } from 'react'
+  import { Meta } from './src/data/index'
 
-  export type FrontMatter = {
-    title: string
-    slug: string
-    tagline: string
-    publishedAt?: Date
-    tags?: string[]
-    __resourcePath: string
-  }
-
-  export type ParsedFrontMatter = {
-    title: string
-    slug: string
-    tagline: string
-    publishedAt?: string
-    tags?: string[]
-    __resourcePath: string
-  }
-
-  export const frontMatter: FrontMatter
+  export const meta: Meta
 
   const component: ReactNode
   export default ReactNode
@@ -28,14 +11,4 @@ declare module '*.mdx' {
 /**
  * Typescript definitions not available
  */
-declare module 'next-mdx-enhanced'
-
-/**
- * Typescript definitions not available
- */
 declare module '@mapbox/rehype-prism'
-
-/**
- * Typescript definitions not available
- */
-declare module 'next-plugin-svgr'
