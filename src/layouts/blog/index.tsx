@@ -5,23 +5,15 @@ import { FeaturedImage } from 'components/blog/FeaturedImage'
 import Layout from 'layouts'
 
 import styles from './blog.module.scss'
-
-export type FrontMatter = {
-  title: string
-  slug: string
-  tagline: string
-  publishedOn?: Date
-  tags?: string[]
-  __resourcePath: string
-}
+import { Meta } from 'data'
 
 export type BlogsPageProps = {
-  frontMatter: FrontMatter
+  meta: Meta
   children: ReactNode
 }
 
-export default function BlogsPage({ children, frontMatter }: BlogsPageProps) {
-  const { title, tagline } = frontMatter
+export function BlogsPage({ children, meta }: BlogsPageProps) {
+  const { title, tagline } = meta
   return (
     <Layout title={title} description={tagline}>
       <NextSeo title={title} description={tagline} />

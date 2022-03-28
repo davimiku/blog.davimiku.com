@@ -6,6 +6,7 @@ export const meta = {
   publishedOn: '2022-03-27',
 }
 
+import { BlogsPage } from '../../layouts/blog'
 import { Spoiler } from '../../components/blog/spoiler'
 
 ## Understanding the JSON syntax and types
@@ -252,3 +253,7 @@ console.log(JSON.parse(str)) // --> { a: 2 }
 ```
 
 ### Object Key Ordering
+
+export default ({ children }) => <BlogsPage meta={meta}>{children}</BlogsPage
+
+>
