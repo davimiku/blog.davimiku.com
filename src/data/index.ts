@@ -9,10 +9,11 @@ export type Meta = {
   __resourcePath: string
 }
 
-// NOTE: Typescript aliases for path imports do not work on the paths below
-// because these are not Typescript imports! Relative path directly to the file
-// is needed.
-import * as JsonParserRust from '../pages/blog/json-parser-rust.mdx'
+// NOTE: Relative path is required, TypeScript path aliases do not work here
+import * as JsonParserRust from '../pages/blog/tutorials/json-parser-rust.mdx'
+
+const blogs = [JsonParserRust]
+export const blogsMeta = blogs.map(blog => blog.meta)
 
 export const projects: Project[] = [
   {
@@ -67,6 +68,3 @@ export const projects: Project[] = [
     },
   },
 ]
-
-const blogs = [JsonParserRust]
-export const blogsMeta = blogs.map(blog => blog.meta)
