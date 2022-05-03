@@ -1,4 +1,4 @@
-@use "../../styles/variables/colors";
+@use '../../styles/variables/colors';
 
 .container > *,
 .container section > * {
@@ -6,7 +6,7 @@
 }
 
 .container {
-  max-width: 70ch;
+  max-width: 90ch;
   margin: 0 auto;
 
   h1 {
@@ -16,5 +16,9 @@
 
   h2 {
     font-size: 1.875rem;
+  }
+
+  p {
+    font-size: 1.25rem;
   }
 }
