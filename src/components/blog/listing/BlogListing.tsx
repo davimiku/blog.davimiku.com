@@ -4,7 +4,7 @@ import styles from './BlogListing.module.scss'
 import { PublishDate } from 'components/blog/publish_date'
 import { Meta } from 'data'
 
-const formatPath = (path: string) => path.replace(/\.mdx$/, '')
+const formatPath = (...paths: string[]) => '/blog/' + paths.join('/').replace(/\.mdx$/, '')
 
 export type BlogListingProps = {
   meta: Meta
@@ -19,7 +19,7 @@ export function BlogListing({ meta }: BlogListingProps) {
     <li className={styles['blog-listing']}>
       {/* TODO: Refactor to separate component */}
       {isPublished ? (
-        <Link href={isPublished ? formatPath(meta.__resourcePath) : ''}>
+        <Link href={formatPath(meta.category, meta.slug)}>
           <a>
             <h2>{meta.title}</h2>
           </a>

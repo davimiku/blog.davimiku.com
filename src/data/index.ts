@@ -2,12 +2,14 @@ import { Project } from 'types/projects'
 
 export type Meta = {
   title: string
+  category: Category
   slug: string
   tagline: string
   publishedOn?: string
   tags?: string[]
-  __resourcePath: string
 }
+
+type Category = 'tutorials'
 
 // NOTE: Relative path is required, TypeScript path aliases do not work here
 import * as JsonParserRust from '../pages/blog/tutorials/json-parser-rust.mdx'

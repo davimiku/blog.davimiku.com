@@ -8,7 +8,7 @@ export default function BlogIndex() {
       <h1>Blog</h1>
       <ul>
         {blogsMeta.map(meta => (
-          <BlogListing meta={meta} key={meta.__resourcePath} />
+          <BlogListing meta={meta} key={meta.slug} />
         ))}
       </ul>
     </Layout>
