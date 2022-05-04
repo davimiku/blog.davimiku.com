@@ -7,6 +7,8 @@ tags:
   - type manipulation
 ---
 
+import { EmphasisBox, Spoiler } from '../../../components/blog'
+
 **Target audience**: Programmers who use TypeScript or similar languages
 
 **Recommended experience level**: Novice level exposure to TypeScript or similar languages
@@ -16,10 +18,9 @@ tags:
 In this tutorial, we will build a contrived example of a "library" for a catalog of [toast messages](https://developer.android.com/guide/topics/ui/notifiers/toasts) to be used across many different web applications for a company. In this example, we will use every Type Manipulation feature listed in the [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/2/types-from-types.html). Where possible, we will also show real examples from the TypeScript standard definitions that use these features and break down how they work.
 
 <EmphasisBox>
-  The reader (you) will get the most out of this tutorial by following along
-  in your code editor.
-
-The rest of the tutorial will assume the following `tsconfig.json` configuration.
+  The reader (you) will get the most out of this tutorial by following along in your code editor.
+  
+  The rest of the tutorial will assume the following `tsconfig.json` configuration.
 
 ```json
 {
@@ -273,12 +274,17 @@ const point: { x: number, y: number } = {
 
 <EmphasisBox>
   Welcome back to those that skipped down the recap. For the remainder of the article, I still
-  recommend following along in your text editor if possible, or by using the{' '}
-  <a href='https://www.typescriptlang.org/play' target='_blank'>
-    TypeScript playground
-  </a>{' '}
-  in a web browser. It is helpful to mouse-over variables and error messages to see more
-  information.
+  recommend following along in your text editor if possible, or by using the
+
+{' '}
+
+<a href='https://www.typescriptlang.org/play' target='_blank'>
+  TypeScript playground
+</a>
+
+in a web browser. It is helpful to mouse-over variables and error messages to see more
+information.
+
 </EmphasisBox>
 
 With the Quick Recap finished, we can turn our focus back to building the
@@ -321,7 +327,7 @@ const words = ['four', 'score', 'and', 'seven', 'years', 'ago']
 //         👆️   TypeScript infers here that `T` is `string`
 ```
 
-For `words` which is `Array<string>`, the function parameter for `words.includes()` is a `string` because `T` is `string` in this instance.
+For `words` which is `Array&lt;string>`, the function parameter for `words.includes()` is a `string` because `T` is `string` in this instance.
 
 For `maybeNums`, the return type of `maybeNums.pop()` is `number | null | undefined`, because `T` is `number | null` in this instance.
 
@@ -412,14 +418,14 @@ TODO
 
 This example using Color is even more contrived than the overall example we're building in this article, but it shows a subtle but important aspect of generics that we'll use to our advantage later.
 
-<Author>
+<EmphasisBox>
 For some reason, in TypeScript, people tend to define generic parameters with single uppercase letters, such as `T`, which presumably is short for `Type` as a generic word. Perhaps the single letters help to indicate that the type is generic to constrast with names of concrete types that also start with an uppercase letter (people rarely, if ever, defined concrete types with a single letter).
 
 The first language known to have generic types was [ML (programming language)](<https://en.wikipedia.org/wiki/ML_(programming_language)>). In that language, generics ([parametric polymorphism](https://smlhelp.github.io/book/concepts/poly.html)) use a single apostrophe, so there isn't confusion between generic and concrete types. For example, `'a` would be a generic type.
 
 It's possible that the single letter uppercase convention originated in [C++ templates](https://en.wikipedia.org/wiki/Generic_programming#Templates_in_C++).
 
-</Author>
+</EmphasisBox>
 
 [TypeScript Handbook - Generics](https://www.typescriptlang.org/docs/handbook/2/generics.html)
 
@@ -493,15 +499,14 @@ Our current implementation `throw`s an error when an invalid message type is pas
 
 [TODO](image bad_input_output.png)
 
-<<<<<<< HEAD
 Another approach is to [push the constraint "earlier"](https://www.parsonsmatt.org/2017/10/11/type_safety_back_and_forth.html) instead of "later". We can narrow the types of inputs into our library, which allows us to guarantee a valid output.
 
-<<<<<<< HEAD
-
 ### Type Operator - `typeof`
+
 =======
 Another approach is to [push the constraint "earlier"](https://www.parsonsmatt.org/2017/10/11/type_safety_back_and_forth.html) instead of "later". We can narrow the type of the accepted input, which allows us to guarantee a valid output.
->>>>>>> add additional detail in type operators
+
+> > > > > > > add additional detail in type operators
 
 [TODO](image good_input_output.png)
 
@@ -559,7 +564,7 @@ Indexed access types allow extracting a type from existing object types using `[
 addEventListener<K extends keyof WindowEventMap>(type: K, listener: (ev: WindowEventMap[K]) => any): void;
 ```
 
-`WindowEventMap` in the TypeScript standard definitions is an `interface` with all possible events and their corresponding event type. For example `"click"` corresponds with `MouseEvent` and `"gamepadconnected"` corresponds with `GamepadEvent`. Using generics, `keyof`, literal types, and indexed access types, the compiler can ensure complete type safety of `addEventListener`. If  "gamepadconnected" is passed as the first parameter, it will typecheck that the second parameter is a callback with a `GamepadEvent` parameter.
+`WindowEventMap` in the TypeScript standard definitions is an `interface` with all possible events and their corresponding event type. For example `"click"` corresponds with `MouseEvent` and `"gamepadconnected"` corresponds with `GamepadEvent`. Using generics, `keyof`, literal types, and indexed access types, the compiler can ensure complete type safety of `addEventListener`. If "gamepadconnected" is passed as the first parameter, it will typecheck that the second parameter is a callback with a `GamepadEvent` parameter.
 
 The `WindowEventMap[K]` syntax means that the "ev" parameter of the "listener" callback is the type in that map at the key `K`. This is a unique feature of TypeScript compared to other languages! Even languages with an advanced type system like Rust [incur a small runtime cost](https://willcrichton.net/notes/types-over-strings/) to ensure this kind of type safety.
 
