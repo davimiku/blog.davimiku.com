@@ -31,8 +31,10 @@ export default function Home() {
       <p>
         I strive for a deep understanding of any topic that I am studying. Recently, I have become
         interested in the topic of <em>compilers and interpreters</em>. The current project that I
-        am focusing on is an implementation of{' '}
-        <ExternalLink href='https://jsonata.org'>JSONata Query and Transformation</ExternalLink>{' '}
+        am focusing on is an implementation of a{' '}
+        <ExternalLink href='https://github.com/davimiku/unknown-lang'>
+          statically-typed imperative programming language
+        </ExternalLink>{' '}
         language in Rust. I have found that studying programming languages has brought me a deeper
         understanding of how software works.
       </p>
