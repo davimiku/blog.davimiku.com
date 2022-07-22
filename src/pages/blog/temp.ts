@@ -74,7 +74,7 @@ const _obj: { x: number; y: number } = {
 
 type _Reducer<
   Arr extends readonly string[] /* array */,
-  Result extends Record<string, unknown> = Record<string, any> /* accumulator */
+  Result extends Record<string, unknown> = Record<string, unknown> /* accumulator */
 > = Arr extends []
   ? Result // if array is empty -> return Result
   : Arr extends readonly [infer H, ...infer Tail] // if array is not empty, do recursive call with array Tail and Result
