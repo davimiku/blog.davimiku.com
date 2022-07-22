@@ -5,7 +5,10 @@ import Image from 'next/image'
 import styles from './Toggle.module.scss'
 
 export function ThemeToggle() {
-  const { colorScheme, toggleColorScheme } = useColorScheme()
+  const colorSchemeContext = useColorScheme()
+  if (!colorSchemeContext) return <></>
+
+  const { colorScheme, toggleColorScheme } = colorSchemeContext
   return (
     <>
       <Image src='/images/header/sun.svg' height='32px' width='32px' />

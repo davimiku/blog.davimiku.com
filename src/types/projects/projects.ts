@@ -1,3 +1,5 @@
+export type Technology = 'Rust' | 'Python' | 'SCSS' | 'TypeScript' | 'React' | 'Next.js'
+
 export type Project = {
   /** Name of the project */
   name: string

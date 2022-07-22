@@ -7,16 +7,15 @@ import { NextSeo } from 'next-seo'
 // import { rootUrl } from '../../lib/constants'
 const rootUrl = ''
 
-const titlesToImages = {
-  Test: '',
-}
+const titlesToImages = new Map<string, string>()
+titlesToImages.set('Test', '')
 
 type Props = {
   title: string
 }
 
 export const FeaturedImage = ({ title }: Props) => {
-  const imageSrc = titlesToImages[title]
+  const imageSrc = titlesToImages.get(title)
 
   return imageSrc ? (
     <>

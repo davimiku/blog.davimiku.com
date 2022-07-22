@@ -7,8 +7,7 @@ type ColorSchemeContextValue = {
   toggleColorScheme: () => void
 }
 
-export const ColorSchemeContext =
-  React.createContext<ColorSchemeContextValue>(null)
+export const ColorSchemeContext = React.createContext<ColorSchemeContextValue | null>(null)
 
 /**
  * Provides the current color scheme as a context value.
@@ -37,7 +36,7 @@ export const ColorSchemeContext =
  * toggleColorScheme()
  * ```
  */
-export function ColorSchemeProvider({ children }: PropsWithChildren<{}>) {
+export function ColorSchemeProvider({ children }: PropsWithChildren<Record<string, unknown>>) {
   const [colorScheme, setColorScheme] = React.useState<ColorScheme>('dark')
 
   // true if the user hasn't toggled the color scheme themselves
@@ -81,7 +80,7 @@ export function ColorSchemeProvider({ children }: PropsWithChildren<{}>) {
   }, [])
 
   function toggleColorScheme() {
-    setColorScheme((scheme) => (scheme === 'dark' ? 'light' : 'dark'))
+    setColorScheme(scheme => (scheme === 'dark' ? 'light' : 'dark'))
     setIsUsingDefault(false)
     document.body.classList.toggle('dark')
   }

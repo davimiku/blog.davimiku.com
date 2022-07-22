@@ -1,4 +1,4 @@
-import { Project } from 'types/projects'
+import { Project, Technology } from 'types/projects'
 
 export type Meta = {
   title: string
@@ -6,13 +6,14 @@ export type Meta = {
   slug: string
   tagline: string
   publishedOn?: string
-  tags?: string[]
+  tags?: Technology[]
 }
 
 type Category = 'tutorials'
 
 // NOTE: Relative path is required, TypeScript path aliases do not work here
 import * as JsonParserRust from '../pages/blog/tutorials/json-parser-rust.mdx'
+// import * as TsTypeManipulation from '../pages/blog/tutorials/ts-type-manipulation.mdx'
 
 const blogs = [JsonParserRust]
 export const blogsMeta = blogs.map(blog => blog.meta)
@@ -35,7 +36,7 @@ export const projects: Project[] = [
     tagline: 'Static site generated with Next.js and React',
     description:
       'Responsive design implemented without "breakpoints" (width-based media queries) as a personal challenge.',
-    technologies: ['Typescript', 'Next.js', 'React', 'SCSS'],
+    technologies: ['TypeScript', 'Next.js', 'React', 'SCSS'],
     topics: ['static site generation', 'fluid design', 'blog'],
     repo: {
       name: 'davimiku.github.io',

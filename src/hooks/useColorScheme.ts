@@ -40,12 +40,14 @@ export function useColorScheme() {
  * const mainClassName = useColorSchemeClass(styles, 'my-main')
  * ```
  */
-export function useColorSchemeClass(
-  styles: ScssModuleStyles,
-  className: string
-): string {
-  const { colorScheme } = useColorScheme()
-  return classnames(styles[className], {
-    [styles[className + '--dark']]: colorScheme === 'dark',
-  })
+export function useColorSchemeClass(styles: ScssModuleStyles, className: string): string {
+  const colorSchemeContext = useColorScheme()
+  if (colorSchemeContext) {
+    const { colorScheme } = colorSchemeContext
+    const darkKey = className + '--dark'
+    return classnames(styles[className], {
+      [styles[darkKey] as string]: colorScheme === 'dark',
+    })
+  }
+  return ''
 }

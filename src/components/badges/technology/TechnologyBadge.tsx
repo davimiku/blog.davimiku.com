@@ -3,27 +3,31 @@ import { SiRust, SiTypescript } from 'react-icons/si'
 import { IoLogoVercel } from 'react-icons/io5'
 
 import { Badge } from 'components/badges'
+import { IconType } from 'react-icons'
+import { Technology } from 'types/projects'
 
-const iconMap = {
-  rust: SiRust,
-  python: FaPython,
-  scss: FaSass,
-  sass: FaSass,
-  typescript: SiTypescript,
-  react: FaReact,
-  'next.js': IoLogoVercel,
+const iconMap: Record<Technology, IconType> = {
+  Rust: SiRust,
+  Python: FaPython,
+  SCSS: FaSass,
+  TypeScript: SiTypescript,
+  React: FaReact,
+  'Next.js': IoLogoVercel,
 }
 
 export type TechnologyBadgeProps = {
   technology: string
 }
 
+function isIcon(input: string): input is keyof typeof iconMap {
+  return Object.keys(iconMap).includes(input)
+}
+
 export function TechnologyBadge({ technology }: TechnologyBadgeProps) {
-  const Icon = iconMap[technology.toLowerCase()] ?? null
+  const Icon = isIcon(technology) ? iconMap[technology] : null
   return (
     <Badge>
-      {Icon ? <Icon /> : null}
-      &nbsp;{technology}
+      {Icon ? <Icon /> : null} &nbsp;{technology}
     </Badge>
   )
 }
