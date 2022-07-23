@@ -11,6 +11,8 @@ export type LayoutProps = {
   description: string
 }
 
+// TODO: investigate using pages/_document.tsx for anything common across all pages
+
 export default function Layout({ children, title, description }: PropsWithChildren<LayoutProps>) {
   const className = useColorSchemeClass(styles, 'main')
   return (
@@ -26,6 +28,8 @@ export default function Layout({ children, title, description }: PropsWithChildr
         <link rel='manifest' href='/site.webmanifest' />
         <link rel='preconnect' href='https://fonts.googleapis.com' />
         <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='true' />
+        {/* Investigate pages/_document.js */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href='https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400&display=swap'
           rel='stylesheet'

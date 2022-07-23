@@ -10,4 +10,6 @@ export function useLocalStorage() {
     const value: T = JSON.parse(rawValue)
     return value
   }
+
+  return { getValue }
 }
