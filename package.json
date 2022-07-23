@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^12.2.0",
+    "@types/node": "^18.0.6",
     "@types/react": "~17.0.44",
     "@types/react-headroom": "~2.2.2",
     "@types/react-toggle": "~4.0.3",
