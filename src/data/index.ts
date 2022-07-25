@@ -1,4 +1,4 @@
-import { Project, Technology } from 'types/projects'
+import { Project } from 'types/projects'
 
 export type Meta = {
   title: string
@@ -6,7 +6,7 @@ export type Meta = {
   slug: string
   tagline: string
   publishedOn?: string
-  tags?: Technology[]
+  tags?: string[]
 }
 
 type Category = 'tutorials'
@@ -20,18 +20,6 @@ export const blogsMeta = blogs.map(blog => blog.meta)
 
 export const projects: Project[] = [
   {
-    name: 'JSONata',
-    tagline: 'Implementation of JSON Query and Transformation language',
-    technologies: ['Rust'],
-    topics: ['interpreters', 'JSON', 'parser', 'functional programming'],
-    repo: {
-      name: 'jsonata-rs',
-      path: 'davimiku/jsonata-rs',
-      url: 'https://github.com/davimiku/jsonata-rs',
-      description: 'Implementation of JSONata query language in Rust ',
-    },
-  },
-  {
     name: 'davimiku.github.io',
     tagline: 'Static site generated with Next.js and React',
     description:
@@ -43,6 +31,18 @@ export const projects: Project[] = [
       path: 'davimiku/davimiku.github.io',
       url: 'https://github.com/davimiku/davimiku.github.io',
       description: 'My personal website',
+    },
+  },
+  {
+    name: 'JSONata',
+    tagline: 'Implementation of JSON Query and Transformation language',
+    technologies: ['Rust'],
+    topics: ['interpreters', 'JSON', 'parser', 'functional programming'],
+    repo: {
+      name: 'jsonata-rs',
+      path: 'davimiku/jsonata-rs',
+      url: 'https://github.com/davimiku/jsonata-rs',
+      description: 'Implementation of JSONata query language in Rust ',
     },
   },
   {

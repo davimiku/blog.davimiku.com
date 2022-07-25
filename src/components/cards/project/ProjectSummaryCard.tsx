@@ -15,15 +15,12 @@ export function ProjectSummaryCard({ project }: ProjectSummaryCardProps) {
   return (
     <Card>
       <Card.Header>
-        <Card.Title
-          title={project.name}
-          href={`/projects#${project.repo.name}`}
-        />
+        <Card.Title title={project.name} href={`/projects#${project.repo.name}`} />
       </Card.Header>
       <Card.Body>
         <p>{project.tagline}</p>
         <p>
-          {project.technologies.map((technology) => (
+          {project.technologies.map(technology => (
             <TechnologyBadge key={technology} technology={technology} />
           ))}
         </p>
