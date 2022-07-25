@@ -4,8 +4,8 @@ import { IoLogoVercel } from 'react-icons/io5'
 
 import { Badge } from 'components/badges'
 import { IconType } from 'react-icons'
-import { Technology } from 'types/projects'
 
+type Technology = 'Rust' | 'Python' | 'SCSS' | 'TypeScript' | 'React' | 'Next.js'
 const iconMap: Record<Technology, IconType> = {
   Rust: SiRust,
   Python: FaPython,
@@ -27,7 +27,7 @@ export function TechnologyBadge({ technology }: TechnologyBadgeProps) {
   const Icon = isIcon(technology) ? iconMap[technology] : null
   return (
     <Badge>
-      {Icon ? <Icon /> : null} &nbsp;{technology}
+      {Icon && <Icon />} &nbsp;{technology}
     </Badge>
   )
 }

@@ -4,13 +4,12 @@ import { ProjectSummaryCard } from 'components/cards/project/ProjectSummaryCard'
 import { ExternalLink } from 'components/link/ExternalLink'
 import { projects, blogsMeta } from 'data'
 import Layout from 'layouts'
-import { shuffle } from 'utils/shuffle'
+import React from 'react'
 
 /**
  * Component for the "home" page server at path '/'
  */
 export default function Home() {
-  shuffle(projects)
   const projectCards = projects
     .slice(0, 2)
     .map(project => <ProjectSummaryCard key={project.repo.name} project={project} />)
@@ -18,16 +17,20 @@ export default function Home() {
   const blogCards = blogsMeta.map(meta => <BlogSummaryCard key={meta.slug} meta={meta} />)
   return (
     <Layout title="David's Website" description='My Projects'>
-      <h1>David's Website</h1>
+      <h1>David Mikulis - Software Engineer</h1>
 
+      <h2>About Me</h2>
       <p>
         Hello! My name is David and I am a software developer who focuses on full-stack web
         development. I frequently work with Typescript, though I enjoy learning and using new tools.
         Besides Typescript, I often work with Python and Rust.
       </p>
 
-      <h2>About Me</h2>
-      <p>At my day job, I develop process automation tools for healthcare providers.</p>
+      <p>
+        At my day job, I develop data processing pipelines and web applications for healthcare
+        providers.
+      </p>
+
       <p>
         I strive for a deep understanding of any topic that I am studying. Recently, I have become
         interested in the topic of <em>compilers and interpreters</em>. The current project that I
