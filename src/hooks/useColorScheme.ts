@@ -1,5 +1,5 @@
 import React from 'react'
-import classnames from 'classnames'
+import classnames, { Argument } from 'classnames'
 
 import { ColorSchemeContext } from 'color_scheme'
 
@@ -45,9 +45,12 @@ export function useColorSchemeClass(styles: ScssModuleStyles, className: string)
   if (colorSchemeContext) {
     const { colorScheme } = colorSchemeContext
     const darkKey = className + '--dark'
-    return classnames(styles[className], {
-      [styles[darkKey] as string]: colorScheme === 'dark',
-    })
+    const darkStyle = styles[darkKey]
+    const additionalClasses: Argument = {}
+    if (darkStyle) {
+      additionalClasses[darkStyle] = colorScheme === 'dark'
+    }
+    return classnames(styles[className], additionalClasses)
   }
   return ''
 }
