@@ -1,6 +1,7 @@
 import { BlogSummaryCard } from 'components/cards/blog'
 import { CardGrid } from 'components/cards/card_grid'
 import { ProjectSummaryCard } from 'components/cards/project/ProjectSummaryCard'
+import { ButtonLink } from 'components/link/ButtonLink'
 import { ExternalLink } from 'components/link/ExternalLink'
 import { projects, blogsMeta } from 'data'
 import Layout from 'layouts'
@@ -17,14 +18,15 @@ export default function Home() {
   const blogCards = blogsMeta.map(meta => <BlogSummaryCard key={meta.slug} meta={meta} />)
   return (
     <Layout title="David's Website" description='My Projects'>
-      <h1>David Mikulis - Software Engineer</h1>
+      <h1>David Mikulis</h1>
+
+      <p>
+        Hello! My name is David and I am a <strong>software engineer</strong> who focuses on
+        full-stack web development. I frequently work with Typescript, though I enjoy learning and
+        using new tools. Besides Typescript, I often work with Python and Rust.
+      </p>
 
       <h2>About Me</h2>
-      <p>
-        Hello! My name is David and I am a software developer who focuses on full-stack web
-        development. I frequently work with Typescript, though I enjoy learning and using new tools.
-        Besides Typescript, I often work with Python and Rust.
-      </p>
 
       <p>
         At my day job, I develop data processing pipelines and web applications for healthcare
@@ -44,7 +46,7 @@ export default function Home() {
 
       <h2>Projects</h2>
       <CardGrid cards={projectCards} />
-      {/* ButtonLink "See more..." */}
+      <ButtonLink href='/projects'>See all projects</ButtonLink>
 
       <h2>Blog posts</h2>
       <CardGrid cards={blogCards} />
