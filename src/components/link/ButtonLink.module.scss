@@ -1,0 +1,38 @@
+@use '../../styles/variables/colors';
+@use '../../styles/variables/sizes';
+
+.button-link {
+  border: 1px solid colors.$primary;
+
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  margin-right: 1rem;
+
+  border-radius: sizes.$border-radius;
+
+  a {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    width: 100%;
+    height: 100%;
+    border-bottom: none;
+
+    &:hover {
+      background-color: colors.$darker;
+    }
+  }
+
+  &--dark {
+    border-color: white;
+    a {
+      &:hover {
+        background-color: colors.$lighter;
+      }
+    }
+  }
+}

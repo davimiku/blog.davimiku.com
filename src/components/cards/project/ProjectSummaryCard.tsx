@@ -1,8 +1,8 @@
+import React from 'react'
 import { FaGithub } from 'react-icons/fa'
 
 import { Card } from 'components/cards/card'
 import { Project } from 'types/projects'
-import React from 'react'
 import { TechnologyBadge } from 'components/badges/technology'
 import { ExternalLink } from 'components/link/ExternalLink'
 
