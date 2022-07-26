@@ -1,15 +1,16 @@
 import { FaPython, FaReact, FaSass } from 'react-icons/fa'
-import { SiRust, SiTypescript } from 'react-icons/si'
+import { SiRust, SiTypescript, SiCss3 } from 'react-icons/si'
 import { IoLogoVercel } from 'react-icons/io5'
 
 import { Badge } from 'components/badges'
 import { IconType } from 'react-icons'
 
-type Technology = 'Rust' | 'Python' | 'SCSS' | 'TypeScript' | 'React' | 'Next.js'
+type Technology = 'Rust' | 'Python' | 'SCSS' | 'CSS' | 'TypeScript' | 'React' | 'Next.js'
 const iconMap: Record<Technology, IconType> = {
   Rust: SiRust,
   Python: FaPython,
   SCSS: FaSass,
+  CSS: SiCss3,
   TypeScript: SiTypescript,
   React: FaReact,
   'Next.js': IoLogoVercel,
