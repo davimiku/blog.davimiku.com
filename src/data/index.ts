@@ -34,18 +34,6 @@ export const projects: Project[] = [
     },
   },
   {
-    name: 'JSONata',
-    tagline: 'Implementation of JSON Query and Transformation language',
-    technologies: ['Rust'],
-    topics: ['interpreters', 'JSON', 'parser', 'functional programming'],
-    repo: {
-      name: 'jsonata-rs',
-      path: 'davimiku/jsonata-rs',
-      url: 'https://github.com/davimiku/jsonata-rs',
-      description: 'Implementation of JSONata query language in Rust ',
-    },
-  },
-  {
     name: 'AudNauseum',
     tagline: 'Loop-based digital recorder & sampler (audio looper)',
     technologies: ['Python', 'PyQt', 'numpy'],
@@ -56,6 +44,18 @@ export const projects: Project[] = [
       path: 'AudNauseum/AudNauseum',
       url: 'https://github.com/AudNauseum/AudNauseum',
       description: 'Software emulated loop-based digital recorder/sampler',
+    },
+  },
+  {
+    name: 'JSONata',
+    tagline: 'Implementation of JSON Query and Transformation language',
+    technologies: ['Rust'],
+    topics: ['interpreters', 'JSON', 'parser', 'functional programming'],
+    repo: {
+      name: 'jsonata-rs',
+      path: 'davimiku/jsonata-rs',
+      url: 'https://github.com/davimiku/jsonata-rs',
+      description: 'Implementation of JSONata query language in Rust ',
     },
   },
   {
