@@ -15,8 +15,8 @@ type Category = 'tutorials'
 import * as JsonParserRust from '../pages/blog/tutorials/json-parser-rust.mdx'
 // import * as TsTypeManipulation from '../pages/blog/tutorials/ts-type-manipulation.mdx'
 
-const blogs = [JsonParserRust]
-export const blogsMeta = blogs.map(blog => blog.meta)
+const blogs: { meta: Meta }[] = []
+export const blogsMeta: Meta[] = blogs.map(blog => blog.meta)
 
 export const projects: Project[] = [
   {
