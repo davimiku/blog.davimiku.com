@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width"/><meta name="next-head-count" content="2"/><link rel="preload" href="/_next/static/css/5ed007d40889d5c3.css" as="style"/><link rel="stylesheet" href="/_next/static/css/5ed007d40889d5c3.css" data-n-g=""/><link rel="preload" href="/_next/static/css/7be1d9a542b369ff.css" as="style"/><link rel="stylesheet" href="/_next/static/css/7be1d9a542b369ff.css" data-n-p=""/><noscript data-n-css=""></noscript><script defer="" nomodule="" src="/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js"></script><script src="/_next/static/chunks/webpack-5752944655d749a0.js" defer=""></script><script src="/_next/static/chunks/framework-5f4595e5518b5600.js" defer=""></script><script src="/_next/static/chunks/main-43bae646d7cb6843.js" defer=""></script><script src="/_next/static/chunks/pages/_app-8665ada8bed8d11e.js" defer=""></script><script src="/_next/static/chunks/d0447323-bc2c17a0f06f3ff8.js" defer=""></script><script src="/_next/static/chunks/1bfc9850-935e3ad1a716bd1f.js" defer=""></script><script src="/_next/static/chunks/ae51ba48-6866ce94b4d30a5b.js" defer=""></script><script src="/_next/static/chunks/95b64a6e-f4e449b380de9bb8.js" defer=""></script><script src="/_next/static/chunks/pages/blog/tutorials/ts-type-manipulation-9a33c97098053768.js" defer=""></script><script src="/_next/static/SMms8MfYvaIoPEIJ2xEwK/_buildManifest.js" defer=""></script><script src="/_next/static/SMms8MfYvaIoPEIJ2xEwK/_ssgManifest.js" defer=""></script></head><body><div id="__next" data-reactroot=""><hr/>
+<!DOCTYPE html><html><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width"/><meta name="next-head-count" content="2"/><link rel="preload" href="/_next/static/css/5ed007d40889d5c3.css" as="style"/><link rel="stylesheet" href="/_next/static/css/5ed007d40889d5c3.css" data-n-g=""/><link rel="preload" href="/_next/static/css/7be1d9a542b369ff.css" as="style"/><link rel="stylesheet" href="/_next/static/css/7be1d9a542b369ff.css" data-n-p=""/><noscript data-n-css=""></noscript><script defer="" nomodule="" src="/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js"></script><script src="/_next/static/chunks/webpack-5752944655d749a0.js" defer=""></script><script src="/_next/static/chunks/framework-5f4595e5518b5600.js" defer=""></script><script src="/_next/static/chunks/main-43bae646d7cb6843.js" defer=""></script><script src="/_next/static/chunks/pages/_app-8665ada8bed8d11e.js" defer=""></script><script src="/_next/static/chunks/d0447323-bc2c17a0f06f3ff8.js" defer=""></script><script src="/_next/static/chunks/1bfc9850-935e3ad1a716bd1f.js" defer=""></script><script src="/_next/static/chunks/ae51ba48-6866ce94b4d30a5b.js" defer=""></script><script src="/_next/static/chunks/95b64a6e-f4e449b380de9bb8.js" defer=""></script><script src="/_next/static/chunks/pages/blog/tutorials/ts-type-manipulation-d0ceb9923328dc82.js" defer=""></script><script src="/_next/static/JujsoKe1gNb9miu8P0_RH/_buildManifest.js" defer=""></script><script src="/_next/static/JujsoKe1gNb9miu8P0_RH/_ssgManifest.js" defer=""></script></head><body><div id="__next" data-reactroot=""><hr/>
 <p>title: All of TypeScript&#x27;s Type Manipulation - A Contrived Example
 tagline: Learn all of TypeScript&#x27;s techniques for type manipulation in a single example
 category: tutorial
@@ -13,12 +13,12 @@ tags:</p>
 <p><strong>Recommended experience level</strong>: Novice level exposure to TypeScript or similar languages</p>
 <h2>Introduction</h2>
 <p>In this tutorial, we will build a contrived example of a &quot;library&quot; for a catalog of <a href="https://developer.android.com/guide/topics/ui/notifiers/toasts">toast messages</a> to be used across many different web applications for a company. In this example, we will use every Type Manipulation feature listed in the <a href="https://www.typescriptlang.org/docs/handbook/2/types-from-types.html">TypeScript Handbook</a>. Where possible, we will also show real examples from the TypeScript standard definitions that use these features and break down how they work.</p>
-<div class="EmphasisBox_box__zCUGQ"><p>The reader (you) will get the most out of this tutorial by following along in your code editor.</p><p>The rest of the tutorial will assume the following <code>tsconfig.json</code> configuration.</p><pre><code class="language-json">{
-  &quot;compilerOptions&quot;: {
-    &quot;strict&quot;: true,
-    &quot;target&quot;: &quot;ES2020&quot;
-  }
-}
+<div class="EmphasisBox_box__zCUGQ"><p>The reader (you) will get the most out of this tutorial by following along in your code editor.</p><p>The rest of the tutorial will assume the following <code>tsconfig.json</code> configuration.</p><pre class="language-json"><code class="language-json"><span class="token punctuation">{</span>
+  <span class="token property">&quot;compilerOptions&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;strict&quot;</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;target&quot;</span><span class="token operator">:</span> <span class="token string">&quot;ES2020&quot;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
 </code></pre></div>
 <h2>Message Catalog Library - Background and Requirements</h2>
 <p><strong>Background</strong>: Your company has a successful suite of web applications for project management and productivity with a moderate but growing userbase. However, due to your company&#x27;s rapid growth, the applications have an inconsistent User Experience (UX). Your company is launching an effort to unify the UI/UX across all of the applications, so they can feel like (and marketed as) a true &quot;enterprise&quot; suite.</p>
@@ -29,32 +29,32 @@ tags:</p>
 </ul>
 <p>The requirements for the library are:</p>
 <p>TODO</p>
-<pre><code class="language-TypeScript">/**
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token doc-comment comment">/**
  * The first sketch of a message catalog.
- */
+ */</span>
 
-// TS gets mad without this `any`!! So annoying!!
-const messageCatalog: any = {
-  ItemSaveSuccess: {
-    message: &#x27;Item successfully saved!&#x27;,
-    style: &#x27;fade-away&#x27;,
-  },
-  ItemSaveFailure: {
-    message: &#x27;Item failed to save...&#x27;,
-    style: &#x27;click-to-dismiss&#x27;,
-  },
-}
+<span class="token comment">// TS gets mad without this `any`!! So annoying!!</span>
+<span class="token keyword">const</span> messageCatalog<span class="token operator">:</span> <span class="token builtin">any</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token maybe-class-name">ItemSaveSuccess</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    message<span class="token operator">:</span> <span class="token string">&#x27;Item successfully saved!&#x27;</span><span class="token punctuation">,</span>
+    style<span class="token operator">:</span> <span class="token string">&#x27;fade-away&#x27;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">ItemSaveFailure</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    message<span class="token operator">:</span> <span class="token string">&#x27;Item failed to save...&#x27;</span><span class="token punctuation">,</span>
+    style<span class="token operator">:</span> <span class="token string">&#x27;click-to-dismiss&#x27;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
 
-/**
+<span class="token doc-comment comment">/**
  * Creates a message with the given messageType from
  * the catalog. For now, just returns the catalog entry.
- */
-export function createMessage(messageType: string) {
-  if (messageType in messageCatalog) {
-    return messageCatalog[messageType]
-  }
-  throw new Error(&#x27;Invalid messageType!&#x27;)
-}
+ */</span>
+<span class="token keyword module">export</span> <span class="token keyword">function</span> <span class="token function">createMessage</span><span class="token punctuation">(</span>messageType<span class="token operator">:</span> <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword control-flow">if</span> <span class="token punctuation">(</span>messageType <span class="token keyword">in</span> messageCatalog<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword control-flow">return</span> messageCatalog<span class="token punctuation">[</span>messageType<span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword control-flow">throw</span> <span class="token keyword">new</span> <span class="token class-name"><span class="token known-class-name class-name">Error</span></span><span class="token punctuation">(</span><span class="token string">&#x27;Invalid messageType!&#x27;</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>You realize you may need to brush up on TypeScript&#x27;s type system to get the compiler off your back. For now, just the &quot;quick and dirty&quot; solution to appease the type checker.</p>
 <p>[TODO](as any image)</p>
@@ -62,16 +62,16 @@ export function createMessage(messageType: string) {
 <ul>
 <li>Each entry in the catalog should have a message with interpolated variables and other fields to ensure a consistent UX for the end-user. As a pseudo example:</li>
 </ul>
-<pre><code class="language-TypeScript">[
-  ItemSaveSuccess: {
-    message: &#x27;Item successfully saved!&#x27;,
-    style: &#x27;success&#x27;,
-  },
-  ItemSaveFailure: {
-    message: &#x27;Item failed to save...&#x27;,
-    style: &#x27;failure&#x27;,
-  },
-]
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token punctuation">[</span>
+  <span class="token maybe-class-name">ItemSaveSuccess</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    message<span class="token operator">:</span> <span class="token string">&#x27;Item successfully saved!&#x27;</span><span class="token punctuation">,</span>
+    style<span class="token operator">:</span> <span class="token string">&#x27;success&#x27;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">ItemSaveFailure</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    message<span class="token operator">:</span> <span class="token string">&#x27;Item failed to save...&#x27;</span><span class="token punctuation">,</span>
+    style<span class="token operator">:</span> <span class="token string">&#x27;failure&#x27;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span>
 </code></pre>
 <ul>
 <li>The technical writers are comfortable with Markdown and version control (git), but TypeScript is a little new. The compiler should ensure that they are adding/modifying catalog entries with the correct fields</li>
@@ -84,8 +84,8 @@ export function createMessage(messageType: string) {
 <p>For readers with significant TypeScript experience, feel free to skim this section or <a href="TODO">click here</a> to skip to the next section.</p>
 <h3>Quick Recap - Everyday Types</h3>
 <p>In the code below, what are the types of <code>message</code> and <code>count</code>?</p>
-<pre><code class="language-TypeScript">const message = &#x27;hello&#x27;
-const count = 5
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">const</span> message <span class="token operator">=</span> <span class="token string">&#x27;hello&#x27;</span>
+<span class="token keyword">const</span> count <span class="token operator">=</span> <span class="token number">5</span>
 </code></pre>
 <details class="Spoiler_details__gotJo"><summary class="Spoiler_summary__6Nxkr"></summary><div class="Spoiler_detailsContent__yhV_z"><p>If you said <code>string</code> and <code>number</code>, respectively, then sorry but that is not correct!</p><p>The type of <code>message</code> is <code>&quot;hello&quot;</code> and the type of <code>count</code> is <code>5</code>.</p><p>TypeScript has <a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types">literal types</a>, and as stated in that documentation, this isn&#x27;t important by itself but is significant when combined with the topics seen later.</p><p>If we had used <code>let</code> instead of <code>const</code>, the types would have been <code>string</code> and <code>number</code>, respectively.</p></div></details>
 <h3>Quick Recap - Primitive Types and Arrays</h3>
@@ -94,93 +94,93 @@ const count = 5
 <h3>Quick Recap - Union Types</h3>
 <p>TypeScript uses the <code>|</code> operator to create a union type. Something that is type <code>A | B | C</code> can be <code>A</code> OR <code>B</code> OR <code>C</code>.</p>
 <p>An example of a union type from TypeScript&#x27;s standard definitions:</p>
-<pre><code class="language-TypeScript">type PropertyKey = string | number | symbol
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">PropertyKey</span></span> <span class="token operator">=</span> <span class="token builtin">string</span> <span class="token operator">|</span> <span class="token builtin">number</span> <span class="token operator">|</span> <span class="token builtin">symbol</span>
 </code></pre>
 <p>A valid property key in a JavaScript object is a string OR a number OR a symbol.</p>
 <p>We can also create our own union types using the <code>type</code> keyword:</p>
-<pre><code class="language-TypeScript">type ChessRow = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
-type ChessColumn = &#x27;A&#x27; | &#x27;B&#x27; | &#x27;C&#x27; | &#x27;D&#x27; | &#x27;E&#x27; | &#x27;F&#x27; | &#x27;G&#x27; | &#x27;H&#x27;
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">ChessRow</span></span> <span class="token operator">=</span> <span class="token number">1</span> <span class="token operator">|</span> <span class="token number">2</span> <span class="token operator">|</span> <span class="token number">3</span> <span class="token operator">|</span> <span class="token number">4</span> <span class="token operator">|</span> <span class="token number">5</span> <span class="token operator">|</span> <span class="token number">6</span> <span class="token operator">|</span> <span class="token number">7</span> <span class="token operator">|</span> <span class="token number">8</span>
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">ChessColumn</span></span> <span class="token operator">=</span> <span class="token string">&#x27;A&#x27;</span> <span class="token operator">|</span> <span class="token string">&#x27;B&#x27;</span> <span class="token operator">|</span> <span class="token string">&#x27;C&#x27;</span> <span class="token operator">|</span> <span class="token string">&#x27;D&#x27;</span> <span class="token operator">|</span> <span class="token string">&#x27;E&#x27;</span> <span class="token operator">|</span> <span class="token string">&#x27;F&#x27;</span> <span class="token operator">|</span> <span class="token string">&#x27;G&#x27;</span> <span class="token operator">|</span> <span class="token string">&#x27;H&#x27;</span>
 </code></pre>
 <p>There are 8 possibilities for <code>ChessRow</code> and 8 possibilities for <code>ChessColumn</code>. If we had a hypothetical <code>ChessRowOrColumn</code> that was <code>ChessRow | ChessColumn</code> there would be 16 possibilities (the <strong>sum</strong> of all the possibilities).</p>
 <h3>Quick Recap - Object Types</h3>
 <p>Object types are defined with similar syntax to object values, except with types instead of values. For example, an object type for a point with x and y values could be:</p>
-<pre><code class="language-TypeScript">{ x: number, y: number }
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token punctuation">{</span> x<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">,</span> y<span class="token operator">:</span> <span class="token builtin">number</span> <span class="token punctuation">}</span>
 </code></pre>
 <p>This object type can be used anywhere that types can normally be used, such as for function parameters.</p>
-<pre><code class="language-TypeScript">function euclideanDistance(
-  point1: { x: number; y: number },
-  point2: { x: number; y: number },
-): number {
-  return Math.sqrt((point1.x - point1.x) ** 2 + (point2.y - point1.y) ** 2)
-}
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">function</span> <span class="token function">euclideanDistance</span><span class="token punctuation">(</span>
+  point1<span class="token operator">:</span> <span class="token punctuation">{</span> x<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">;</span> y<span class="token operator">:</span> <span class="token builtin">number</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  point2<span class="token operator">:</span> <span class="token punctuation">{</span> x<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">;</span> y<span class="token operator">:</span> <span class="token builtin">number</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">number</span> <span class="token punctuation">{</span>
+  <span class="token keyword control-flow">return</span> <span class="token known-class-name class-name">Math</span><span class="token punctuation">.</span><span class="token method function property-access">sqrt</span><span class="token punctuation">(</span><span class="token punctuation">(</span>point1<span class="token punctuation">.</span><span class="token property-access">x</span> <span class="token operator">-</span> point1<span class="token punctuation">.</span><span class="token property-access">x</span><span class="token punctuation">)</span> <span class="token operator">**</span> <span class="token number">2</span> <span class="token operator">+</span> <span class="token punctuation">(</span>point2<span class="token punctuation">.</span><span class="token property-access">y</span> <span class="token operator">-</span> point1<span class="token punctuation">.</span><span class="token property-access">y</span><span class="token punctuation">)</span> <span class="token operator">**</span> <span class="token number">2</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>However, we don&#x27;t often use object types directly, it can be more convenient to assign names to object types and use those names.</p>
 <h4>Object Types - Interface</h4>
 <p>Object types can be defined with the <code>interface</code> keyword. Below is an example of an object type from the TypeScript standard definitions.</p>
-<pre><code class="language-TypeScript">interface Error {
-  name: string
-  message: string
-  stack?: string
-}
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">interface</span> <span class="token class-name"><span class="token known-class-name class-name">Error</span></span> <span class="token punctuation">{</span>
+  name<span class="token operator">:</span> <span class="token builtin">string</span>
+  message<span class="token operator">:</span> <span class="token builtin">string</span>
+  stack<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">string</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>Where union types can be thought of a &quot;OR&quot; types, object types in TypeScript can be thought of as &quot;AND&quot; types -- an <code>Error</code> is a <code>name</code> AND a <code>message</code> AND (maybe) a <code>stack</code>. Some other languages call these record types, or a more general name could be <a href="https://en.wikipedia.org/wiki/Product_type">product types</a>.</p>
 <p>This is the object created when you use <code>new Error(&#x27;...&#x27;)</code>, and it contains a <code>name</code>, <code>message</code>, and optional <code>stack</code> properties that are type <code>string</code>.</p>
 <p>Interfaces can use the <code>extends</code> keyword to <em>inherit</em> property definitions. Interface extension can be useful for objects that tend to align well with inheritance, such as HTML elements in the DOM API. Below is an example from the TypeScript standard definitions:</p>
-<pre><code class="language-TypeScript">interface HTMLInputElement extends HTMLElement { /* snip */ }
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">interface</span> <span class="token class-name"><span class="token maybe-class-name">HTMLInputElement</span></span> <span class="token keyword">extends</span> <span class="token class-name"><span class="token maybe-class-name">HTMLElement</span></span> <span class="token punctuation">{</span> <span class="token comment">/* snip */</span> <span class="token punctuation">}</span>
 </code></pre>
 <h4>Object Types - Type Alias</h4>
 <p>The <code>type</code> keyword defines a <em>type alias</em>, such as:</p>
-<pre><code class="language-TypeScript">type ChessSquare = {
-  row: ChessRow
-  column: ChessColumn
-}
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">ChessSquare</span></span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  row<span class="token operator">:</span> <span class="token maybe-class-name">ChessRow</span>
+  column<span class="token operator">:</span> <span class="token maybe-class-name">ChessColumn</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>This <code>ChessSquare</code> type can also be called a &quot;product type&quot;, because the total number of possibilities are the product of the possibilities of its members. There are 64 total possible values of a <code>ChessSquare</code>, which is <code>ChessRow</code> (8) multiplied by <code>ChessColumn</code> (8).</p>
 <p>With our knowledge of object types and union types, we can add a new type to our message catalog implementation and update our function return type.</p>
-<pre><code class="language-TypeScript">type MessageTemplate = {
-    message: string
-    style: &#x27;fade-away&#x27; | &#x27;click-to-dismiss&#x27;
-}
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">MessageTemplate</span></span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+    message<span class="token operator">:</span> <span class="token builtin">string</span>
+    style<span class="token operator">:</span> <span class="token string">&#x27;fade-away&#x27;</span> <span class="token operator">|</span> <span class="token string">&#x27;click-to-dismiss&#x27;</span>
+<span class="token punctuation">}</span>
 
-export function createMessage(messageType: string): MessageTemplate { /* same implementation */ }
+<span class="token keyword module">export</span> <span class="token keyword">function</span> <span class="token function">createMessage</span><span class="token punctuation">(</span>messageType<span class="token operator">:</span> <span class="token builtin">string</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token maybe-class-name">MessageTemplate</span> <span class="token punctuation">{</span> <span class="token comment">/* same implementation */</span> <span class="token punctuation">}</span>
 </code></pre>
 <p>This is an improvement because now our function returns <code>MessageTemplate</code> rather than <code>any</code>, so that users of the library actually know what they&#x27;re going to get when they call our function!</p>
 <p><strong>Checkpoint</strong>: <a href="https://www.typescriptlang.org/play?target=7#code/PQKhCgAIUhVAHAJgQwC4FMDOkBmAnAewFtJUALdSePdANwEsCBXbAYwtYGt4D6A7VAC4oMGAEFEidIkgADALJZMyAOboAKuiLwANmnSzSAT3joR0OEn0zZrGvsWZlawzVRM8fY6ZHBw4VgI+TFRIIiVVdABhNGQdAhVIAF5IAG8oSABJDCIAZWRadFymVlYlQTSMyDCItQqAcmytSEwSsqccJh0dIxaC6QBCeoAaKpbUIx10BpxkKQBaZAB3ZCMRjIBfUeqmvP6AMWR6HQ9pyurq8KdIht3cI6mZVAI+woA6D-WL8cmz+tYdPQuPNnvNEPRMEQIZgvpAtuANv5QBALFF7BhsMgatc1JAlvRyKQKJAVPRCl4rs4NCZKPhiOZyJRWLF4io3pB9gQ8JA+AQlsNIAArFihNweYJEpkshKQdACPBGN6+cDoAAePDwoU6fFYqEYXjs6ActXQAApKZF1DSKiE8PwVABKCqOKmabR6DDnC70HCQc0mq2mSD8bFUmKoOIJB1e77AYCQdS5EnoVDYIhzPEEsjMULkCFyZB8IyyAYDSC5F6F3lGe2lsbVQLBULMiOsiqF3opC1qcORlT1yBizyQFt9gDa3eppgAumNEd9yIQljz0MuAKJ4Qh4U2NPi0OL0GSTwPoIYOhH+CZBl2WrS6fTJGOhm7jO18fvfEK-GZzdCLFZrJAAA+kD-ICwKguCkLQvUF5AA">TS playground link</a></p>
 <h4>Object Types - Intersections</h4>
 <p>Type aliases can <strong>intersect</strong> using the <code>&amp;</code> keyword to <em>compose</em> properties and behavior. Below is a <strong>very</strong> contrived (and silly) version of the classic animal taxonomy example.</p>
-<pre><code class="language-TypeScript">type Animal = {
-  species: string
-  genus: string
-  family: string
-  order: string
-  class: string
-  phylum: string
-  kingdom: &#x27;Animalia&#x27;
-}
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">Animal</span></span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  species<span class="token operator">:</span> <span class="token builtin">string</span>
+  genus<span class="token operator">:</span> <span class="token builtin">string</span>
+  family<span class="token operator">:</span> <span class="token builtin">string</span>
+  order<span class="token operator">:</span> <span class="token builtin">string</span>
+  <span class="token keyword">class</span><span class="token operator">:</span> <span class="token builtin">string</span>
+  phylum<span class="token operator">:</span> <span class="token builtin">string</span>
+  kingdom<span class="token operator">:</span> <span class="token string">&#x27;Animalia&#x27;</span>
+<span class="token punctuation">}</span>
 
-type Oviparous = {
-  laysEggs: true
-  eggWeight: number
-}
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">Oviparous</span></span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  laysEggs<span class="token operator">:</span> <span class="token boolean">true</span>
+  eggWeight<span class="token operator">:</span> <span class="token builtin">number</span>
+<span class="token punctuation">}</span>
 
-type Venomous = {
-  potency: number
-}
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">Venomous</span></span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  potency<span class="token operator">:</span> <span class="token builtin">number</span>
+<span class="token punctuation">}</span>
 
-type Aquatic = {
-  swimSpeed: number
-}
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">Aquatic</span></span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  swimSpeed<span class="token operator">:</span> <span class="token builtin">number</span>
+<span class="token punctuation">}</span>
 
-type Platypus = Animal &amp; Oviparous &amp; Venomous &amp; Aquatic
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">Platypus</span></span> <span class="token operator">=</span> <span class="token maybe-class-name">Animal</span> <span class="token operator">&amp;</span> <span class="token maybe-class-name">Oviparous</span> <span class="token operator">&amp;</span> <span class="token maybe-class-name">Venomous</span> <span class="token operator">&amp;</span> <span class="token maybe-class-name">Aquatic</span>
 </code></pre>
 <p>The <code>interface</code> and <code>type</code> keywords are quite similar in what they can accomplish, and most use cases won&#x27;t see a difference between them. For a discussion around this, please see the <a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#differences-between-type-aliases-and-interfaces">TypeScript Handbook</a>.</p>
 <h3>Structural Typing</h3>
 <p>TODO</p>
 <p>For example, it&#x27;s fine to do this, even though now <code>point</code> has properties that aren&#x27;t defined on the type, such as <code>hasOwnProperty</code> and <code>isPrototypeOf</code>.</p>
-<pre><code class="language-TypeScript">const point: { x: number, y: number } = {
-  x: 3,
-  y: 4,
-}
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">const</span> point<span class="token operator">:</span> <span class="token punctuation">{</span> x<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">,</span> y<span class="token operator">:</span> <span class="token builtin">number</span> <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  x<span class="token operator">:</span> <span class="token number">3</span><span class="token punctuation">,</span>
+  y<span class="token operator">:</span> <span class="token number">4</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <div class="EmphasisBox_box__zCUGQ"><p>Welcome back to those that skipped down the recap. For the remainder of the article, I still
 recommend following along in your text editor if possible, or by using the</p> <a href="https://www.typescriptlang.org/play" target="_blank"><p>TypeScript playground</p></a><p>in a web browser. It is helpful to mouse-over variables and error messages to see more
@@ -191,46 +191,46 @@ information.</p></div>
 <p>The following sections will follow the list in the TypeScript Handbook, <a href="https://www.typescriptlang.org/docs/handbook/2/types-from-types.html">Creating Types from Types</a> (though not necessarily in order) as we build this contrived example.</p>
 <h3>Generics</h3>
 <p>Generics allow us to create flexible and reusable types. One of the most commonly used generic type from the TypeScript standard definitions is the <code>Array</code>.</p>
-<pre><code class="language-TypeScript">interface Array&lt;T&gt; {
-  //           👆️  the generic type `T` is defined here
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">interface</span> <span class="token class-name"><span class="token known-class-name class-name">Array</span><span class="token operator">&lt;</span><span class="token constant">T</span><span class="token operator">&gt;</span></span> <span class="token punctuation">{</span>
+  <span class="token comment">//           👆️  the generic type `T` is defined here</span>
 
-  /* ...arrays have lots of methods... */
-  /* ...we&#x27;re highlighting just two below... */
+  <span class="token comment">/* ...arrays have lots of methods... */</span>
+  <span class="token comment">/* ...we&#x27;re highlighting just two below... */</span>
 
-  includes(searchElement: T, fromIndex?: number): boolean
-  //                     👆️  this is the same `T` defined above
+  <span class="token function">includes</span><span class="token punctuation">(</span>searchElement<span class="token operator">:</span> <span class="token constant">T</span><span class="token punctuation">,</span> fromIndex<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+  <span class="token comment">//                     👆️  this is the same `T` defined above</span>
 
-  pop(): T | undefined
-  //    👆️  also the same `T` defined above
-}
+  <span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token constant">T</span> <span class="token operator">|</span> <span class="token keyword nil">undefined</span>
+  <span class="token comment">//    👆️  also the same `T` defined above</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>The generic parameter (in this case, it&#x27;s called <code>T</code>) is telling the TypeScript compiler that the array will have elements of a certain type, but that type will be decided later by each instance of the array. Whenever an array is created, the concrete type for <code>T</code> is provided either explicitly or inferred by the compiler (a concrete type is something like <code>string</code> or <code>number</code>).</p>
-<pre><code class="language-TypeScript">const nums: Array&lt;number&gt; = [1, 2, 3]
-//                  👆️  the concrete type provided explicitly
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">const</span> nums<span class="token operator">:</span> <span class="token known-class-name class-name">Array</span><span class="token operator">&lt;</span><span class="token builtin">number</span><span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span>
+<span class="token comment">//                  👆️  the concrete type provided explicitly</span>
 
-const maybeNums: Array&lt;number | null&gt; = [12, 14, 34]
-//                           👆️  concrete type is `number | null` her
+<span class="token keyword">const</span> maybeNums<span class="token operator">:</span> <span class="token known-class-name class-name">Array</span><span class="token operator">&lt;</span><span class="token builtin">number</span> <span class="token operator">|</span> <span class="token keyword null nil">null</span><span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">34</span><span class="token punctuation">]</span>
+<span class="token comment">//                           👆️  concrete type is `number | null` her</span>
 
-const words = [&#x27;four&#x27;, &#x27;score&#x27;, &#x27;and&#x27;, &#x27;seven&#x27;, &#x27;years&#x27;, &#x27;ago&#x27;]
-//         👆️   TypeScript infers here that `T` is `string`
+<span class="token keyword">const</span> words <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">&#x27;four&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;score&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;and&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;seven&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;years&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;ago&#x27;</span><span class="token punctuation">]</span>
+<span class="token comment">//         👆️   TypeScript infers here that `T` is `string`</span>
 </code></pre>
 <p>For <code>words</code> which is <code>Array&amp;lt;string&gt;</code>, the function parameter for <code>words.includes()</code> is a <code>string</code> because <code>T</code> is <code>string</code> in this instance.</p>
 <p>For <code>maybeNums</code>, the return type of <code>maybeNums.pop()</code> is <code>number | null | undefined</code>, because <code>T</code> is <code>number | null</code> in this instance.</p>
 <div class="EmphasisBox_box__zCUGQ"><p>Note that <code>T[]</code> is a special syntax for <code>Array&amp;lt;T&amp;gt;</code>. <code>T[]</code> tends to be preferred because it&#x27;s more concise, and from this point forward the examples will use this syntax.</p><p>Despite this extra detail, `Array&lt;T&gt;` is a good introduction into understanding generics in TypeScript because it can show type inference, function parameters, and function return types as generic types for a data structure that everyone is familiar with.</p></div>
 <h4>Generics - Update</h4>
 <p>Now that we know about generic parameters, we can use the <a href="https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type">Record utility type</a> to update our <code>messageCatalog</code> variable.</p>
-<pre><code class="language-TypeScript">type MessageCatalog = Record&lt;string, MessageTemplate&gt;
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">MessageCatalog</span></span> <span class="token operator">=</span> <span class="token maybe-class-name">Record</span><span class="token operator">&lt;</span><span class="token builtin">string</span><span class="token punctuation">,</span> <span class="token maybe-class-name">MessageTemplate</span><span class="token operator">&gt;</span>
 
-/* snip */
+<span class="token comment">/* snip */</span>
 
-const messageCatalog: MessageCatalog = { /* snip */ }
+<span class="token keyword">const</span> messageCatalog<span class="token operator">:</span> <span class="token maybe-class-name">MessageCatalog</span> <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token comment">/* snip */</span> <span class="token punctuation">}</span>
 
-export function createMessage(messageType: string): MessageTemplate {
-    if (messageType in messageCatalog) {
-      return messageCatalog[messageType]
-    }
-    throw new Error(&#x27;Invalid messageType!&#x27;)
-}
+<span class="token keyword module">export</span> <span class="token keyword">function</span> <span class="token function">createMessage</span><span class="token punctuation">(</span>messageType<span class="token operator">:</span> <span class="token builtin">string</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token maybe-class-name">MessageTemplate</span> <span class="token punctuation">{</span>
+    <span class="token keyword control-flow">if</span> <span class="token punctuation">(</span>messageType <span class="token keyword">in</span> messageCatalog<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword control-flow">return</span> messageCatalog<span class="token punctuation">[</span>messageType<span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword control-flow">throw</span> <span class="token keyword">new</span> <span class="token class-name"><span class="token known-class-name class-name">Error</span></span><span class="token punctuation">(</span><span class="token string">&#x27;Invalid messageType!&#x27;</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>Now we can get rid of the <code>any</code> with no red squiggly lines! Progress!</p>
 <p><strong>Checkpoint</strong>: <a href="https://www.typescriptlang.org/play?target=7#code/PQKhCgAIUhVAHAJgQwC4FMDOkBmAnAewFtJUALdSePdANwEsCBXbAYwtYGt4D6A7VAC4oMGAEFEidIkgADALJZMyAOboAwmmQAbAitmkAnvHQjocJGmlyiS1Rq279RkyODhwrAn0ypItzGU1TVQdPUFIRUD7ELCVSABeSABvKEgASQwiAGVkWnRsplZWJQjUyAr-OzUIgHJM9BJMIpLAnCZtbUNIZXzEAEJagBo0it9DbXQ6nGQpAFpkAHdkQ2G0gF8RioacvPQAMWR6bSYaMtGq6JrIeqzcI8mZVAIevYA6D7XKntQJqZvWNp6Fw5s85oh6JgiJDMF9IJtwOsPKAIOZ1DQrNhkJcgpRFvRyKQKJAVPR8nwcfYACrGSj4YhmciUViOPRvSD7Ah4SB8AiLIaQABWLD8NFQpx8ROZrPi6AEeEMbzc4HafFYqEYFNYGIwUVxAAoAriaSYIr48PwVABKCJ66mNeDaKwpC70HCQQ3VdAmyj8SnBGVWl3fCpiiX+hyhJwAbSN1NpAF0LkjvuRCIseegMwBRPCEPD6+p8Wg6egyONqH2DK2Ijy-EyRL2xJyJSAAJXQXjwiAAPObLQK7ZWHU6MAA+Ou0xtXb0j51JcqVCv-ft8FQXcaTaazdALZarSAAHwBQJBYIhUJhtVrQA">TS playground link</a></p>
@@ -241,34 +241,34 @@ export function createMessage(messageType: string): MessageTemplate {
 <p>By defining the <code>messageCatalog</code> variable as having the <code>MessageCatalog</code> type, we&#x27;ve made it impossible for entries to be added that aren&#x27;t of the <code>MessageTemplate</code> shape. This is a good thing! This is something that we want to catch at compile-time rather than at runtime.</p>
 <h4>Generics - Constraints</h4>
 <p>Generic types can also be <strong>constrained</strong> with the <code>extends</code> keyword. In this example, the function argument <code>colors</code> must be an array with elements of the <code>Color</code> type.</p>
-<pre><code class="language-TypeScript">type Color = &#x27;red&#x27; | &#x27;blue&#x27; | &#x27;green&#x27;
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">Color</span></span> <span class="token operator">=</span> <span class="token string">&#x27;red&#x27;</span> <span class="token operator">|</span> <span class="token string">&#x27;blue&#x27;</span> <span class="token operator">|</span> <span class="token string">&#x27;green&#x27;</span>
 
-function randomColor&lt;T extends Color&gt;(colors: T[]): T {
-  const randomIndex = Math.floor(Math.random() * colors.length)
-  return colors[randomIndex]
-}
+<span class="token keyword">function</span> <span class="token generic-function"><span class="token function">randomColor</span><span class="token generic class-name"><span class="token operator">&lt;</span><span class="token constant">T</span> <span class="token keyword">extends</span> <span class="token maybe-class-name">Color</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">(</span>colors<span class="token operator">:</span> <span class="token constant">T</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token constant">T</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> randomIndex <span class="token operator">=</span> <span class="token known-class-name class-name">Math</span><span class="token punctuation">.</span><span class="token method function property-access">floor</span><span class="token punctuation">(</span><span class="token known-class-name class-name">Math</span><span class="token punctuation">.</span><span class="token method function property-access">random</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> colors<span class="token punctuation">.</span><span class="token property-access">length</span><span class="token punctuation">)</span>
+  <span class="token keyword control-flow">return</span> colors<span class="token punctuation">[</span>randomIndex<span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>For those readers experienced with TypeScript, this may just be review. However, two important properties of generics will be crucial for our contrived example of the toast messages library.</p>
 <h4>Generics - Important Property 1: It&#x27;s the Same T</h4>
 <p>TODO: insert Pam Office meme It&#x27;s the same T</p>
 <p>Any generic <code>T</code> used within a <code>type</code> / <code>interface</code> / <code>function</code> is the <strong>same <code>T</code></strong> when it&#x27;s instantiated / called. Taking the same <code>randomColor</code> function from the previous section:</p>
 <p>TODO: insert Pam Office meme It&#x27;s the same T</p>
-<pre><code class="language-TypeScript">randomColor([&#x27;red&#x27;, &#x27;red&#x27;, &#x27;red&#x27;])
-//        👆️  `T` is inferred as &#x27;red&#x27; only because the return type of the function is the *same* `T`
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token function">randomColor</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">&#x27;red&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;red&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;red&#x27;</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token comment">//        👆️  `T` is inferred as &#x27;red&#x27; only because the return type of the function is the *same* `T`</span>
 
-randomColor([&#x27;red&#x27;, &#x27;blue&#x27;, &#x27;blue&#x27;])
-//        👆️  `T` is inferred as &#x27;red&#x27; | &#x27;blue&#x27; because the return type is the *same* `T`
+<span class="token function">randomColor</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">&#x27;red&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;blue&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;blue&#x27;</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token comment">//        👆️  `T` is inferred as &#x27;red&#x27; | &#x27;blue&#x27; because the return type is the *same* `T`</span>
 </code></pre>
 <p>If we had a function with the exact same implementation, but instead had a signature that used a concrete type rather than a generic type, we would see a difference in the return type of the function.</p>
-<pre><code class="language-ts">function randomColorConcrete(colors: Color[]): Color {
-  /* same implementation */
-}
+<pre class="language-ts"><code class="language-ts"><span class="token keyword">function</span> <span class="token function">randomColorConcrete</span><span class="token punctuation">(</span>colors<span class="token operator">:</span> <span class="token maybe-class-name">Color</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token maybe-class-name">Color</span> <span class="token punctuation">{</span>
+  <span class="token comment">/* same implementation */</span>
+<span class="token punctuation">}</span>
 
-randomColorConcrete([&#x27;red&#x27;, &#x27;red&#x27;, &#x27;red&#x27;])
-//    👆️  returns `Color`, not &#x27;red&#x27;
+<span class="token function">randomColorConcrete</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">&#x27;red&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;red&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;red&#x27;</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token comment">//    👆️  returns `Color`, not &#x27;red&#x27;</span>
 
-randomColorConcrete([&#x27;red&#x27;, &#x27;blue&#x27;, &#x27;blue&#x27;])
-//    👆️  returns `Color`, not &#x27;red&#x27; | &#x27;blue&#x27;
+<span class="token function">randomColorConcrete</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">&#x27;red&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;blue&#x27;</span><span class="token punctuation">,</span> <span class="token string">&#x27;blue&#x27;</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token comment">//    👆️  returns `Color`, not &#x27;red&#x27; | &#x27;blue&#x27;</span>
 </code></pre>
 <h4>Generics - Important Property 2: Generics are Resolved at the Usage Site</h4>
 <p>TODO</p>
@@ -279,37 +279,37 @@ randomColorConcrete([&#x27;red&#x27;, &#x27;blue&#x27;, &#x27;blue&#x27;])
 <p>TypeScript has a concept of a <strong>type context</strong> and an <em>expression context</em>. A <strong>type context</strong> consists of the syntax that TypeScript has added on top of JavaScript - variable types, function parameter types, return types, generic constraints, etc., and it does not exist in the compiled JavaScript code. An <em>expression context</em> is everywhere else that&#x27;s normal JavaScript code.</p>
 <h4>Type Operators - <code>typeof</code></h4>
 <p>The <code>typeof</code> operator is <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof">already an operator</a> in an <em>expression context</em>, so the TypeScript team decided to reuse this keyword in a <strong>type context</strong> to avoid defining new keywords (the TypeScript team prefers to not define new keywords/syntax when possible). In a <strong>type context</strong>, <code>typeof</code> will provide the type for the given value. That&#x27;s sort of a circular definition... so perhaps an example:</p>
-<pre><code class="language-TypeScript">const blackColor = &#x27;black&#x27;
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">const</span> blackColor <span class="token operator">=</span> <span class="token string">&#x27;black&#x27;</span>
 
-function paintItBlack(color: blackColor) {
-                          //  👆 Error: &#x27;blackColor&#x27; refers to a value, but is being used as a type here.
-    console.log(`I see a red door and I want it painted ${color}`)
-}
+<span class="token keyword">function</span> <span class="token function">paintItBlack</span><span class="token punctuation">(</span>color<span class="token operator">:</span> blackColor<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                          <span class="token comment">//  👆 Error: &#x27;blackColor&#x27; refers to a value, but is being used as a type here.</span>
+    <span class="token console class-name">console</span><span class="token punctuation">.</span><span class="token method function property-access">log</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">I see a red door and I want it painted </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>color<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>We can&#x27;t use the <code>blackColor</code> variable in a type context (because it&#x27;s a <em>value</em> not a <strong>type</strong>), but we can turn this value into a type with the <code>typeof</code> operator.</p>
-<pre><code class="language-TypeScript">const blackColor = &#x27;black&#x27;
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">const</span> blackColor <span class="token operator">=</span> <span class="token string">&#x27;black&#x27;</span>
 
-function paintItBlack(color: typeof blackColor) {
-    console.log(`I see a red door and I want it painted ${color}`)
-}
+<span class="token keyword">function</span> <span class="token function">paintItBlack</span><span class="token punctuation">(</span>color<span class="token operator">:</span> <span class="token keyword">typeof</span> blackColor<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token console class-name">console</span><span class="token punctuation">.</span><span class="token method function property-access">log</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">I see a red door and I want it painted </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>color<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
 
-paintItBlack(&#x27;yellow?&#x27;)
-             //  👆 Error, which is what we want here!
+<span class="token function">paintItBlack</span><span class="token punctuation">(</span><span class="token string">&#x27;yellow?&#x27;</span><span class="token punctuation">)</span>
+             <span class="token comment">//  👆 Error, which is what we want here!</span>
 </code></pre>
 <div class="EmphasisBox_box__zCUGQ"><p>Recall the example from the beginning of the article, how would the <code>typeof</code> work differently if the <code>blackColor</code> variable was defined with <code>let</code> instead of <code>const</code>?</p><p>Try using the <code>typeof</code> operator on a variable that is an object and hover your mouse over the resulting type. Now try with the same object variable with an <a href="https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions">as const</a> assertion. What is the difference in the resulting type?</p><p>Try the <code>typeof</code> operator with an array variable with and without <code>as const</code>. What is the difference in the resulting type?</p></div>
 <p>Note that the <code>typeof</code> operator can derive types from values. There is no conversion the other way, values cannot be derived from types like in languages that support procedural macros (example: <a href="https://serde.rs/derive.html">Serde&#x27;s derive macros</a> in Rust). This one-way conversion is why libraries such as <a href="https://www.npmjs.com/package/zod">zod</a> and <a href="https://www.npmjs.com/package/io-ts">io-ts</a> have the user create their schema as a value and then derive the type.</p>
 <h4>Type Operators - <code>keyof</code></h4>
 <p>The <code>keyof</code> type operator creates a union type from an object type. In the example below, <code>Array</code> is an <code>interface</code> (an object type) from the TypeScript standard definitions.</p>
-<pre><code class="language-TypeScript">type ArrayMethod = keyof Array&lt;unknown&gt;
-      //  👆 Union type of &quot;filter&quot; | &quot;map&quot; | &quot;reduce&quot; | &quot;concat&quot; | etc...
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">ArrayMethod</span></span> <span class="token operator">=</span> <span class="token keyword">keyof</span> <span class="token known-class-name class-name">Array</span><span class="token operator">&lt;</span><span class="token builtin">unknown</span><span class="token operator">&gt;</span>
+      <span class="token comment">//  👆 Union type of &quot;filter&quot; | &quot;map&quot; | &quot;reduce&quot; | &quot;concat&quot; | etc...</span>
 
-function openArrayDocumentation(methodName: ArrayMethod) {
-  const urlSafeMethodName = encodeURI(String(methodName));
-  window.open(`https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/${urlSafeMethodName}`)
-}
+<span class="token keyword">function</span> <span class="token function">openArrayDocumentation</span><span class="token punctuation">(</span>methodName<span class="token operator">:</span> <span class="token maybe-class-name">ArrayMethod</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> urlSafeMethodName <span class="token operator">=</span> <span class="token function">encodeURI</span><span class="token punctuation">(</span><span class="token known-class-name class-name">String</span><span class="token punctuation">(</span>methodName<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token dom variable">window</span><span class="token punctuation">.</span><span class="token method function property-access">open</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>urlSafeMethodName<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
 
-openArrayDocumentation(&#x27;flatmap&#x27;)   // ❌ Correctly causes a type error
-openArrayDocumentation(&#x27;flatMap&#x27;)   // ✅ Correctly has no errors
+<span class="token function">openArrayDocumentation</span><span class="token punctuation">(</span><span class="token string">&#x27;flatmap&#x27;</span><span class="token punctuation">)</span>   <span class="token comment">// ❌ Correctly causes a type error</span>
+<span class="token function">openArrayDocumentation</span><span class="token punctuation">(</span><span class="token string">&#x27;flatMap&#x27;</span><span class="token punctuation">)</span>   <span class="token comment">// ✅ Correctly has no errors</span>
 </code></pre>
 <h4>Type Operators - Practical Usage</h4>
 <p>With the <code>typeof</code> and <code>keyof</code> type operators, we can now implement the following requirement from before:</p>
@@ -340,20 +340,20 @@ Another approach is to <a href="https://www.parsonsmatt.org/2017/10/11/type_safe
 </blockquote>
 <p>[TODO](image good_input_output.png)</p>
 <p>It would be great if our <code>createMessage</code> function only accepted valid input, and the user of our library receives a compile-time error if they try to call the function with invalid input. With the <code>typeof</code> and <code>keyof</code> type operators, we can do this!</p>
-<pre><code class="language-TypeScript">// Removed the `MessageCatalog` type, for now
-const messageCatalog = {
-  // same implementation
-} as const
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token comment">// Removed the `MessageCatalog` type, for now</span>
+<span class="token keyword">const</span> messageCatalog <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token comment">// same implementation</span>
+<span class="token punctuation">}</span> <span class="token keyword module">as</span> <span class="token keyword">const</span>
 
-type MessageType = keyof typeof messageCatalog
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">MessageType</span></span> <span class="token operator">=</span> <span class="token keyword">keyof</span> <span class="token keyword">typeof</span> messageCatalog
 
-/**
+<span class="token doc-comment comment">/**
  * Creates a message with the given messageType from
  * the catalog. For now, just returns the catalog entry.
- */
-export function createMessage(messageType: MessageType): MessageTemplate {
-  // same implementation
-}
+ */</span>
+<span class="token keyword module">export</span> <span class="token keyword">function</span> <span class="token function">createMessage</span><span class="token punctuation">(</span>messageType<span class="token operator">:</span> <span class="token maybe-class-name">MessageType</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token maybe-class-name">MessageTemplate</span> <span class="token punctuation">{</span>
+  <span class="token comment">// same implementation</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>With this change, we actually now get autocomplete on calling the <code>createMessage</code> function.</p>
 <p>[TODO](image create_message_autocomplete.png)</p>
@@ -361,9 +361,9 @@ export function createMessage(messageType: MessageType): MessageTemplate {
 <p><strong>Checkpoint</strong>: <a href="https://www.typescriptlang.org/play?target=7#code/PQKhCgAIUhVAHAJgQwC4FMDOkBmAnAewFtJUALdSePdANwEsCBXbAYwtYGt4D6A7VAC4oMGAEFEiSAAMAslkzIA5ugAqAT3jppkZHylMkaStNY1j8zIpU7M9JXzRMaI6JABK6IgVropchWV0AGE0ZAAbAiUdVE1KfGIZIkCVUNQIqJ0AChwCPEg+AgB3AEpXcUkZZDYCPkxUGIIklJCwyOiRYHBwVlr6yGSrILSMpUgAXkgAbyhIAEkMIgBlZF8lplZWBUFp2cgBlp2AcgWvSEwNrascJnDw9XPVvwBCI4AaPfPY8PRjnGREOgALTIIrIdTvWYAXw++1OyyeADFkPRws5frt9vtBtYMSdFrgUT8pKgmopfAA6KmQrFfdQ-Y6scL0LhA0lAxD0TBELmYGmQGHgKG6Gp1VDdUAQNzBcwYbDIA5DFSQIr0cikCiQJT0Xx8RW4jRaXCEIiuciUVhtKIUyCIvIFYpvSAAKxYqEgNFQzjqGotVrG6AEeHUFM64BufFYqEYerM6AsLSyOKChoxlgNcRKO3TKa88HCxkxHvQXrweuTqX9AG0K2o4gBdIXdWJGnMqVMTSCcdDqAg4UhxPv64b+iXASAAdXQRzuWpLkAARsguKQmuQuQOjfxfQV0AAPd3sdBcHj8cXAcctyht1rpdqdzy9PCIAA89Tw-CUTpvqjzBYwAB8zZxJAP5-oWkwzLStY7O+n6fPU9J4v8gIgmCEKQAAPpARxMiynBsgQHJcjyVhHE2QA">TS playground link</a></p>
 <p>However, the downside is that we lost the type safety on the <code>messageCatalog</code> variable itself, in order to get the keys of this object using <code>keyof</code> we had to remove the type definition of <code>Record&lt;string, MessageTemplate&gt;</code> on that variable, because the <code>keyof</code> a <code>Record&lt;string, T&gt;</code> would only be <code>string</code>, not a union of literals. It seems that we have two things fundamentally at odds -- we want to get a type that is the <code>keyof</code> an object, but we also want to constrain the shape of that object. Trying to do this directly (<a href="https://www.typescriptlang.org/play?target=7#code/PQKhCgAIUhVAHAJgQwC4FMDOkBmAnAewFtJUALdSePdANwEsCBXbAYwtYGt4D6A7VAC4oMGAGF6eVkwA2yPJBo50NPq0oB3MvXaQNBPgHJUegnk6RBAChHBw4VgcwmiWTMgDm6MWmQyCHoKQALJunt6+-h6QALyQAN5QkACSGEQAysi06OlMrOqYmEGJkKWQroXhQYap6CSYeQWYOLIyAJ6Q7tmIAISGADRJpc5tMujVOMiI6AC0yBrIbQNJAL6DpbUZWegAYsj0Mkw0xUPlYV7Vm7j7Y4ikBJ3bAHQvy2WdqKPjkIasMjqcGaoAgzRD0TBEcGYN6QNbgFaQZBsJyoeygCDQSBiGhoLCIs6VLx6ejkUgUSAeejZPgE9xeAAqbXglHwxBEZMorEiASekB2ZkgfAIGn6kAAViwTDRUEc+NhyJzudF0AI8G0nrZwC01KhGDTWDiMKFCegrBU6ehGcygsaLVb0ABKG3nS11eByDAJJLS2W08I+VB+AIAbXN4XtAF14fZPsyQi77bFIJx0G0CDhSEz0Om-V4A0GPDGs-GTfmokmAEroRx4RAAHlt4azosbDLdHvQAD4i3HW66iO7cUmSmUwxcPnh+IX3iMxhMprN5otDJAAD4-P4AoEgsEQqGGaNAA">TS playground link</a>) causes a circular reference which won&#x27;t compile.</p>
 <p>So can we <a href="https://dictionary.cambridge.org/us/dictionary/english/have-your-cake-and-eat-it-too">have our cake and eat it too</a>? Well yes, one would hope so, otherwise that&#x27;s a waste of cake! We cannot directly have a circular reference, so we solve this like any other circular reference by introducing an <em>abstraction</em>, and the <a href="https://en.wikipedia.org/wiki/Lambda_calculus">fundamental unit of abstraction</a> is a function!</p>
-<pre><code class="language-ts">function createMessageCatalog&lt;T extends MessageCatalog&gt;(catalog: T): T {
-  return catalog
-}
+<pre class="language-ts"><code class="language-ts"><span class="token keyword">function</span> <span class="token generic-function"><span class="token function">createMessageCatalog</span><span class="token generic class-name"><span class="token operator">&lt;</span><span class="token constant">T</span> <span class="token keyword">extends</span> <span class="token maybe-class-name">MessageCatalog</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">(</span>catalog<span class="token operator">:</span> <span class="token constant">T</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token constant">T</span> <span class="token punctuation">{</span>
+  <span class="token keyword control-flow">return</span> catalog
+<span class="token punctuation">}</span>
 </code></pre>
 <p><strong>Checkpoint</strong>: <a href="https://www.typescriptlang.org/play?target=7#code/PQKhCgAIUhVAHAJgQwC4FMDOkBmAnAewFtJUALdSePdANwEsCBXbAYwtYGt4D6A7VAC4oIYOHCsCfTKkhEsmZAHN0AYTTIANgSWQAvJFY006ALILlajdqUAKAN5RIASQxEAyslrp3TVqwVBSEdIULkLFSCAcld0Ekw-AMxMHCZNTQBPSEVvRABCKIAaJ1CZDM10aJxkRHQAWmQAd2QMoqcAX2LQ2I8vdAAxZHpNJhogkLD5ZMtontwhisRSAmy+gDoNtrDs1HLKyCjWTXouOtQCOsR6TCJrzC3ITvB2yGQ2KRkASnFQCGhIVTGDDYZDhaYqSCNejkUgUSBKejePhgxQqAAqGXglHwxBEsMorGsOjWkH6BDwkD4BEahUgACsWLIaKhRtJ8YYibp0AI8Bk1iIxOgAB48PCyVJ8VioRjIozoEzmcHoWxTVHoDFYoKKtUa9CfLURdVxeCaEzBJzM1koyzqVBaHQAbVVll1AF1nuIJVKZYYgWZDbb7UoADxoyDCjB8RDYbU2zkAPlshLtNiCaP1kDDE0teFlnI94F2WMgsfRmMoBk46AyBBwpHLtetKkDNnERcopasKZ0+kgACV0JI8IhgzI8PwlLTO2jjaaMPG2+WS4aZ0QTWaDBNnZEduO+EonGUKlUavUmi0opAAD4HI4nThnC5XG53KIeoA">TS playground link</a></p>
 <p>The solution to this problem involved recalling what we learned earlier about generics and generic constraints. This fixed the circular reference issue because the <code>T</code> of <code>createMessageCatalog</code> is resolved at the callsite, and the <code>keyof typeof messageCatalog</code> for <code>MessageType</code> is resolved at the definition site. With this abstraction, we&#x27;re able to accomplish two of our requirements - enforce the shape of the message catalog and use that shape downstream to constrain the inputs of our public function(s). This &quot;trick&quot; is quite useful in both application and library code to ensure consistency and correctness of data and types.</p>
@@ -386,7 +386,7 @@ export function createMessage(messageType: MessageType): MessageTemplate {
 </blockquote>
 <h3>Indexed Access Types</h3>
 <p>Indexed access types allow extracting a type from existing object types using <code>[</code> and <code>]</code>, similar to the syntax for accessing an object value with <code>[</code> and <code>]</code>. As with many TypeScript features, this isn&#x27;t significant on its own but composes well with other features. An important example from the TypeScript standard definitions is the famous <code>window.addEventListener</code> function.</p>
-<pre><code class="language-TypeScript">addEventListener&lt;K extends keyof WindowEventMap&gt;(type: K, listener: (ev: WindowEventMap[K]) =&gt; any): void;
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token generic-function"><span class="token function">addEventListener</span><span class="token generic class-name"><span class="token operator">&lt;</span><span class="token constant">K</span> <span class="token keyword">extends</span> <span class="token keyword">keyof</span> <span class="token maybe-class-name">WindowEventMap</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">(</span>type<span class="token operator">:</span> <span class="token constant">K</span><span class="token punctuation">,</span> <span class="token function-variable function">listener</span><span class="token operator">:</span> <span class="token punctuation">(</span>ev<span class="token operator">:</span> <span class="token maybe-class-name">WindowEventMap</span><span class="token punctuation">[</span><span class="token constant">K</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token arrow operator">=&gt;</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token keyword">void</span><span class="token punctuation">;</span>
 </code></pre>
 <p><code>WindowEventMap</code> in the TypeScript standard definitions is an <code>interface</code> with all possible events and their corresponding event type. For example <code>&quot;click&quot;</code> corresponds with <code>MouseEvent</code> and <code>&quot;gamepadconnected&quot;</code> corresponds with <code>GamepadEvent</code>. Using generics, <code>keyof</code>, literal types, and indexed access types, the compiler can ensure complete type safety of <code>addEventListener</code>. If &quot;gamepadconnected&quot; is passed as the first parameter, it will typecheck that the second parameter is a callback with a <code>GamepadEvent</code> parameter.</p>
 <p>The <code>WindowEventMap[K]</code> syntax means that the &quot;ev&quot; parameter of the &quot;listener&quot; callback is the type in that map at the key <code>K</code>. This is a unique feature of TypeScript compared to other languages! Even languages with an advanced type system like Rust <a href="https://willcrichton.net/notes/types-over-strings/">incur a small runtime cost</a> to ensure this kind of type safety.</p>
@@ -395,75 +395,75 @@ export function createMessage(messageType: MessageType): MessageTemplate {
 <h3>Conditional Types</h3>
 <p><a href="https://www.typescriptlang.org/docs/handbook/2/conditional-types.html">TypeScript Handbook - Conditional Types</a></p>
 <h3>Mapped Types</h3>
-<pre><code class="language-TypeScript">const translationsStatus = {
-  &#x27;en-AU&#x27;: true,
-  &#x27;en-UK&#x27;: false,
-  &#x27;en-US&#x27;: true,
-  &#x27;fr-CA&#x27;: true,
-  &#x27;fr-FR&#x27;: true,
-  &#x27;pt-BR&#x27;: false,
-  &#x27;pt-PT&#x27;: false,
-} as const
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token keyword">const</span> translationsStatus <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token string-property property">&#x27;en-AU&#x27;</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string-property property">&#x27;en-UK&#x27;</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token string-property property">&#x27;en-US&#x27;</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string-property property">&#x27;fr-CA&#x27;</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string-property property">&#x27;fr-FR&#x27;</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string-property property">&#x27;pt-BR&#x27;</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token string-property property">&#x27;pt-PT&#x27;</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span> <span class="token keyword module">as</span> <span class="token keyword">const</span>
 
-// https://stackoverflow.com/a/54520829
+<span class="token comment">// https://stackoverflow.com/a/54520829</span>
 
-type KeysMatching&lt;T, V&gt; = {
-  [K in keyof T]: T[K] extends V ? K : never
-}[keyof T]
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">KeysMatching</span><span class="token operator">&lt;</span><span class="token constant">T</span><span class="token punctuation">,</span> <span class="token constant">V</span><span class="token operator">&gt;</span></span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">[</span><span class="token constant">K</span> <span class="token keyword">in</span> <span class="token keyword">keyof</span> <span class="token constant">T</span><span class="token punctuation">]</span><span class="token operator">:</span> <span class="token constant">T</span><span class="token punctuation">[</span><span class="token constant">K</span><span class="token punctuation">]</span> <span class="token keyword">extends</span> <span class="token class-name"><span class="token constant">V</span></span> <span class="token operator">?</span> <span class="token constant">K</span> <span class="token operator">:</span> <span class="token builtin">never</span>
+<span class="token punctuation">}</span><span class="token punctuation">[</span><span class="token keyword">keyof</span> <span class="token constant">T</span><span class="token punctuation">]</span>
 
-type KeysWithValsOfType&lt;T extends Record&lt;string, unknown&gt;, V&gt; = keyof {
-  [P in keyof T as T[P] extends V ? P : never]: P
-}
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">KeysWithValsOfType</span><span class="token operator">&lt;</span><span class="token constant">T</span> <span class="token keyword">extends</span> <span class="token maybe-class-name">Record</span><span class="token operator">&lt;</span><span class="token builtin">string</span><span class="token punctuation">,</span> <span class="token builtin">unknown</span><span class="token operator">&gt;</span><span class="token punctuation">,</span> <span class="token constant">V</span><span class="token operator">&gt;</span></span> <span class="token operator">=</span> <span class="token keyword">keyof</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">[</span><span class="token constant">P</span> <span class="token keyword">in</span> <span class="token keyword">keyof</span> <span class="token constant">T</span> <span class="token keyword module">as</span> <span class="token constant">T</span><span class="token punctuation">[</span><span class="token constant">P</span><span class="token punctuation">]</span> <span class="token keyword">extends</span> <span class="token class-name"><span class="token constant">V</span></span> <span class="token operator">?</span> <span class="token constant">P</span> <span class="token operator">:</span> <span class="token builtin">never</span><span class="token punctuation">]</span><span class="token operator">:</span> <span class="token constant">P</span>
+<span class="token punctuation">}</span>
 
 </code></pre>
 <p><a href="https://www.typescriptlang.org/docs/handbook/2/mapped-types.html">TypeScript Handbook - Mapped Types</a></p>
 <h3>Template Literal Types</h3>
-<pre><code class="language-TypeScript">/**
+<pre class="language-typescript"><code class="language-TypeScript"><span class="token doc-comment comment">/**
  * Given a string, extracts variable names from between
- * `{{` and `}}` delimiters and returns an object type with
+ * `<span class="token punctuation">{</span><span class="token punctuation">{</span>` and `<span class="token punctuation">}</span><span class="token punctuation">}</span>` delimiters and returns an object type with
  * those variable names as the required keys.
- */
-type ExtractInterpolatedVariables&lt;
-  S extends string,
-  VarNames extends string[] = []
-&gt; = S extends `${string}{{${infer Var}}}${infer Rest}`
-  ? ExtractInterpolatedVariables&lt;Rest, [Var, ...VarNames]&gt;
-  : VarNames extends []
-    ? Record&lt;string, never&gt; // special first case: empty object when there are no variables
-    : { [Prop in VarNames[number]]: string } // exit recursion case: no variables left to interpolate
+ */</span>
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">ExtractInterpolatedVariables</span><span class="token operator">&lt;</span>
+  <span class="token constant">S</span> <span class="token keyword">extends</span> <span class="token builtin">string</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">VarNames</span> <span class="token keyword">extends</span> <span class="token builtin">string</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+<span class="token operator">&gt;</span></span> <span class="token operator">=</span> <span class="token constant">S</span> <span class="token keyword">extends</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token builtin">string</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">{{</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token keyword">infer</span> <span class="token maybe-class-name">Var</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">}}</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token keyword">infer</span> <span class="token maybe-class-name">Rest</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span>
+  <span class="token operator">?</span> <span class="token maybe-class-name">ExtractInterpolatedVariables</span><span class="token operator">&lt;</span><span class="token maybe-class-name">Rest</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token maybe-class-name">Var</span><span class="token punctuation">,</span> <span class="token spread operator">...</span><span class="token maybe-class-name">VarNames</span><span class="token punctuation">]</span><span class="token operator">&gt;</span>
+  <span class="token operator">:</span> <span class="token maybe-class-name">VarNames</span> <span class="token keyword">extends</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token operator">?</span> <span class="token maybe-class-name">Record</span><span class="token operator">&lt;</span><span class="token builtin">string</span><span class="token punctuation">,</span> <span class="token builtin">never</span><span class="token operator">&gt;</span> <span class="token comment">// special first case: empty object when there are no variables</span>
+    <span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token punctuation">[</span><span class="token maybe-class-name">Prop</span> <span class="token keyword">in</span> <span class="token maybe-class-name">VarNames</span><span class="token punctuation">[</span><span class="token builtin">number</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token operator">:</span> <span class="token builtin">string</span> <span class="token punctuation">}</span> <span class="token comment">// exit recursion case: no variables left to interpolate</span>
 
-const withZeroVariables = &#x27;Hello, world!&#x27;
-type WithZeroVariables = typeof withZeroVariables
-type Test0 = ExtractInterpolatedVariables&lt;WithZeroVariables&gt;
+<span class="token keyword">const</span> withZeroVariables <span class="token operator">=</span> <span class="token string">&#x27;Hello, world!&#x27;</span>
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">WithZeroVariables</span></span> <span class="token operator">=</span> <span class="token keyword">typeof</span> withZeroVariables
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">Test0</span></span> <span class="token operator">=</span> <span class="token maybe-class-name">ExtractInterpolatedVariables</span><span class="token operator">&lt;</span><span class="token maybe-class-name">WithZeroVariables</span><span class="token operator">&gt;</span>
 
-const withOneVariable = &#x27;Welcome {{userName}}.&#x27;
-type WithOneVariable = typeof withOneVariable
-type Test1 = ExtractInterpolatedVariables&lt;WithOneVariable&gt;
+<span class="token keyword">const</span> withOneVariable <span class="token operator">=</span> <span class="token string">&#x27;Welcome {{userName}}.&#x27;</span>
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">WithOneVariable</span></span> <span class="token operator">=</span> <span class="token keyword">typeof</span> withOneVariable
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">Test1</span></span> <span class="token operator">=</span> <span class="token maybe-class-name">ExtractInterpolatedVariables</span><span class="token operator">&lt;</span><span class="token maybe-class-name">WithOneVariable</span><span class="token operator">&gt;</span>
 
-const withTwoVariables = &#x27;{{userName}} sent you a message:\n{{shortMessage}}&#x27;
-type WithTwoVariables = typeof withTwoVariables
-type Test2 = ExtractInterpolatedVariables&lt;WithTwoVariables&gt;
+<span class="token keyword">const</span> withTwoVariables <span class="token operator">=</span> <span class="token string">&#x27;{{userName}} sent you a message:\n{{shortMessage}}&#x27;</span>
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">WithTwoVariables</span></span> <span class="token operator">=</span> <span class="token keyword">typeof</span> withTwoVariables
+<span class="token keyword">type</span> <span class="token class-name"><span class="token maybe-class-name">Test2</span></span> <span class="token operator">=</span> <span class="token maybe-class-name">ExtractInterpolatedVariables</span><span class="token operator">&lt;</span><span class="token maybe-class-name">WithTwoVariables</span><span class="token operator">&gt;</span>
 
-function interpolateMessage&lt;T extends string&gt;(
-  message: T,
-  variablesToInterpolate: ExtractInterpolatedVariables&lt;T&gt;
-): string {
-  let newMessage: string = message
-  for (const [varName, value] of Object.entries(variablesToInterpolate)) {
-    newMessage = newMessage.replace(`{{${varName}}}`, value)
-  }
-  return newMessage
-}
+<span class="token keyword">function</span> <span class="token generic-function"><span class="token function">interpolateMessage</span><span class="token generic class-name"><span class="token operator">&lt;</span><span class="token constant">T</span> <span class="token keyword">extends</span> <span class="token builtin">string</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">(</span>
+  message<span class="token operator">:</span> <span class="token constant">T</span><span class="token punctuation">,</span>
+  variablesToInterpolate<span class="token operator">:</span> <span class="token maybe-class-name">ExtractInterpolatedVariables</span><span class="token operator">&lt;</span><span class="token constant">T</span><span class="token operator">&gt;</span>
+<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">string</span> <span class="token punctuation">{</span>
+  <span class="token keyword">let</span> newMessage<span class="token operator">:</span> <span class="token builtin">string</span> <span class="token operator">=</span> message
+  <span class="token keyword control-flow">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token punctuation">[</span>varName<span class="token punctuation">,</span> value<span class="token punctuation">]</span> <span class="token keyword">of</span> <span class="token known-class-name class-name">Object</span><span class="token punctuation">.</span><span class="token method function property-access">entries</span><span class="token punctuation">(</span>variablesToInterpolate<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    newMessage <span class="token operator">=</span> newMessage<span class="token punctuation">.</span><span class="token method function property-access">replace</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">{{</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>varName<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">}}</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">,</span> value<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword control-flow">return</span> newMessage
+<span class="token punctuation">}</span>
 
-// should pass
-interpolateMessage(withZeroVariables, {})
-interpolateMessage(withOneVariable, { userName: &#x27;Ada&#x27; })
-interpolateMessage(withTwoVariables, { userName: &#x27;Bob&#x27;, shortMessage: &#x27;Hello, world!&#x27; })
+<span class="token comment">// should pass</span>
+<span class="token function">interpolateMessage</span><span class="token punctuation">(</span>withZeroVariables<span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token function">interpolateMessage</span><span class="token punctuation">(</span>withOneVariable<span class="token punctuation">,</span> <span class="token punctuation">{</span> userName<span class="token operator">:</span> <span class="token string">&#x27;Ada&#x27;</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token function">interpolateMessage</span><span class="token punctuation">(</span>withTwoVariables<span class="token punctuation">,</span> <span class="token punctuation">{</span> userName<span class="token operator">:</span> <span class="token string">&#x27;Bob&#x27;</span><span class="token punctuation">,</span> shortMessage<span class="token operator">:</span> <span class="token string">&#x27;Hello, world!&#x27;</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
 
-// should fail
-interpolateMessage(withZeroVariables, { bad: &#x27;one&#x27; })
-interpolateMessage(withOneVariable, { username: &#x27;Ada&#x27; })
-interpolateMessage(withTwoVariables, { bad1: &#x27;Ada&#x27;, bad2: &#x27;Bob&#x27; })
+<span class="token comment">// should fail</span>
+<span class="token function">interpolateMessage</span><span class="token punctuation">(</span>withZeroVariables<span class="token punctuation">,</span> <span class="token punctuation">{</span> bad<span class="token operator">:</span> <span class="token string">&#x27;one&#x27;</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token function">interpolateMessage</span><span class="token punctuation">(</span>withOneVariable<span class="token punctuation">,</span> <span class="token punctuation">{</span> username<span class="token operator">:</span> <span class="token string">&#x27;Ada&#x27;</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token function">interpolateMessage</span><span class="token punctuation">(</span>withTwoVariables<span class="token punctuation">,</span> <span class="token punctuation">{</span> bad1<span class="token operator">:</span> <span class="token string">&#x27;Ada&#x27;</span><span class="token punctuation">,</span> bad2<span class="token operator">:</span> <span class="token string">&#x27;Bob&#x27;</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
 
 </code></pre>
-<p><a href="https://www.typescriptlang.org/docs/handbook/2/template-literal-types.html">TypeScript Handbook - Template Literal Types</a></p></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{}},"page":"/blog/tutorials/ts-type-manipulation","query":{},"buildId":"SMms8MfYvaIoPEIJ2xEwK","nextExport":true,"autoExport":true,"isFallback":false,"scriptLoader":[]}</script></body></html>
+<p><a href="https://www.typescriptlang.org/docs/handbook/2/template-literal-types.html">TypeScript Handbook - Template Literal Types</a></p></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{}},"page":"/blog/tutorials/ts-type-manipulation","query":{},"buildId":"JujsoKe1gNb9miu8P0_RH","nextExport":true,"autoExport":true,"isFallback":false,"scriptLoader":[]}</script></body></html>
