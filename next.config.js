@@ -3,10 +3,12 @@
 const withPlugins = require('next-compose-plugins')
 const withSvgr = require('next-plugin-svgr')
 
+const rehypePrism = require('@mapbox/rehype-prism')
+
 const withMDX = require('@next/mdx')({
   options: {
     remarkPlugins: [],
-    rehypePlugins: [],
+    rehypePlugins: [rehypePrism],
     // If you use `MDXProvider`, uncomment the following line.
     // providerImportSource: "@mdx-js/react",
   },
