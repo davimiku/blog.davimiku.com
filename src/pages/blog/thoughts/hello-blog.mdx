@@ -63,7 +63,7 @@ Example from this site:
 
 This is a simple example that keeps the main content centered and at a maximum of 110 characters wide (the "zero" character `0` is the baseline for the width of a character). If you stretch or shrink this page, you'll see the central column widen to 110 characters and then stay there. This is also quite easy to adjust, just changing the 110 to something else and the page remains intact.
 
-### Clamp
+### clamp()
 
 The <ExternalLink href="https://developer.mozilla.org/en-US/docs/Web/CSS/clamp">CSS clamp() function</ExternalLink> can be used for fluidly resizing values. The example below uses it to resize the `<h1>` based on the current viewport width:
 
@@ -106,7 +106,7 @@ There are many (better) resources available for learning CSS Grid, but just an e
 }
 ```
 
-This allows for a 2x3 grid to fluidly resize to 3x2 and then 6x1 on a shrinking screen, and adjusts the items themselves (with a minimum) to minimize the amount of rearranging.
+This allows for a 2x3 grid to fluidly resize to 3x2 and then 6x1 on a shrinking screen, and adjusts the items themselves (with a minimum threshold) to reduce the amount that the layout is rearranged.
 
 ### Media Queries for Detecting Other Media
 

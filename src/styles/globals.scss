@@ -6,6 +6,7 @@ body {
   padding: 0;
   margin: 0;
   font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+  background-color: snow;
 }
 
 * {
@@ -20,6 +21,10 @@ a {
 
 p {
   line-height: 1.5;
+
+  code {
+    color: colors.$code;
+  }
 }
 
 h1,
@@ -41,6 +46,10 @@ body.dark {
 
   h2 {
     color: colors.$tertiary;
+  }
+
+  p code {
+    color: colors.$code-dark-mode;
   }
 }
 
