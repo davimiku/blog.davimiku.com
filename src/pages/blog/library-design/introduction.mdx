@@ -1,0 +1,71 @@
+export const meta = {
+  title: 'Hello, Blog!',
+  category: 'thoughts',
+  slug: 'hello-blog',
+  tagline: 'Introducing my blog, and an experiment in responsive design without breakpoints',
+  publishedOn: '2022-07-26',
+  tags: ['CSS', 'Responsive Design'],
+}
+
+import { BlogsPage } from '../../../layouts/blog'
+import { EmphasisBox, Spoiler } from '../../../components/blog'
+import { ExternalLink } from '../../../components/link'
+
+## Library Design
+
+
+<EmphasisBox>
+
+Examples of real libraries are referenced throughout this article, with both associated praise and criticism. 
+I wanted to include as many real examples as possible to complement theoretical/contrived examples. This is by no
+means a criticism of the hard-working people who develop and maintain these libraries, often on their own time
+and effort. I just hope that some of this discussion is helpful for others.
+
+</EmphasisBox>
+
+## Correctness
+
+- Library functions accept only correct inputs, within what is possible to achieve in that language
+- Return types of library functions say exactly what they can possibly return
+- Correctness is opt-out, not opt-in
+
+
+### Example: Date(Time) Parsing
+
+A common operation in applications, both on the client-side and server-side, is parsing an input string
+into date/datetime structures for doing various operations, such as comparisons, duration calculations, etc.
+
+In the general case, parsing input can either succeed or fail, there is no guarantee the input string is in an
+expected format. The input could have come from users, may have been received from a network request, etc.
+
+(Diagram of Input -> Success OR Failure)
+
+[Luxon](https://moment.github.io/luxon/api-docs/index.html#datetimefromiso)
+
+```ts
+fromISO(text: string, opts: Object): DateTime
+```
+
+The function signature provided by the Luxon documentation means a function named `fromISO` that takes a `string` and `Object` as inputs and
+returns a `DateTime` as output. The interesting thing to note here is this function signature has no notion of failure - a `DateTime` is
+always returned for all inputs.
+
+
+
+[Dotnet](https://learn.microsoft.com/en-us/dotnet/api/system.datetime.parse?view=net-7.0#system-datetime-parse(system-string))
+
+```cs
+public static DateTime Parse (string s);
+```
+
+This function signature (C#) means a function named `Parse` takes a `string` as inputs and returns a `DateTime` as output (the output is listed
+before the input which seems backwards to me, but that's how the syntax works).
+
+From reading the function signature, it appears that a `DateTime` is always returned. 
+
+## Composability
+
+
+
+## Power
+
