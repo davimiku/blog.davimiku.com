@@ -9,10 +9,6 @@ body {
   background-color: snow;
 }
 
-body {
-  padding-bottom: 5rem;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -41,6 +37,12 @@ h2 {
   margin-top: 2rem;
 }
 
+blockquote {
+  border-left: 5px solid gray;
+  padding-left: 2rem;
+  margin-left: 2rem;
+}
+
 body.dark {
   background-color: black;
   h1,
@@ -53,6 +55,10 @@ body.dark {
   }
 
   p code {
+    color: colors.$code-dark-mode;
+  }
+
+  li code {
     color: colors.$code-dark-mode;
   }
 }

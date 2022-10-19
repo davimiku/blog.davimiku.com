@@ -1,6 +1,10 @@
+@use '../styles/variables/colors';
+
 .main {
   margin: 0 auto 2rem auto;
   max-width: 110ch;
+
+  padding-bottom: 5rem;
 
   // Fluidly scale padding down to 1rem at small screen widths
   --scaling-factor: 20;
@@ -16,4 +20,9 @@
 
 .main h1 {
   font-size: clamp(2rem, 4vw, 3.5rem);
+}
+
+.footer {
+  height: 3rem;
+  background: colors.$primary;
 }
