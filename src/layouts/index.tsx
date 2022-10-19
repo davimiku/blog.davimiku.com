@@ -12,9 +12,12 @@ export type LayoutProps = {
 }
 
 // TODO: investigate using pages/_document.tsx for anything common across all pages
+// https://nextjs.org/docs/advanced-features/custom-document
 
 export default function Layout({ children, title, description }: PropsWithChildren<LayoutProps>) {
-  const className = useColorSchemeClass(styles, 'main')
+  const mainClass = useColorSchemeClass(styles, 'main')
+  const footerClass = useColorSchemeClass(styles, 'footer')
+
   return (
     <>
       <Head>
@@ -36,7 +39,8 @@ export default function Layout({ children, title, description }: PropsWithChildr
         />
       </Head>
       <Header />
-      <main className={className}>{children}</main>
+      <main className={mainClass}>{children}</main>
+      <footer className={footerClass}></footer>
     </>
   )
 }
