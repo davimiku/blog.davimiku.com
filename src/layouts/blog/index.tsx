@@ -5,10 +5,10 @@ import { FeaturedImage } from 'components/blog/FeaturedImage'
 import Layout from 'layouts'
 
 import styles from './blog.module.scss'
-import { Meta } from 'data'
+import { BlogMeta } from 'data'
 
 export type BlogsPageProps = {
-  meta: Meta
+  meta: BlogMeta
   children: ReactNode
 }
 

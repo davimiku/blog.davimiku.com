@@ -3,10 +3,10 @@ import { TechnologyBadge } from 'components/badges'
 import { PublishDate } from 'components/blog/publish_date'
 
 import styles from './BlogSummaryCard.module.scss'
-import { Meta } from 'data'
+import { BlogMeta } from 'data'
 
 export type BlogCardProps = {
-  meta: Meta
+  meta: BlogMeta
 }
 
 export function BlogSummaryCard({ meta }: BlogCardProps) {

@@ -1,6 +1,6 @@
 import { Project } from 'types/projects'
 
-export type Meta = {
+export type BlogMeta = {
   title: string
   category: Category
   slug: string
@@ -16,8 +16,8 @@ import * as HelloBlog from '../pages/blog/thoughts/hello-blog.mdx'
 // import * as JsonParserRust from '../pages/blog/tutorials/json-parser-rust.mdx'
 // import * as TsTypeManipulation from '../pages/blog/tutorials/ts-type-manipulation.mdx'
 
-const blogs: { meta: Meta }[] = [HelloBlog]
-export const blogsMeta: Meta[] = blogs.map(blog => blog.meta)
+const blogs: { meta: BlogMeta }[] = [HelloBlog]
+export const blogsMeta: BlogMeta[] = blogs.map(blog => blog.meta)
 
 export const projects: Project[] = [
   {
