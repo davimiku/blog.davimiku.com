@@ -1,6 +1,23 @@
 import Layout from 'layouts'
-import { blogsMeta } from 'data'
 import { BlogListing } from 'components/blog'
+
+type BlogMeta = {
+  title: string
+  category: Category
+  slug: string
+  tagline: string
+  publishedOn?: string
+  tags?: string[]
+}
+
+type Category = 'thoughts' | 'tutorials'
+
+import * as thoughts from './thoughts'
+import * as tutorials from './tutorials'
+
+export const blogsMeta: BlogMeta[] = [thoughts, tutorials]
+  .flatMap(mod => Object.values(mod))
+  .map(blog => blog.meta)
 
 export default function BlogIndex() {
   return (
