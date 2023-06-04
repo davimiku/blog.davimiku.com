@@ -17,6 +17,5 @@ export function PublishDate({ date }: PublishDateProps) {
       </Badge>
     )
   }
-  const formattedDate = new Date(date).toLocaleDateString()
-  return <span>{formattedDate}</span>
+  return <time dateTime={date}>{date}</time>
 }
