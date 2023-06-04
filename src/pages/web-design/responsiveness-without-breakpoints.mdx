@@ -1,0 +1,137 @@
+export const meta = {
+  title: 'Web Design: Responsiveness without breakpoints',
+  category: 'web-design',
+  type: 'thoughts',
+  slug: 'responsiveness-without-breakpoints',
+  tagline: 'An experiment in responsive design without breakpoints',
+  publishedOn: '2023-06-10',
+  tags: ['CSS', 'Responsive Design'],
+}
+
+import { BlogsPage } from '../../layouts/blog'
+import { EmphasisBox, Spoiler } from '../../components/blog'
+
+## Web Design: Responsiveness without breakpoints
+
+During development of this website, I came across an article titled [The 100% correct way to do CSS breakpoints](https://www.freecodecamp.org/news/the-100-correct-way-to-do-css-breakpoints-88d6a5ba1862/), which describes the problem with setting up breakpoints in the "traditional" way:
+
+- X-Small: 0-576px
+- Small: 576-768px
+- Medium: 768-992px
+- Large: 992-1200px
+- X-Large: 1200-1400px
+- XX-Large: >1400px
+
+The article (convincingly) argues that this is the wrong way to think about breakpoints, rather than breaking on exact device widths ("Wait, is the 768px inclusive or exclusive?"), you should instead think about _ranges_ instead of points, and groups of devices rather than single cut-off points. Go ahead and read that article, it's definitely worth it. However, coming across this article many years later, I can't help but to think there's more to the story now.
+
+It isn't just about the device being used, it's also about _how_ the device is used. For example, Android has a [One Handed Mode](https://www.androidcentral.com/how-enable-one-handed-mode-android-12) that changes how the screens are used. Windows has [Snap To Edge](https://support.microsoft.com/en-us/windows/snap-your-windows-885a9b1e-a983-a3b1-16cd-c531795e6241) - a legitimate use case is snapping your web application to one side and having another application snapped to the other side. The user may be on a laptop but not in the "laptop" breakpoint. Devices have multiple orientations that people often switch between, and mobile devices have made a full cycle back around to [being foldable](https://www.samsung.com/us/smartphones/galaxy-z-fold3-5g/specs/). People [cast](https://support.google.com/chromecast/answer/6006232?hl=en) websites to their TVs or plug their devices into a TV. One can imagine a world (or does it already exist?) where screens are present on common household items such as refrigerators, security system panels, thermostats, and desks.
+
+These aren't just **statically** different devices, but also **dynamically** different - someone may be on your website interacting with their finger, and then fold open their phone and interact with a stylus without a page reload. People rearrange their windows all the time while on a website without refreshing (I use Win+Left and Win+Right constantly to snap applications around).
+
+The "traditional" breakpoint sizes aren't the right tool to manage smooth responsiveness across the dynamic array of devices and uses.
+
+### Background on Media Queries
+
+Media queries were originally developed to give developers the ability to display the website differently based on the media that it was being viewed on. The earliest application of this was to provide different styles for `screen` and `print` versions of the website, as elements could look different on a computer screen vs. a piece of paper. Later on, with the advent of mobile devices and the standardization of [Media Queries Level 3](https://www.w3.org/TR/mediaqueries-3/) these became almost synonymous with "breakpoints", as the most commonly used media query by far is `width`.
+
+<Spoiler summary="print media query">
+It's not that common to see media queries specifically for `print` anymore. A number of factors are responsible for this, including less need for printed information. For example, instead of printing directions from MapQuest, GPS/Maps are available directly on your mobile device.
+
+Another big reason we see less of the `print` media query is how easy it is to generate PDFs compared to the earlier days of the web. PDF was actually [not an open standard until 2008](https://en.wikipedia.org/wiki/History_of_PDF), and it still took a little while after that, but now it's easy to generate PDFs across programming languages and applications. Nowadays, for printing and sending documents, you'd probably rather generate a PDF than try to style a webpage with `print` media queries and CSS.
+
+</Spoiler>
+
+Nowadays, in \{_current year_\}, although we have more challenges, we also have more CSS techniques available to us for responsive design, and these are especially effective for static content (such as this website), assuming you don't need to [support Internet Explorer](https://www.msn.com/en-us/lifestyle/shopping/internet-explorer-microsoft-kills-iconic-internet-browser/ar-AAYvcop). Here are a sampling of these techniques that you can use to improve responsiveness without breakpoints (`width` media queries).
+
+### Relative Units
+
+Most front-end developers are comfortable with the idea of relative units, such as `em` and `rem` which can particularly help with making styles more resistant to change by sizing with relative units rather than specific pixel sizes. This also helps when a user has configured their web browser to use a different default font size than 16px by automatically scaling your text according to their preferences.
+
+There are other units available also, such as `vw` (viewport width), `vh` (viewport height), `ch` (character width), and using percentages.
+
+Example from this site:
+
+```css
+.main {
+  margin: 0 auto 2rem auto;
+  max-width: 110ch;
+}
+```
+
+This is a simple example that keeps the main content centered and at a maximum of 110 characters wide (the "zero" character `0` is the baseline for the width of a character). If you stretch or shrink this page, you'll see the central column widen to 110 characters and then stay there. This is also quite easy to adjust, just changing the 110 to something else and the page remains intact.
+
+### clamp()
+
+The [CSS clamp() function](https://developer.mozilla.org/en-US/docs/Web/CSS/clamp) can be used for fluidly resizing values. The example below uses it to resize the `<h1>` based on the current viewport width:
+
+```css
+.main h1 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+}
+```
+
+The function arguments are (MIN, VAL, MAX), and `rem` units are used for the MIN and MAX to provide limits on the size (relative to the user's font size preference), and the VAL is the "preferred value" that is based on the current viewport width.
+
+### calc()
+
+The `calc()` function can be used to... calculate values.
+
+```css
+.main {
+  /* Fluidly scale padding down to 1rem at small screen widths */
+  --scaling-factor: 20;
+  --relative-padding: calc(100vw - 320px);
+  padding-left: calc(var(--relative-padding) / var(--scaling-factor) + 1rem);
+  padding-right: calc(var(--relative-padding) / var(--scaling-factor) + 1rem);
+}
+```
+
+This is a little math that causes the horizontal padding to fluidly shrink as the viewport shrinks, all way down to a minimum of `1rem` (if the viewport width was 0).
+
+<EmphasisBox>
+  As a bonus, here we've used [CSS Custom
+  Properties](https://developer.mozilla.org/en-US/docs/Web/CSS/--*) to avoid repetition and have
+  more "self documenting code" with a descriptive name **and** indicating that the two paddings
+  should be kept in sync with each other. From my experience in codebases with a lot of CSS, this
+  can make a real difference for maintainabilty. If you already use SASS/SCSS then those
+  pre-processors have variables too. Use them!
+</EmphasisBox>
+
+### CSS Grid
+
+There are many (better) resources available for learning CSS Grid (I like [CSS Tricks](https://css-tricks.com/snippets/css/complete-guide-grid/)). Here is an example from this site for making a grid that fluidly rearranges items in the grid and resizes them based on screen width.
+
+```css
+.card-grid {
+  display: grid;
+  row-gap: 3vw;
+  column-gap: 3vw;
+
+  --min-card-width: 20rem;
+  grid-template-columns: repeat(auto-fit, minmax(var(--min-card-width), 1fr));
+}
+```
+
+This allows for a 2x3 grid to fluidly resize to 3x2 and then 6x1 on a shrinking screen, and adjusts the items themselves (with a minimum threshold) to reduce the amount that the layout is rearranged.
+
+### Media Queries for Detecting Other Media
+
+Throughout this experiment, I haven't banned myself from using **media queries**, just "breakpoints". Media Queries are very useful! I'm using the [prefers-color-schema](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme) media query to default the dark/light mode based on your browser or operating system preferences. Applications that use animations really should use [prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion) for the comfort and safety of their users, and [prefers-contrast](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-contrast) to ensure that everyone can see the content effectively. We can detect if the device has a coarse pointer (ex. finger) or a fine pointer (ex. mouse) to make buttons easier to press/click using the [pointer](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/pointer) media query.
+
+Other interesting modern media queries can be seen in the Media Queries Level 4](https://www.w3.org/TR/mediaqueries-4/) specification. Of course, we should check for browser support, and only use these for progressive enhancement, not rely on them for essential functionality.
+
+During research for this article, I came across [What if I told you that you can build a web page without device-based breakpoints?](https://uxdesign.cc/what-if-i-told-you-that-you-build-a-web-page-without-device-based-breakpoints-6f8306dd7bc6) which discusses much of the same topics.
+
+### Container Queries
+
+At the time of writing, I haven't used any [Container Queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Container_Queries)
+
+## Disclaimer and Closing Thoughts
+
+To be clear, I'm not telling you to not use breakpoints, this is not a "XYZ Considered Harmful" kind of article. Breakpoints are necessary for breaking and shifting the layout at different widths, which I am not doing on this static website but may be necessary on a more interactive web application. I am trying to encourage you to avoid breakpoints as the default (or only) tool for responsive design.
+
+I am **definitely not** a UI or CSS expert, these are just some neat tricks that I learned during this experiment. This was also not intended as a tutorial or a comprehensive source of information. I fully expect there will be responsiveness issues with this website itself, please [Report an Issue](https://github.com/davimiku/davimiku.github.io/issues/new?assignees=&labels=&template=website-display-issue.md&title=) with details of the issue if you find any. I'll try my best to fix it without introducing any breakpoints, bonus points for finding this issue on a weird or obscure device!
+
+I used this as an opportunity to learn about the real purpose of media queries and what we can do with them (and just as importantly, what we can do **without** them). The best part about all this is there is **_significantly less_** CSS that I have to write and maintain with the fluid design than with the "traditional" breakpoint approach. Gone are the days of adjusting fonts at every breakpoint, embrace robust and maintainable styling!
+
+export default ({ children }) => <BlogsPage meta={meta}>{children}</BlogsPage>

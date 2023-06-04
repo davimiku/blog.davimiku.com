@@ -1,9 +1,9 @@
 {
+  "root": true,
   "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint"],
   "extends": [
     "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:mdx/recommended",
     "prettier",
@@ -15,7 +15,7 @@
   "parserOptions": {
     "ecmaVersion": 2020,
     "ecmaFeatures": {
-      "legacyDecorators": true,
+      "legacyDecorators": false,
       "jsx": true
     }
   },
@@ -24,6 +24,7 @@
       "version": "detect"
     }
   },
+  "ignorePatterns": ["*.mdx", "*.md", "out/**", "public/**"],
   "rules": {
     "space-before-function-paren": 0,
     "react/prop-types": 0,
@@ -36,6 +37,7 @@
       "warn",
       { "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }
     ],
-    "@typescript-eslint/explicit-module-boundary-types": "off"
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "no-unexpected-multiline": "error"
   }
 }

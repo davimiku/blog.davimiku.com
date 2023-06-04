@@ -2,9 +2,9 @@ import Link from 'next/link'
 
 import styles from './BlogListing.module.scss'
 import { PublishDate } from 'components/blog/publish_date'
-import { BlogMeta } from 'data'
+import type { BlogMeta } from 'pages/blog'
 
-const formatPath = (...paths: string[]) => '/blog/' + paths.join('/').replace(/\.mdx$/, '')
+const formatPath = (...paths: string[]) => '/' + paths.join('/').replace(/\.mdx$/, '')
 
 export type BlogListingProps = {
   meta: BlogMeta

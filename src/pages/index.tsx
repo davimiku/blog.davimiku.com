@@ -3,9 +3,10 @@ import { CardGrid } from 'components/cards/card_grid'
 import { ProjectSummaryCard } from 'components/cards/project/ProjectSummaryCard'
 import { ButtonLink } from 'components/link/ButtonLink'
 import { ExternalLink } from 'components/link/ExternalLink'
-import { projects, blogsMeta } from 'data'
+import { projects } from 'data'
 import Layout from 'layouts'
 import React from 'react'
+import { blogsMeta } from './blog'
 
 /**
  * Component for the "home" page server at path '/'

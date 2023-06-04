@@ -1,18 +1,17 @@
 import { NextSeo } from 'next-seo'
-import { ReactNode } from 'react'
+import { PropsWithChildren } from 'react'
 
 import { FeaturedImage } from 'components/blog/FeaturedImage'
 import Layout from 'layouts'
 
 import styles from './blog.module.scss'
-import { BlogMeta } from 'data'
+import type { BlogMeta } from 'pages/blog'
 
 export type BlogsPageProps = {
   meta: BlogMeta
-  children: ReactNode
 }
 
-export function BlogsPage({ children, meta }: BlogsPageProps) {
+export function BlogsPage({ children, meta }: PropsWithChildren<BlogsPageProps>) {
   const { title, tagline } = meta
   return (
     <Layout title={title} description={tagline}>
