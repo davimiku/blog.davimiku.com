@@ -19,12 +19,12 @@ export default function Home() {
   const blogCards = blogsMeta.map(meta => <BlogSummaryCard key={meta.slug} meta={meta} />)
   return (
     <Layout title="David's Website" description='My Projects'>
-      <h1>David Mikulis</h1>
+      <h1>David's Website</h1>
 
       <p>
         Hello! My name is David and I am a <strong>software engineer</strong> who focuses on
-        full-stack web development. I frequently work with Typescript, though I enjoy learning and
-        using new tools. Besides Typescript, I often work with Python and Rust.
+        full-stack web development. I generally work with Typescript and C#, though I enjoy learning
+        and using new languages and tools.
       </p>
 
       <h2>About Me</h2>

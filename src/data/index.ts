@@ -2,16 +2,16 @@ import { Project } from 'types/projects'
 
 export const projects: Project[] = [
   {
-    name: 'davimiku.github.io',
+    name: 'blog.davimiku.com',
     tagline: 'Static site generated with Next.js and React',
     description:
       'Responsive design implemented without "breakpoints" (width-based media queries) as a personal challenge.',
     technologies: ['TypeScript', 'Next.js', 'React', 'SCSS'],
     topics: ['static site generation', 'fluid design', 'blog'],
     repo: {
-      name: 'davimiku.github.io',
-      path: 'davimiku/davimiku.github.io',
-      url: 'https://github.com/davimiku/davimiku.github.io',
+      name: 'blog.davimiku.com',
+      path: 'davimiku/blog.davimiku.com',
+      url: 'https://github.com/davimiku/blog.davimiku.com',
       description: 'My personal website',
     },
   },
