@@ -3,9 +3,9 @@ import { Project } from 'types/projects'
 export const projects: Project[] = [
   {
     name: 'blog.davimiku.com',
-    tagline: 'Static site generated with Next.js and React',
+    tagline: 'This website - static site generated with Next.js and React',
     description:
-      'Responsive design implemented without "breakpoints" (width-based media queries) as a personal challenge.',
+      'A blogging platform and an experiment with responsive design implemented without "breakpoints" (width-based media queries) as a personal challenge.',
     technologies: ['TypeScript', 'Next.js', 'React', 'SCSS'],
     topics: ['static site generation', 'fluid design', 'blog'],
     repo: {
@@ -13,6 +13,28 @@ export const projects: Project[] = [
       path: 'davimiku/blog.davimiku.com',
       url: 'https://github.com/davimiku/blog.davimiku.com',
       description: 'My personal website',
+    },
+  },
+  {
+    name: 'Unnamed programming language',
+    tagline:
+      'My own programming language - statically typed, mostly imperative, bytecode compiler and virtual machine, applications level language. ',
+    description:
+      'Status: Recently added functions and function calls, so getting closer to an experimental release.',
+    technologies: ['Rust'],
+    topics: [
+      'language design',
+      'virtual machine',
+      'bytecode',
+      'parsers',
+      'combinator parsers',
+      'json',
+    ],
+    repo: {
+      name: 'unknown-lang',
+      path: 'davimiku/unknown-lang',
+      url: 'https://github.com/davimiku/unknown-lang',
+      description: 'A new programming language, compiler, and virtual machine',
     },
   },
   {
@@ -31,6 +53,7 @@ export const projects: Project[] = [
   {
     name: 'JSONata',
     tagline: 'Implementation of JSON Query and Transformation language',
+    description: 'Status: Project is on hold while on work on my own programming language',
     technologies: ['Rust'],
     topics: ['interpreters', 'JSON', 'parser', 'functional programming'],
     repo: {
@@ -38,18 +61,6 @@ export const projects: Project[] = [
       path: 'davimiku/jsonata-rs',
       url: 'https://github.com/davimiku/jsonata-rs',
       description: 'Implementation of JSONata query language in Rust ',
-    },
-  },
-  {
-    name: 'JSON Parser',
-    tagline: 'Parser for JSON using iterative and combinator strategies',
-    technologies: ['Rust'],
-    topics: ['parsers', 'combinator parsers', 'json'],
-    repo: {
-      name: 'json_parser',
-      path: 'davimiku/json_parser',
-      url: 'https://github.com/davimiku/json_parser',
-      description: 'Implementation of a parser for JSON data',
     },
   },
 ]

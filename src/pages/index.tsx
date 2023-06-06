@@ -30,8 +30,8 @@ export default function Home() {
       <h2>About Me</h2>
 
       <p>
-        At my day job, I develop data processing pipelines and web applications for healthcare
-        providers.
+        At my day job, I work on a population health management platform for healthcare providers,
+        payors, and pharmacies.
       </p>
 
       <p>
