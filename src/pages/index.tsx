@@ -22,9 +22,9 @@ export default function Home() {
       <h1>David's Website</h1>
 
       <p>
-        Hello! My name is David and I am a <strong>software engineer</strong> who focuses on
-        full-stack web development. I generally work with Typescript and C#, though I enjoy learning
-        and using new languages and tools.
+        Hello! My name is David and I am a software engineer who focuses on full-stack web
+        development. I generally work with Typescript and C#, though I enjoy learning and using new
+        languages and tools.
       </p>
 
       <h2>About Me</h2>
@@ -42,7 +42,7 @@ export default function Home() {
           statically-typed imperative programming language
         </ExternalLink>{' '}
         language in Rust. I have found that studying programming languages has brought me a deeper
-        understanding of how software works.
+        understanding of how all software works.
       </p>
 
       <h2>Projects</h2>
@@ -51,7 +51,7 @@ export default function Home() {
 
       <h2>Blog posts</h2>
       <CardGrid cards={blogCards} />
-      {/* ButtonLink "See more..." */}
+      <ButtonLink href='/blog'>See all blog posts</ButtonLink>
     </Layout>
   )
 }

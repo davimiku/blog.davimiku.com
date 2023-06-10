@@ -13,7 +13,7 @@ export type BlogMeta = {
 type Category = 'parsers' | 'web-design'
 
 import * as ResponsivenessWithoutBreakpoints from '../web-design/responsiveness-without-breakpoints.mdx'
-import * as JsonParserRust1 from '../parsers/json-parser-rust-1.mdx'
+import * as JsonParserRust1 from '../parsers/json-rust-procedural-1.mdx'
 
 const articles = [ResponsivenessWithoutBreakpoints, JsonParserRust1]
 export const blogsMeta: BlogMeta[] = articles.map(blog => blog.meta)

@@ -1,5 +1,9 @@
 @use '../../../styles/variables/colors';
+@use '../../../styles/variables/sizes';
 
 .box {
-  border: 1px solid red;
+  border: 1px solid colors.$accent;
+  border-radius: sizes.$border-radius;
+
+  padding: 1rem 2rem;
 }

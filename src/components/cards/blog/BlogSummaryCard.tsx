@@ -14,7 +14,10 @@ export function BlogSummaryCard({ meta }: BlogCardProps) {
   return (
     <Card id={`link-${meta.slug}`}>
       <Card.Header>
-        <Card.Title title={meta.title} href={isPublished ? `/blog/${meta.slug}` : undefined} />
+        <Card.Title
+          title={meta.title}
+          href={isPublished ? `/${meta.category}/${meta.slug}` : undefined}
+        />
       </Card.Header>
       <Card.Body>
         <PublishDate date={meta.publishedOn} />
