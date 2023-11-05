@@ -1,23 +1,22 @@
-import { HTMLAttributes, PropsWithChildren } from 'react'
+import { HTMLAttributes, PropsWithChildren, ReactNode } from 'react'
 import { useColorSchemeClass } from 'hooks/useColorScheme'
 import styles from './Card.module.scss'
 import Link from 'next/link'
 
-export function Card({
-  children,
-  ...rest
-}: PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
+export function Card({ children, ...rest }: PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
   const cardClass = useColorSchemeClass(styles, 'card')
   return (
-    <article className={cardClass} {...rest}>
+    <div className={cardClass} {...rest}>
       {children}
-    </article>
+    </div>
   )
 }
 
-export type CardHeaderProps = Record<string, unknown>
+export type CardHeaderProps = {
+  children: ReactNode
+}
 
-Card.Header = function ({ children }: PropsWithChildren<CardHeaderProps>) {
+Card.Header = function ({ children }: CardHeaderProps) {
   return <header className={styles['card-header']}>{children}</header>
 }
 
@@ -40,15 +39,19 @@ Card.Title = function ({ title, href, headingLevel = 'h3' }: CardTitleProps) {
   return <Heading>{inner}</Heading>
 }
 
-export type CardBodyProps = Record<string, unknown>
-
-Card.Body = function ({ children }: PropsWithChildren<CardBodyProps>) {
-  return <section className={styles['card-body']}>{children}</section>
+export type CardBodyProps = {
+  children: ReactNode
 }
 
-export type CardFooterProps = Record<string, unknown>
+Card.Body = function ({ children }: CardBodyProps) {
+  return <div className={styles['card-body']}>{children}</div>
+}
 
-Card.Footer = function ({ children }: PropsWithChildren<CardFooterProps>) {
+export type CardFooterProps = {
+  children: ReactNode
+}
+
+Card.Footer = function ({ children }: CardFooterProps) {
   const className = useColorSchemeClass(styles, 'card-footer')
   return <footer className={className}>{children}</footer>
 }

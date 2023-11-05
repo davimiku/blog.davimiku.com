@@ -3,9 +3,7 @@ import { Project } from 'types/projects'
 export const projects: Project[] = [
   {
     name: 'blog.davimiku.com',
-    tagline: 'This website - static site generated with Next.js and React',
-    description:
-      'A blogging platform and an experiment with responsive design implemented without "breakpoints" (width-based media queries) as a personal challenge.',
+    tagline: 'A simple website for writing blog articles and tutorials',
     technologies: ['TypeScript', 'Next.js', 'React', 'SCSS'],
     topics: ['static site generation', 'fluid design', 'blog'],
     repo: {

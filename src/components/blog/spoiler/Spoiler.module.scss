@@ -5,6 +5,15 @@
   border-radius: 0.25rem;
 
   margin-top: 1rem;
+
+  /* matches Tufte-css for paragraph content */
+  width: 55%;
+
+  @media (max-width: 760px) {
+    & {
+      width: 100%;
+    }
+  }
 }
 
 .detailsContent {

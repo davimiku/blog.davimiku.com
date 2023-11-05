@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 
 import { useColorSchemeClass } from 'hooks/useColorScheme'
 import styles from './Badge.module.scss'
 
 export type BadgeProps = {
-  children: React.ReactNode
+  children: ReactNode
 }
 
 export function Badge({ children }: BadgeProps) {

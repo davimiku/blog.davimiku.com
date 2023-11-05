@@ -1,47 +1,47 @@
-@use "../../../styles/variables/colors";
+// @use "../../../styles/variables/colors";
 
-.nav {
-  display: flex;
-  justify-content: flex-end;
-  flex-wrap: wrap;
+// .nav {
+//   display: flex;
+//   justify-content: flex-end;
+//   flex-wrap: wrap;
 
-  background: colors.$primary;
-  width: auto;
-  padding: 0.5rem 2vw;
+//   background: colors.$primary;
+//   width: auto;
+//   padding: 0.5rem 2vw;
 
-  font-size: 1rem;
-  color: white;
+//   font-size: 1rem;
+//   color: white;
 
-  a {
-    margin-right: 2vw;
-    text-decoration: none;
-    color: white;
+//   a {
+//     margin-right: 2vw;
+//     text-decoration: none;
+//     color: white;
 
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}
+//     &:hover {
+//       text-decoration: underline;
+//     }
+//   }
+// }
 
-.nav-links {
-  display: flex;
-  align-items: center;
+// .nav-links {
+//   display: flex;
+//   align-items: center;
 
-  list-style: none;
-}
+//   list-style: none;
+// }
 
-.nav .nav-link-active {
-  color: colors.$accent-darker;
-  text-decoration: underline;
-}
+// .nav .nav-link-active {
+//   color: colors.$accent-darker;
+//   text-decoration: underline;
+// }
 
-.theme-container {
-  display: flex;
-  align-items: center;
-}
+// .theme-container {
+//   display: flex;
+//   align-items: center;
+// }
 
-.theme-container svg {
-  height: 1.5rem;
-  width: 1.5rem;
-  fill: white;
-}
+// .theme-container svg {
+//   height: 1.5rem;
+//   width: 1.5rem;
+//   fill: white;
+// }

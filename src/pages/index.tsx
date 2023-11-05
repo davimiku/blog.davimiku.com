@@ -45,13 +45,13 @@ export default function Home() {
         understanding of how all software works.
       </p>
 
-      <h2>Projects</h2>
-      <CardGrid cards={projectCards} />
-      <ButtonLink href='/projects'>See all projects</ButtonLink>
-
       <h2>Blog posts</h2>
       <CardGrid cards={blogCards} />
       <ButtonLink href='/blog'>See all blog posts</ButtonLink>
+
+      <h2>Projects</h2>
+      <CardGrid cards={projectCards} />
+      <ButtonLink href='/projects'>See all projects</ButtonLink>
     </Layout>
   )
 }

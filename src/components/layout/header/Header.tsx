@@ -1,30 +1,21 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import Headroom from 'react-headroom'
-import { ThemeToggle } from '../../toggle/Toggle'
 import styles from './Header.module.scss'
 
 export function Header() {
   return (
-    <Headroom>
-      <nav className={styles['nav']}>
-        <div>
-          <h1>
-            <Link href='/'>
-              <a>davimiku</a>
-            </Link>
-          </h1>
-        </div>
-        <ul className={styles['nav-links']}>
-          <HeaderNavLink href='/' linkText='home' />
-          <HeaderNavLink href='/projects' linkText='projects' />
-          <HeaderNavLink href='/blog' linkText='blog' />
-        </ul>
-        <div className={styles['theme-container']}>
-          <ThemeToggle />
-        </div>
-      </nav>
-    </Headroom>
+    <nav className={styles['nav']}>
+      <span>
+        <Link href='/'>
+          <a>davimiku</a>
+        </Link>
+      </span>
+      <ul className={styles['nav-links']}>
+        <HeaderNavLink href='/' linkText='home' />
+        <HeaderNavLink href='/projects' linkText='projects' />
+        <HeaderNavLink href='/blog' linkText='blog' />
+      </ul>
+    </nav>
   )
 }
 

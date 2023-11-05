@@ -6,7 +6,7 @@ export default function Projects() {
   return (
     <Layout title='Projects' description='My Projects'>
       <h1>Projects</h1>
-      {projects.map((project) => (
+      {projects.map(project => (
         <ProjectDescription key={project.repo.name} project={project} />
       ))}
     </Layout>

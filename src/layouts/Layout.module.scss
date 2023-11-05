@@ -1,28 +1,28 @@
-@use '../styles/variables/colors';
+// @use '../styles/variables/colors';
 
-.main {
-  margin: 0 auto 2rem auto;
-  max-width: 110ch;
+// .main {
+//   margin: 0 auto 2rem auto;
+//   max-width: 110ch;
 
-  padding-bottom: 5rem;
+//   padding-bottom: 5rem;
 
-  // Fluidly scale padding down to 1rem at small screen widths
-  --scaling-factor: 20;
-  --relative-padding: calc(100vw - 320px);
-  padding-left: calc(var(--relative-padding) / var(--scaling-factor) + 1rem);
-  padding-right: calc(var(--relative-padding) / var(--scaling-factor) + 1rem);
-}
+//   // Fluidly scale padding down to 1rem at small screen widths
+//   --scaling-factor: 20;
+//   --relative-padding: calc(100vw - 320px);
+//   padding-left: calc(var(--relative-padding) / var(--scaling-factor) + 1rem);
+//   padding-right: calc(var(--relative-padding) / var(--scaling-factor) + 1rem);
+// }
 
-.main--dark {
-  background-color: black;
-  color: white;
-}
+// .main--dark {
+//   background-color: black;
+//   color: white;
+// }
 
-.main h1 {
-  font-size: clamp(2rem, 4vw, 3.5rem);
-}
+// .main h1 {
+//   font-size: clamp(2rem, 4vw, 3.5rem);
+// }
 
-.footer {
-  height: 3rem;
-  background: colors.$primary;
-}
+// .footer {
+//   height: 3rem;
+//   background: colors.$primary;
+// }

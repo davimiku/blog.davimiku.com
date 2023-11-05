@@ -13,7 +13,7 @@ export function NewConcept({ title, children }: PropsWithChildren<NewConceptProp
     <EmphasisBox>
       <h3>
         <FaLightbulb />
-        New Concept: {title}
+        &nbsp; New Concept: {title}
       </h3>
       {children}
     </EmphasisBox>

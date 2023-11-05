@@ -6,4 +6,14 @@
   border-radius: sizes.$border-radius;
 
   padding: 1rem 2rem;
+  margin-bottom: 2rem;
+
+  /* matches Tufte-css for paragraph content */
+  width: 55%;
+
+  @media (max-width: 760px) {
+    & {
+      width: unset;
+    }
+  }
 }
