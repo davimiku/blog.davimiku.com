@@ -1,12 +1,14 @@
-import { PropsWithChildren } from 'react'
+import { ReactNode } from 'react'
 import { FaSchool } from 'react-icons/fa'
 
 import styles from './KnowledgeCheck.module.scss'
 import { EmphasisBox } from '../emphasis_box'
 
-export type KnowledgeCheckProps = {}
+export type KnowledgeCheckProps = {
+  children: ReactNode
+}
 
-export function KnowledgeCheck({ children }: PropsWithChildren<KnowledgeCheckProps>) {
+export function KnowledgeCheck({ children }: KnowledgeCheckProps) {
   return (
     <EmphasisBox>
       <h3>

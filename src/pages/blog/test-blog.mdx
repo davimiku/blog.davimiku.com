@@ -7,9 +7,8 @@ tags:
   - Next
 ---
 
-import { Spoiler } from '../../components/blog/spoiler'
+import { EmphasisBox, KnowledgeCheck, NewConcept, Spoiler } from '../../components/blog'
 import { Footnote } from '../../components/blog/footnote'
-import { Author, Conversation } from '../../components/blog/conversation'
 
 # Heading1
 
@@ -21,7 +20,7 @@ Some text that requires a footnote<Footnote index="1" />
 
 <Spoiler summary='Sample spoiler'>Some content hidden behind a spoiler</Spoiler>
 
-<Author>
+<EmphasisBox>
 
 Quiz: Which value is missing?
 
@@ -30,6 +29,6 @@ represents a `double` value, or in other words a 64-bit floating value as descri
 
 For our purposes, we will explore how to capture JSON numbers in two ways, as an integer `i64` and as a floating value `f64`.
 
-</Author>
+</EmphasisBox>
 
 <Footnote index='1'>Here is the explanation for the first footnote</Footnote>
