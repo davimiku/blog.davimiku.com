@@ -1,0 +1,35 @@
+export const meta = {
+  title: 'Tutorial: Writing a JSON Parser (Rust) - Part 2/2',
+  category: 'parsers',
+  type: 'tutorial',
+  slug: 'json-parser-rust-2',
+  tagline: 'Learn the fundamentals of parsing by building a JSON parser from scratch',
+  tags: ['JSON', 'Rust'],
+  publishedOn: '2023-06-10',
+}
+
+import { BlogsPage } from '../../layouts/blog'
+import { EmphasisBox, NewConcept, Spoiler } from '../../components/blog'
+
+<EmphasisBox>
+
+This is part 2 of 2, [part 1 can be found here](./json-parser-rust-1).
+
+</EmphasisBox>
+
+## The nitty gritty
+
+### Objects with duplicate keys
+
+[RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259) specifies that the names within a JSON object SHOULD be unique.
+
+> An object whose names are all unique is interoperable in the sense that all software implementations receiving that object will agree on the name-value mappings. When the names within an object are not unique, the behavior of software that receives such an object is unpredictable.
+> Many implementations report the last name/value pair only. Other implementations report an error or fail to parse the object, and some implementations report all of the name/value pairs, including duplicates.
+
+```javascript
+const str = `{"a": 1, "a": 2}`
+
+console.log(JSON.parse(str)) // --> { a: 2 }
+```
+
+### Object Key Ordering
