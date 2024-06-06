@@ -1,0 +1,918 @@
+export const meta = {
+  title: 'Tutorial: Writing a JSON Parser (Rust) - Part 2/2',
+  category: 'tutorials',
+  type: 'tutorial',
+  slug: 'json-parsing-rust-2',
+  tagline: 'Learn the fundamentals of parsing by building a JSON parser from scratch',
+  tags: ['JSON', 'Rust'],
+  publishedOn: '2023-06-10',
+}
+
+import { BlogsPage } from '../../layouts/blog'
+import { EmphasisBox, KnowledgeCheck, NewConcept, Spoiler } from '../../components/blog'
+
+<EmphasisBox>
+
+This is part 2 of 2, [part 1 can be found here](./json-parsing-rust-1).
+
+</EmphasisBox>
+
+## Introduction
+
+In the Part 1, we parsed the `String` input to a sequence of `Token`s. In this part, we'll parse the tokens into the final JSON `Value`.
+
+## Getting Started
+
+Create a new file named `parse.rs`, which is where the parsing of tokens will be implemented, and add the shell of the `parse_tokens` function. We'll also define the enum for the possible parsing errors.
+
+```rust
+// parse.rs
+fn parse_tokens(tokens: Vec<Token>, index: &mut usize) -> Result<Value, TokenParseError> {
+    todo!()
+}
+
+#[derive(Debug, PartialEq)]
+enum TokenParseError {}
+```
+
+This function uses the same kind of signature as our previous work, it borrows the tokens and produce
+s either a JSON value or an error.
+
+The way that we're going to parse these tokens is a straight-forward translation of the diagrams on [json.org](https://www.json.org), keep these diagrams handy.
+
+TODO: the "value" diagram from json.org
+
+This diagram has a branch with seven possibilities, so our code will do the same:
+
+```rust
+// parse.rs
+fn parse_tokens(tokens: Vec<Token>, index: &mut usize) -> Result<Value, TokenParseError> {
+    let token = &tokens[*index];
+    match token {
+        Token::Null => todo!(),
+        Token::False => todo!(),
+        Token::True => todo!(),
+        Token::Number(number) => todo!(),
+        Token::String(string) => todo!(),
+        Token::LeftBracket => todo!(),
+        Token::LeftBrace => todo!(),
+        _ => todo!(),
+    }
+}
+```
+
+The seven arms of the `match` represent the seven possibilities, and the wildcard case at the end will be a parsing error, once we implement that.
+
+<EmphasisBox>
+
+Reminder: the (lowercase) `number` and `string` in the code above are **new** variables that are defined for their match arm only, and represent the inner values of the `Token::Number` and `Token::String` variants, respectively.
+
+Check the [Pattern Matching](https://doc.rust-lang.org/book/ch06-02-match.html#patterns-that-bind-to-values) chapter of the Rust book for more explanation.
+
+</EmphasisBox>
+
+## Matching Literals
+
+The easiest match arms to start with are the literals.
+
+```rust
+// parse.rs
+fn parse_tokens(tokens: Vec<Token>, index: &mut usize) -> Result<Value, TokenParseError> {
+    let token = &tokens[*index];
+    match token {
+        Token::Null => Ok(Value::Null),
+        Token::False => Ok(Value::Boolean(false)),
+        Token::True => Ok(Value::Boolean(true)),
+        Token::Number(number) => todo!(),
+        Token::String(string) => todo!(),
+        Token::LeftBracket => todo!(),
+        Token::LeftBrace => todo!(),
+        _ => todo!(),
+    }
+}
+```
+
+The `Null`, `False`, and `True` variants of the `Value` enum have direct equivalents to the `Token` enum, so we can immediately create that value without further processing.
+
+<EmphasisBox>
+
+Reminder: the `Ok(...)` part creates a `Result` value that is the `Ok` variant.
+
+Notice that we didn't have to use the full path, i.e. `Result::Ok(...)` to create the variant, whereas we do have to use the full path in `Value::Boolean(...)`. This is due to how Rust imports the `Result` type automatically into each file. Imagine every file has this at the top:
+
+```rust
+use std::result::Result;
+use std::result::Result::{Ok, Err};
+```
+
+This automatic import allows you to use the `Result` type, and both its variants `Ok` and `Err` directly. These automatic imports are called the [prelude](https://doc.rust-lang.org/std/prelude/index.html).
+
+Importing the individual enum variants can be helpful to reduce verbosity, but be careful to not cause confusing name shadowing. For example, if you imported the individual variants of our `Value` enum, the `Value::String` variant would shadow the regular `String` type. This is legal, but would create more confusing code.
+
+</EmphasisBox>
+
+### Tests
+
+In the previous article, testing was introduced, which can be a great development tool to ensure that you're on track. We can do the same thing here:
+
+```rust
+// at the bottom of parse.rs
+#[cfg(test)]
+mod tests {
+    use crate::tokenize::Token;
+    use crate::value::Value;
+
+    use super::parse_tokens;
+
+    #[test]
+    fn parses_null() {
+        let input = vec![Token::Null];
+        let expected = Value::Null;
+
+        let actual = parse_tokens(&input, &mut 0).unwrap();
+
+        assert_eq!(actual, expected);
+    }
+}
+```
+
+Feel free to add similar tests for parsing `Token::False` and `Token::True` as well.
+
+<EmphasisBox>
+
+There's a fairly common practice to introduce a helper function that does any sort of boilerplate data transformation and the assertions for the tests. In this case, there's barely any boilerplate to save but just for the sake of demonstration:
+
+```rust
+// inside of `mod tests`, among the other tests
+
+// note this function does not have the `#[test]` annotation
+fn check(input: Vec<Token>, expected: Value) {
+    let actual = parse_tokens(&input, &mut 0).unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn parses_null() {
+    let input = vec![Token::Null];
+    let expected = Value::Null;
+
+    check(input, expected);
+}
+```
+
+This only saves a single line in each test which may be insignificant (depending on the number of tests), and it adds another moving part, which is something to balance. On the other hand, if you changed the signature of `parse_tokens`, you'd only need to update a single place in the tests rather than every test.
+
+Later we'll add tests for invalid tokens, which might use a different helper function `check_error` instead.
+
+It's a trade-off, and the same intuition for whether or not to extract common code into a separate function applies here.
+
+</EmphasisBox>
+
+## Numbers
+
+The next easiest variant to translate from tokens to JSON value is number.
+
+```rust
+// parse.rs
+fn parse_tokens(tokens: Vec<Token>, index: &mut usize) -> Result<Value, TokenParseError> {
+    let token = &tokens[*index];
+    match token {
+        // ...snip...
+        Token::Number(number) => Ok(Value::Number(*number)),
+        // ...snip...
+    }
+}
+```
+
+<EmphasisBox>
+
+Reminder from the previous article:
+
+It was hinted that we didn't correctly tokenize JSON numbers, we don't handle the JSON number grammar related to scientific notation, i.e. numbers that look like `6.022e23`. Feel free to add that to the tokenizer!
+
+We also fail-fast in the tokenizer on inputs that can't be represented by a 64-bit floating point number (`f64`). This is valid behavior but not all JSON parsers work like this. Check out the Appendix section at the end of the article for more discussion on JSON numbers.
+
+</EmphasisBox>
+
+Feel free to add a test here as well, it should be similar to the existing tests for Null/False/True.
+
+## Strings
+
+Parsing the `String` token should be just as easy... or will it?
+
+Recall that in [Part 1](./json-parsing-rust-1), we didn't process escape sequences during tokenization and decided to process those when parsing the token. It's time!
+
+First, we'll create a separate function to handle this, it would be too much code to put in the main `match` branches:
+
+```rust
+fn parse_string(s: &str) -> Result<Value, TokenParseError> {
+    todo!()
+}
+```
+
+<NewConcept title="&str">
+
+In the [previous article](./json-parsing-rust-1), there was a remark that instead of borrowing a Vector using `&Vec<T>`, it was more idiomatic to use a [slice](), which would be written like `&[T]`.
+
+Similarly for strings, rather than borrowing a `String` with `&String`, it's more idiomatic to use a _string slice_, which is written as `&str`.
+
+The difference is subtle and important in general, but \***\*\_\_\*\***. For more information, please reference the [String chapter](https://doc.rust-lang.org/stable/book/ch08-02-strings.html) of the Rust book.
+
+</NewConcept>
+
+<NewConcept title="type aliases">
+
+Now that two different functions both return `Result<Value, TokenParseError>`, you might decide that it's cumbersome to write this full type out each time. A [type alias](https://doc.rust-lang.org/reference/items/type-aliases.html) can be defined like this:
+
+```rust
+type ParseResult = Result<Value, TokenParseError>;
+```
+
+Then this alias can be used in the two functions that we currently have:
+
+```rust
+pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+    /// ...snip...
+}
+
+fn parse_string(s: &str) -> ParseResult {
+    /// ...snip...
+}
+```
+
+Whether to alias a type or not is a matter of taste, and is a similar kind of question as whether to extract a variable or not. This is something that's typically decided on a case-by-case basis.
+
+</NewConcept>
+
+### Escape Sequences
+
+We need to think through how escape sequences work in JSON. Back to the trusty [json.org](https://www.json.org), which lists out the escapes as:
+
+<table>
+  <tr>
+    <th>Sequence</th>
+    <th>Description</th>
+    <th>Unicode Value</th>
+  </tr>
+  <tr>
+    <td>`\"`</td>
+    <td>quotation mark</td>
+    <td>U+0022</td>
+  </tr>
+  <tr>
+    <td>`\\`</td>
+    <td>reverse solidus</td>
+    <td>U+005C</td>
+  </tr>
+  <tr>
+    <td>`\b`</td>
+    <td>backspace</td>
+    <td>U+0008</td>
+  </tr>
+  <tr>
+    <td>`\f`</td>
+    <td>form feed</td>
+    <td>U+000C</td>
+  </tr>
+  <tr>
+    <td>`\n`</td>
+    <td>line feed</td>
+    <td>U+000A</td>
+  </tr>
+  <tr>
+    <td>`\r`</td>
+    <td>carriage return</td>
+    <td>U+000D</td>
+  </tr>
+  <tr>
+    <td>`\t`</td>
+    <td>tab</td>
+    <td>U+0009</td>
+  </tr>
+  <tr>
+    <td>`\uXXXX`</td>
+    <td>(variable)</td>
+    <td>U+XXXX</td>
+  </tr>
+</table>
+
+<KnowledgeCheck>
+
+What does the specification say about JSON strings that use a backslash to "escape" a letter that doesn't need to be escaped?
+
+```java
+"mind your \p and \q"
+```
+
+</KnowledgeCheck>
+
+<Spoiler summary="The curious case of the solidus">
+
+[RFC 8259](https://www.rfc-editor.org/rfc/rfc8259) specifically lists the solidus (also known as "forward slash") in the grammar for escaping characters. However, as far as I can tell, this never needs to be escaped. It **can** be escaped, in the same way that "p" and "q" **can** be escaped, as in the example above.
+
+In any case, when parsing if we see `\/`, `\p`, or `\q`, we would basically ignore the backslash and just store `/`, `p`, or `q` (respectively). This goes for any character not listed in the table above, which is why I did not list the solidus there.
+
+</Spoiler>
+
+What we're going to do is first create an empty `String`, which will be our "processed" or "unescaped" string, this represents the final parsed value for that string. Then, we'll walk through the `Token` string character-by-character and if we hit a `\` (Reverse Solidus), we'll copy over all the characters so far, process the escape sequence, and then continue.
+
+First, let's call the new function in the main `match` arms:
+
+```rust
+// parse.rs
+fn parse_tokens(tokens: Vec<Token>, index: &mut usize) -> Result<Value, TokenParseError> {
+    let token = &tokens[*index];
+    match token {
+        // ...snip...
+        Token::String(string) => parse_string(string),
+        // ...snip...
+    }
+}
+```
+
+Let's think through how we want to create the processed/unescaped string:
+
+1. Create a new (empty) String that will hold the unescaped characters
+2. Create mutable state to track whether we are in "escape mode" or not
+3. Walk through the chars of the Token string
+   - If we are in "escape mode", process the escape sequence, for example with `t` push a Horizontal Tab character into the output. Turn off "escape mode" afterwards
+   - Otherwise if the char is `\` then turn on "escape mode"
+   - Otherwise just push the char into the output
+
+Let's see the code! First, by prototyping by leaving out the unescaping part for now:
+
+```rust
+fn parse_string(input: &str) -> ParseResult {
+    // Create a new string to hold the processed/unescaped characters
+    let mut output = String::new();
+
+    let mut is_escaping = false;
+    for ch in input.chars() {
+        if is_escaping {
+            todo!("implement")
+            is_escaping = false;
+        } else if ch == '\\' {
+            is_escaping = true;
+        } else {
+            output.push(ch);
+        }
+    }
+
+    Ok(Value::String(output))
+}
+```
+
+<NewConcept title="iterators">
+
+The value returned by `input.chars()` is an [iterator](https://doc.rust-lang.org/book/ch13-02-iterators.html), in this case an iterator of `char`. An iterator is a type that continuously produces the next item of a sequence. To get the next item, the `next()` function is called which produces an `Option<char>`, which is `Some(char)` if there is a next value, or `None` if there is not.
+
+The `for _____ in Iterator` syntax takes care of calling this `next()` function and ending the loop when that returns `None`.
+
+</NewConcept>
+
+We could have set up this iteration using the `loop` keyword and manually calling the `.next()` function ourselves, but a `for` loop is typically preferred when using iterators.
+
+<Spoiler summary='Efficiency/Performance'>
+
+The implementation above isn't the most efficient, because the output string will re-allocate many times as new data is pushed into it, depending on the size of the string. Instead of initializing it with `String::new()`, we could use `String::with_capacity(input.len())` to give it an up-front allocation. It will never need to re-allocate because the unescaped string will always be equal or smaller than the escaped string (ex. `\t` is 2 bytes escaped and 1 byte unescaped, so the unescaped is never larger).
+
+Another idea is instead of pushing to the output string character by character, which is a lot of small copies, it would walk through the input string and increment index counters (start and end). If it saw a backslash, copy a [slice](https://doc.rust-lang.org/book/ch04-03-slices.html#string-slices) of everything so far to the output string, process the escape, then update the start/end counters and continue. At the end, if there's anything left to copy, do a final slice copy using the start/end counters.
+
+The assumption is that _most_ strings in JSON don't contain any escape sequences, so this would end up with only a single copy at the end in the common case. Even in strings with escape sequences, it reduces the total number of copies needed.
+
+</Spoiler>
+
+We can add a test to check that strings without escape sequences are copied over as-is.
+
+```rust
+// inside of `mod tests`, among the other tests
+#[test]
+fn parses_string_no_escapes() {
+    let input = vec![Token::String("hello world".into())];
+    let expected = Value::String("hello world".into());
+
+    check(input, expected);
+}
+```
+
+This should work fine for non-ASCII as well.
+
+```rust
+// inside of `mod tests`, among the other tests
+#[test]
+fn parses_string_non_ascii() {
+    let input = vec![Token::string("olá_こんにちは_नमस्ते_привіт")];
+    let expected = Value::String(String::from("olá_こんにちは_नमस्ते_привіт"));
+
+    check(input, expected);
+}
+
+#[test]
+fn parses_string_with_emoji() {
+    let input = vec![Token::string("hello 💩 world")];
+    let expected = Value::String(String::from("hello 💩 world"));
+
+    check(input, expected);
+}
+```
+
+While we're at it, we can add tests that will fail until we implement the unescaping.
+
+```rust
+// inside of `mod tests`, among the other tests
+#[test]
+fn parses_string_unescape_backslash() {
+    let input = vec![Token::String(r#"hello\\world"#.into())];
+    let expected = Value::String(r#"hello\world"#.into());
+
+    check(input, expected);
+}
+```
+
+```rust
+// ...snip...
+// replace the entire `for ch in input.chars()` block with this:
+    for ch in input.chars() {
+        if is_escaping {
+            match ch {
+                '"' => output.push('"'),
+                '\\' => output.push('\\'),
+                // `\b` (backspace) is a valid escape in JSON, but not Rust
+                'b' => output.push('\u{8}'),
+                // `\f` (formfeed) is a valid escape in JSON, but not Rust
+                'f' => output.push('\u{12}'),
+                'n' => output.push('\n'),
+                'r' => output.push('\r'),
+                't' => output.push('\t'),
+                'u' => todo!("Implement hex code escapes"),
+                // any other character *may* be escaped, ex. `\q` just push that letter `q`
+                _ => output.push(ch),
+            }
+            is_escaping = false;
+        } else if ch == '\\' {
+            is_escaping = true;
+        } else {
+            output.push(ch);
+        }
+    }
+// ...snip...
+```
+
+Note that Rust strings do not have a special syntax for the Backspace and Form Feed characters, so we use the general [Unicode escape](https://doc.rust-lang.org/reference/tokens.html#unicode-escapes) syntax. Also note that the Rust syntax for Unicode escape is not the same as the JSON syntax for that.
+
+### Unicode Escapes
+
+Processing the unicode escape (the one starting with `\u`) is a bit tricky, but thankfully we can use a bunch of helper functions from the Rust standard library.
+
+Reviewing the JSON syntax for unicode escape:
+
+```txt
+\uXXXX       --  where X is a hexadecimal digit (0-9 or A-F or a-f)
+```
+
+<Spoiler summary="unicode escape sequences in other languages">
+
+Anywhere with `X`, assume this to mean a [hexadecimal](https://en.wikipedia.org/wiki/Hexadecimal) (base-16) digit.
+
+JavaScript's escape syntax is the same as JSON (JSON is based on JavaScript):
+
+```txt
+-- general format
+\uXXXX
+
+-- example for ¥ (U+00A5)
+\u00A5
+
+-- example for 🌼 (U+1F33C)
+\uD83C\uDF3C
+```
+
+The 🌼 has to be broken up into two parts (surrogate pair) because only 4 hexadecimal digits are available. 4 digits = (16^4) = 65,536 possible values but there are more than 65k possible characters out there in the world. The current v15.0 specification of Unicode has 149,186 characters.
+
+We saw Rust's version earlier for processing the Form Feed and Backspace:
+
+```txt
+-- general format
+\u{X}        -- where X is 1-6 hexadecimal characters
+
+-- example for ¥ (U+00A5)
+\u{A5}
+
+-- example for 🌼 (U+1F33C)
+\u{1F33C}
+```
+
+This allows up to 6 hexadecimal digits, which is (16^6) or 16,777,216 total. That has capacity for about 110x the amount of characters today, so it may run out at some point far in the future, but not something to worry about for a while. If there are less than 6 digits, leading zeros are not required.
+
+Java is similar to JSON (presumably JavaScript's syntax was based on Java), but you can actually have as many `u` as you want and it's the same:
+
+```txt
+-- general format
+\uXXXX
+
+-- you can have as many 'u' as you want and its the same
+\uuuuuuuuuuuuuuuuuuuuuXXXX
+
+-- example for ¥ (U+00A5)
+\u00A5
+
+-- example for 🌼 (U+1F33C)
+\uD83C\uuuuuuuuuuDF3C
+```
+
+I'm honestly not sure of the usecase for infinite `u` characters but it's likely not common.
+
+Python has two different representations:
+
+```txt
+\uXXXX       -- up to (16^4) = 65,536
+\UXXXXXXXX   -- up to (16^8) = 4,294,967,296
+
+-- example for ¥ (U+00A5)
+\u00A5
+
+-- example for 🌼 (U+1F33C)
+\U0001F33C
+
+-- note that surrogate pairs \uD83C\uDF3C is *not* valid Python
+```
+
+</Spoiler>
+
+What we want to do is:
+
+1. Initialize a sum variable (integer, start at zero)
+2. Walk forwards by 4 characters
+   1. Convert the read character into a radix-16 digit (A=10, B=11, C=12, etc.)
+   2.
+
+```rust
+// ...snip...
+    'u' => {
+        let mut sum = 0;
+        for i in 0..4 {
+            let next_char = chars.next().ok_or(TokenParseError::UnfinishedEscape)?;
+            let digit = next_char
+                .to_digit(16)
+                .ok_or(TokenParseError::InvalidCharInEscape)?;
+            total += (16u32).pow(3 - i) * digit;
+        }
+        let unescaped_char =
+            std::char::from_u32(sum).ok_or(TokenParseError::InvalidCharInEscape)?;
+        output.push(unescaped_char);
+    }
+// ...snip...
+
+```
+
+<NewConcept title="integer literal suffixes">
+
+The `pow()` function above TODO
+
+</NewConcept>
+
+TODO - switch back to `while let` to be able to advance the iterator for \uXXXX sequences
+
+## Arrays
+
+Arrays! The first of two more "complex" types, but the code is actually not bad.
+
+Looking back to our main `parse_tokens` function, we can add the case for arrays, which starts when a `LeftBracket` token is encountered.
+
+```rust
+pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+    let token = &tokens[*index];
+    match token {
+        // ...snip...
+        Token::LeftBracket => parse_array(tokens, index),
+        // ...snip...
+    }
+}
+```
+
+The `parse_array` function receives a reference to the tokens and the current index. Take a moment to think through the implementation of this function. When you're ready, proceed below!
+
+What we'll do is:
+
+1. Create an empty `Vec` to output all the values that will be parsed from the array
+2. Loop:
+   1. Increment the index by 1 (to consume the `LeftBracket`)
+   2. Call `parse_tokens` (recursively) to get a `Value`, and push that into our output `Vec`
+   3. Increment the index by 1 to get the next token. If it is a `RightBracket`, break the loop. If it is a `Comma`, consume that and continue the loop. Otherwise, it's an error.
+
+```rust
+fn parse_array(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+    let mut array: Vec<Value> = Vec::new();
+    loop {
+        // consume the previous LeftBracket or Comma token
+        *index += 1;
+        let value = parse_tokens(tokens, index)?;
+        array.push(value);
+
+        let token = &tokens[*index];
+        *index += 1;
+        match token {
+            Token::Comma => {}
+            Token::RightBracket => break,
+            _ => return Err(TokenParseError::ExpectedComma),
+        }
+    }
+    Ok(Value::Array(array))
+}
+```
+
+Now, adding a test:
+
+```rust
+// inside of `mod tests`, among the other tests
+#[test]
+fn parses_array_one_element() {
+    // [true]
+    let input = vec![Token::LeftBracket, Token::True, Token::RightBracket];
+    let expected = Value::Array(vec![Value::Boolean(true)]);
+
+    check(input, expected);
+}
+```
+
+...and it works? Seems too easy, what about another test, this time with two elements:
+
+```rust
+// inside of `mod tests`, among the other tests
+#[test]
+fn parses_array_two_elements() {
+    // [null, 16]
+    let input = vec![
+        Token::LeftBracket,
+        Token::Null,
+        Token::Comma,
+        Token::Number(16.0),
+        Token::RightBracket,
+    ];
+    let expected = Value::Array(vec![Value::Null, Value::Number(16.0)]);
+
+    check(input, expected);
+}
+```
+
+What about this?
+
+```rust
+// inside of `mod tests`, among the other tests
+#[test]
+fn parses_empty_array() {
+    // []
+    let input = vec![Token::LeftBracket, Token::RightBracket];
+    let expected = Value::Array(vec![]);
+
+    check(input, expected);
+}
+```
+
+Ah here we go, this one failed. Back to our loop, we need to check for a `RightBracket` at the top of the loop and break if so.
+
+```rust
+// inside of `parse_array`
+    loop {
+        // consume the previous LeftBracket or Comma token
+        *index += 1;
+        if tokens[*index] == Token::RightBracket {
+            break;
+        }
+
+        // ...snip...
+    }
+```
+
+What about nested arrays? We should be able to handle that:
+
+```rust
+// inside of `mod tests`, among the other tests
+#[test]
+fn parses_nested_array() {
+    // [null, [null]]
+    let input = vec![
+        Token::LeftBracket,
+        Token::Null,
+        Token::Comma,
+        Token::LeftBracket,
+        Token::Null,
+        Token::RightBracket,
+        Token::RightBracket,
+    ];
+    let expected = Value::Array(vec![Value::Null, Value::Array(vec![Value::Null])]);
+
+    check(input, expected);
+}
+```
+
+...and panic. oof.
+
+```txt
+failures:
+
+---- parse::tests::parses_nested_array stdout ----
+thread 'parse::tests::parses_nested_array' panicked at src\parse.rs:70:28:
+index out of bounds: the len is 7 but the index is 7
+```
+
+This is the grungy side of an imperative, state-based style of parser with a manually incremented index. In this case, we've incremented the index one too many times.
+
+There are multiple ways this could be solved - all of them involve juggling where the index is incremented (remove it from here, add it to over there). If you have your own idea, feel free to break from the tutorial here!
+
+One way to solve it is that for the simple documents (Null, True, False, String, Number) we didn't bother to increment the index in `parse_tokens` because up until now, these documents only had a single token and we didn't care. This put the burden on `parse_array` to increment for these simple tokens, which worked until we had a nested array, and then we incremented too much.
+
+Up in the `parse_tokens` function we can go ahead and increment the index for the simple tokens. That way the `parse_array` (and `parse_object`) functions only have to worry about their own tokens.
+
+```rust
+pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+    let token = &tokens[*index];
+    if matches!(
+        token,
+        Token::Null | Token::False | Token::True | Token::Number(_) | Token::String(_)
+    ) {
+        *index += 1
+    }
+    match token {
+        // ...snip...
+    }
+}
+```
+
+Was this detour an honest mistake by the author or a contrived way to introduce a new concept? You be the judge.
+
+<NewConcept title="declarative macros">
+
+The `matches!` with the exclamation mark that looks kind of like a function call is a [macro](https://doc.rust-lang.org/book/ch19-06-macros.html), specifically a [declarative macro](https://doc.rust-lang.org/book/ch19-06-macros.html).
+
+Macros are written in a language that mostly resembles Rust, and the purpose of macros is to generate Rust code at compile time. In your code editor, you should be able to "Go To Definition" (usually F12) to see how the `matches!` macro is written. Macros are great for reducing repetitive code or improving local readability.
+
+However, as with anything, there is a balance. Too much macro-generated code can make it harder to read, and in larger cases can have an impact on compile time.
+
+</NewConcept>
+
+Now that the simple tokens increment the index for themselves, we can remove the 2nd increment from the loop in `parse_array`.
+
+```rust
+    loop {
+        // ...snip...
+
+        let token = &tokens[*index];
+        // *index += 1; // <-- REMOVE THIS
+        match token {
+            Token::Comma => {}
+            Token::RightBracket => break,
+            _ => return Err(TokenParseError::ExpectedComma),
+        }
+    }
+```
+
+Now, `parse_array` is responsible for incrementing for the LeftBracket, Comma, and RightBracket, but not responsible for the array values. That makes sense!
+
+## Objects
+
+Objects are more complex than Arrays, but are the same idea.
+
+(TODO - sidenote - Objects can be thought of as an Array where the elements are String-Colon-Value)
+
+```rust
+pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+    // ...snip...
+    match token {
+        // ...snip...
+        Token::LeftBrace => parse_object(tokens, index),
+        // ...snip...
+    }
+}
+```
+
+<Spoiler summary="Optional, kind of: do Object keys need to be unescaped?">
+    TL;DR - Yes - but if you want to just get to the end of the tutorial, you can skip this part!
+
+    [RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259) describes the grammar as:
+
+    ```txt
+    object = begin-object [ member *( value-separator member ) ]
+               end-object
+
+    member = string name-separator value
+    ```
+
+    Where the "string" part is defined in a section further below that contains all the escape-y stuff that we dealt with for strings.
+
+    We've already done all that work, just needs a little refactor to make it available. Split out the unescaping part from `parse_string` like this:
+
+    ```rust
+
+    fn parse_string(input: &str) -> ParseResult {
+        let unescaped = unescape_string(input)?;
+        Ok(Value::String(unescaped))
+    }
+
+    fn unescape_string(input: &str) -> Result<String, TokenParseError> {
+        // Create a new string to hold the processed/unescaped characters
+        let mut output = String::new();
+
+        let mut is_escaping = false;
+        for ch in input.chars() {
+            // ...snip...
+        }
+        Ok(output)
+    }
+    ```
+
+Then in `parse_object` we can replace the `s.clone()` with `unescape_string(s)?`. Remember that the `?` is a postfix operator - so far we've only used it at the end of statements but it can appear after any expression.
+
+</Spoiler>
+
+## Appendix
+
+### Objects with duplicate keys
+
+If the incoming `String` that we are parsing represents a JSON object, and that JSON object has multiple keys that are the same, what should we do? Do we return an error? Or is it successful and we discard all but one of the duplicated keys? Which one key should remain?
+
+```json
+{
+  "a": 0,
+  "a": 1,
+  "a": 2
+}
+```
+
+[RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259) specifies that the names within a JSON object SHOULD be unique.
+
+> An object whose names are all unique is interoperable in the sense that all software implementations receiving that object will agree on the name-value mappings. When the names within an object are not unique, the behavior of software that receives such an object is unpredictable.
+> Many implementations report the last name/value pair only. Other implementations report an error or fail to parse the object, and some implementations report all of the name/value pairs, including duplicates.
+
+What does JavaScript do?
+
+```javascript
+const str = `{"a": 1, "a": 2}`
+
+console.log(JSON.parse(str)) // --> { a: 2 }
+```
+
+It keeps the last name/value pair only, our implementation will do the same.
+
+Interestingly, this non-specified behavior of JSON can lead to vulnerabilities! Further reading with examples of parsers that treat duplicate keys differently, and the impact: [An Exploration of JSON Interoperability Vulnerabilities](https://bishopfox.com/blog/json-interoperability-vulnerabilities)
+
+### Object Key Ordering
+
+Another interesting question is whether JSON object keys should be kept in the same order that they are in the source document.
+
+```json
+{
+  "c": 0,
+  "b": 0,
+  "a": 0
+}
+```
+
+Consulting [RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259) again:
+
+> An object is an unordered collection of zero or more name/value pairs, where a name is a string and a value is a string, number,boolean, null, object, or array.
+
+> JSON parsing libraries have been observed to differ as to whether or not they make the ordering of object members visible to calling software. Implementations whose behavior does not depend on member ordering will be interoperable in the sense that they will not be affected by these differences.
+
+Our current implementation stores the JSON Object properties in a `HashMap` which is unordered, so we can stick with this.
+
+<KnowledgeCheck>
+
+What Rust standard library type could we use instead if we wanted to keep the keys ordered?
+
+</KnowledgeCheck>
+
+## JSON numbers
+
+What are the size limits on a JSON number? 32-bit integer? 64-bit floating point?
+
+[RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259) says:
+
+> This specification allows implementations to set limits on the range and precision of numbers accepted. Since software that implements IEEE 754 binary64 (double precision) numbers \[IEEE754\] is generally available and widely used, good interoperability can be achieved by implementations that expect no more precision or range than these provide, in the sense that implementations will approximate JSON numbers within the expected precision.
+
+Essentially, the answer is there is no standard for what numbers can be reliably sent and received as JSON. For integers, if the value is between [Number.MIN_SAFE_INTEGER](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MIN_SAFE_INTEGER) and [Number.MAX_SAFE_INTEGER](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER), then it's likely to be interoperable with most implementations. However, it would be legal for implementations to be less precise than this, as long as the implementation correctly parsed the _grammar_ of the number syntax, the precision that such number is stored at is not specified.
+
+This specification favors practicality over preciseness. This makes it easy to implement a JSON parser - it can be mostly done in a pair of tutorial articles! - but small inconsistencies like this can unfortunately lead to issues (including [vulnerabilities](https://bishopfox.com/blog/json-interoperability-vulnerabilities)). If the number cannot be represented in the chosen precision, what happens? An error? Silent loss of precision?
+
+If the messages you're sending/receiving require precise behavior with numbers, you have to be really careful that both sides have the same implementation behavior, or JSON may not be the best choice of a data format. Take a look at the JSON parser for the language that you primarily use, what is the documented behavior for numbers?
+
+## Text encoding
+
+What encoding should be allowed for JSON documents? UTF-8? Only ASCII? Windows-1252?
+
+Back to [RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259):
+
+> JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8
+
+UTF-8 is by far the most common encoding for messages sent on the internet, so this restriction makes a lot of sense. If you have your own servers communicating to each other, it's fine to use an alternative encoding, but public APIs would espect UTF-8.
+
+Our library accepts a `String` parameter, which is guaranteed to be UTF-8 (assuming it was constructed without `unsafe`), so we've decided that it's not the responsibility of our library to deal with string encoding. We could have instead accepted a slice of bytes, which would lead to additional design decisions, i.e. do we report and error if it's not UTF-8? Do we try to dynamically detect the encoding and convert it automatically?
+
+Another interesting note from RFC 8259:
+
+> Implementations MUST NOT add a byte order mark (U+FEFF) to the beginning of a networked-transmitted JSON text. In the interests of interoperability, implementations that parse JSON texts MAY ignore the presence of a byte order mark rather than treating it as an error.
+
+export default function ({ children }) {
+  return <BlogsPage meta={meta}>{children}</BlogsPage>
+}

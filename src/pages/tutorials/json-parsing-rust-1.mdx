@@ -1,9 +1,9 @@
 export const meta = {
-  title: 'Tutorial: Writing a JSON Parser (Rust) - Part 1/2',
-  category: 'parsers',
+  title: 'Tutorial: Implementing JSON parsing (Rust)',
+  category: 'tutorials',
   type: 'tutorial',
-  slug: 'json-parser-rust-1',
-  tagline: 'Learn the fundamentals of parsing by building a JSON parser from scratch',
+  slug: 'json-parsing-rust-1',
+  tagline: 'Learn the fundamentals of parsing by implementing JSON parsing from scratch',
   tags: ['JSON', 'Rust'],
   publishedOn: '2023-10-10',
 }
@@ -32,22 +32,22 @@ This is a hands-on tutorial, just reading through won't get you much. You'll get
 
 ## Introduction
 
-In this tutorial, we will learn how to write a JSON parser from scratch, using the [Rust programming language](https://www.rust-lang.org/).
+In this tutorial, we will learn how to implement JSON parsing from scratch, using the [Rust programming language](https://www.rust-lang.org/).
 
 We will create a [library](<https://en.wikipedia.org/wiki/Library_(computing)>), so that users of our library can pass in the JSON string and they'll receive back parsed JSON.
 
 This article is split into two parts:
 
-1. Introduction, Setup, and Lexer
-2. Parser
+1. Introduction, Setup, and Tokenizing
+2. Parsing
 
 The code for this article uses a **procedural/imperative** style, and should be familiar for anyone coming from languages using those styles. We won't get into advanced Rust features, and every new concept will be explained in detail.
 
-To understand "JSON parser", we'll first ensure we understand "JSON" and "parser" in the next sections.
+To understand "JSON parsing", we'll first ensure we understand "JSON" and "parsing" in the next sections.
 
 ### What is JSON?
 
-JavaScript Object Notation ([JSON](https://www.json.org)) is a format for exchanging and storing data. As the name implies, the syntax is based on JavaScript, but it is a language-independent data format.
+JavaScript Object Notation ([JSON](https://www.json.org)) is a format for exchanging and storing data. As the name implies, the syntax is based on JavaScript, but it is a language-independent data format. The currently published Internet Standard is [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259).
 
 The possible data types in JSON are fixed (a _closed set_), meaning that the format itself is not extensible. There are exactly six possible data types that can be transmitted via JSON, also described in the previous link.
 
@@ -62,7 +62,7 @@ The "array" and "object" types are **recursive** - they contain other JSON value
 
 <Spoiler summary="Edge case: JSON syntax as a subset of Javascript syntax">
 
-Until JavaScript's 2019 edition (ES2019), JSON syntax was _almost_ a subset of JavaScript syntax. There was one edge case -- JSON strings could contain the Unicode characters U+2028 (LINE SEPARATOR) and U+2029 (PARAGRAPH SEPARATOR) unescaped while in JavaScript they had to be escaped.
+Until JavaScript's 2019 edition (ES2019), JSON syntax was _almost_ a subset of JavaScript syntax. There was one edge case -- JSON strings could contain `U+2028` (LINE SEPARATOR) and `U+2029` (PARAGRAPH SEPARATOR) unescaped while in JavaScript they had to be escaped.
 
 This means that valid JSON might not be valid JavaScript, which breaks that subset relationship. As of ES2019, with the approval and implementation of the [json-superset proposal](https://github.com/tc39/proposal-json-superset) proposal, JSON syntax is now a proper subset of JavaScript syntax.
 
@@ -89,7 +89,12 @@ Edge cases are weird, right?
 
 ### What is Parsing?
 
-In programming, "parsing" is transforming less-structured input into more-structured output by applying knowledge of the expected shape(s) of the data. A "parser" is a function that does this. This transformation from less-structured to more-structured might fail if the input isn't compatible with the desired output.
+In programming, "parsing" is transforming less-structured input into more-structured output by applying knowledge of the expected shape(s) of the data.
+
+<label for='sn-demo' class='margin-toggle sidenote-number'></label>
+<input type='checkbox' id='sn-demo' class='margin-toggle' />
+<span class='sidenote'> A "parser" is a function that does "parsing"</span>This transformation from less-structured
+to more-structured might fail if the input isn't compatible with the desired output.
 
 This is a fairly flexible interpretation, and perhaps a little vague, so some breakdown on the statement above:
 
@@ -97,7 +102,7 @@ This is a fairly flexible interpretation, and perhaps a little vague, so some br
   - A `String` is a common input format for text-based data, which is often described as a sequence of characters (what is a "character"? An entire article could be written on this)
   - A stream of bytes, for example audio data that is parsed by some audio player program
 - _more-structured output_ examples:
-  - JSON structure - rather than a flat sequence of characters, it now has an organized representation with the six data variants discussed in the Introduction
+  - JSON structure - rather than a flat sequence of "characters", it now has an organized representation with the six data variants discussed in the Introduction
   - HTTP request - An incoming HTTP request is a stream of bytes, but it can be parsed into a more-structured representation that has the method, path, protocol, headers, body, etc.
 - _knowledge of the expected shape_:
   - We can't parse a less-structured input without knowing what it possibly could be
@@ -120,19 +125,19 @@ Personally, I use Visual Studio Code (VS Code) running in Windows Subsystem for 
 
 ### Project Setup
 
-We're going to create a _library_ for our JSON parser. In your command line, navigate to the directory where you want this project to exist. For example: `~/tutorials/rust`. Run the following command to generate a new Rust library project:
+We're going to create a _library_ for our JSON parsing. In your command line, navigate to the directory where you want this project to exist. For example: `~/tutorials/rust`. Run the following command to generate a new Rust library project:
 
 ```shell
-cargo new --lib json_parser
+cargo new --lib json_parsing
 ```
 
-This creates a new folder, `json_parser`, that contains the new Rust project.
+This creates a new folder, `json_parsing`, that contains the new Rust project.
 
 <Spoiler summary="Why create a library?">
 
 From the [documentation for `cargo new`](https://doc.rust-lang.org/cargo/commands/cargo-new.html), there are two options for creating a new project: `--bin` for binaries (applications) and `--lib` for libraries.
 
-What we're designing and building here is the core part of the JSON parser that could be used by multiple consumers. Example consumers could include a command-line application (CLI), a web application server, a desktop application, and more. This means that we need to carefully consider the public API of our library that is available to these potential consumers, and this is a very important part of _libary design_.
+What we're designing and building here is the core part of the JSON parsing that could be used by multiple consumers. Example consumers could include a command-line application (CLI), a web application server, a desktop application, and more. This means that we need to carefully consider the public API of our library that is available to these potential consumers, and this is a very important part of _libary design_.
 
 I do think there are an abundance of tutorials and resources out there for _application design_, but comparatively fewer resources for _library design_, possibly a topic for a future article.
 
@@ -241,7 +246,7 @@ Throughout the tutorial, I use comments with `...snip...` that indicate that thi
 These two variants are interesting because they are recursive -- Array and Object contain other `Value` inside of them. Thankfully, this is pretty easy to represent in Rust, as seen above.
 
 - `Array`: the associated data is `Vec<Value>`, pronounced as a "vector of Value(s)"
-  - A [Vec](https://doc.rust-lang.org/std/vec/struct.Vec.html) is a growable array type, analogous to a `List` in Python & C#, `vector` in C++, `Array` in JavaScript, etc.
+  - A [Vec](https://doc.rust-lang.org/std/vec/struct.Vec.html) is a growable array type, analogous to `ArrayList` in Java, `List` in Python, `vector` in C++, `Array` in JavaScript, etc.
   - It is "recursive", because the array can contain any other JSON value
 - `Object`: the associated data is `HashMap<String, Value>`
   - A map between string keys and JSON values, which also makes this recursive
@@ -291,11 +296,11 @@ possibilities.
 
 </KnowledgeCheck>
 
-## Setting up the Lexer
+## Setting up for Tokenizing
 
-The next step is to write the [Lexer](https://en.wikipedia.org/wiki/Lexical_analysis). Paraphrasing from that article:
+The next step is to implement the [tokenizing](https://en.wikipedia.org/wiki/Lexical_analysis) (also known as "lexing"). Paraphrasing from that article:
 
-> In computer science, lexing is the process of converting a sequence of characters into a sequence of _lexical tokens_ (strings with an identified meaning)
+> In computer science, tokenizing is the process of converting a sequence of characters into a sequence of _lexical tokens_ (strings with an identified meaning)
 
 Since this is _almost_ a self-referencing definition, let's use an example:
 
@@ -326,13 +331,13 @@ Note that these tokens have a **linear** structure, i.e. we have a _sequence_ of
 Now we'll define the `Token` type, such as is seen in the previous section.
 The `Token` is another _closed set_ of variants, the grammar of JSON is fixed. Open up [JSON.org](https://www.json.org/json-en.html) again, what are the possible variants of the tokens?
 
-Let's start with the "punctuation" kind of tokens. First, create a new file named `lex.rs` next to `lib.rs`.
+Let's start with the "punctuation" kind of tokens. First, create a new file named `tokenize.rs` next to `lib.rs`.
 
 Next, inside of `lib.rs`, declare the new module.
 
 ```rust
 // in lib.rs
-mod lex;
+mod tokenize;
 ```
 
 <NewConcept title="mod keyword">
@@ -343,19 +348,31 @@ This may be unfamiliar depending on experience in other programming languages wh
 
 </NewConcept>
 
-Now that `lex.rs` has been declared a module, we can write code in it. We'll add the first few "punctuation" variants for `Token`.
+Now that `tokenize.rs` has been declared a module, we can write code in it. We'll add the first few "punctuation" variants for `Token`.
 
 ```rust
-// in lex.rs
+// in tokenize.rs
 pub enum Token {
-    LeftBrace,    // "{"
-    RightBrace,   // "}"
-    LeftBracket,  // "["
-    RightBracket, // "]"
-    Comma,        // ","
-    Colon,        // ":"
+    /// `{`
+    LeftBrace,
+    /// `}`
+    RightBrace,
+    /// `[`
+    LeftBracket,
+    /// `]`
+    RightBracket,
+    /// `,`
+    Comma,
+    /// `:`
+    Colon,
 }
 ```
+
+<Spoiler summary="Oh my brackets!">
+
+Here I've used "Brace" for the `{}` and "Bracket" for the `[]`. This is a matter of preference, [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259) defines these as "left/right square bracket" and "left/right curly bracket". Feel free to use that instead if you want 🙂
+
+</Spoiler>
 
 Next, let's define the literal tokens, which are `null`, `true`, and `false`.
 
@@ -363,9 +380,12 @@ Next, let's define the literal tokens, which are `null`, `true`, and `false`.
 pub enum Token {
     // ...snip...
 
-    Null,    // "null"
-    True,    // "true"
-    False,   // "false"
+    /// `null`
+    Null,
+    /// `false`
+    False,
+    /// `true`
+    True,
 }
 ```
 
@@ -385,34 +405,23 @@ pub enum Token {
 
 As we saw earlier with the `Value` enum, it's fine to have a variant with the same name as the type of data it contains. This is a stylistic preference, if you prefer these to be different, that's fine too.
 
-Finally, we can create a variant for the "end of file". This is not strictly necessary, but it will help the parser code later, when the parser loops through the tokens it can look for this [sentinel value](https://en.wikipedia.org/wiki/Sentinel_value).
-
-```rust
-pub enum Token {
-    // ...snip...
-
-    /// End of File
-    Eof,
-}
-```
-
 <KnowledgeCheck>
 
-We used a single token to represent numbers, for both integers and floats.
+We used a single token to represent numbers, for both integers and floats by using Rust's `f64`, which is a 64-bit floating point representation.
 
-What does the JSON specification say about integers? What are the tradeoffs of doing so?
+What does the JSON specification say about integers? What are the tradeoffs of using a different token? Or having the `Number` variant itself be an `enum` with `Integer` and `Float` variants?
 
 </KnowledgeCheck>
 
 ### Define the public API
 
-As stated earlier, lexing is taking a sequence of characters and turning that into a sequence of tokens. In Rust terminology, that is `String -> Vec<Token>`.
+As stated earlier, tokenizing is taking a sequence of "characters" and turning that into a sequence of tokens. In Rust terminology, that is `String -> Vec<Token>`.
 
-Let's start that top-level `lex` function now. Use the `fn` keyword to define a function and refer to the [chapter in "The Book" on functions](https://doc.rust-lang.org/stable/book/ch03-03-how-functions-work.html).
+Let's start that top-level `tokenize` function now. Use the `fn` keyword to define a function and refer to the [chapter in "The Book" on functions](https://doc.rust-lang.org/stable/book/ch03-03-how-functions-work.html).
 
 ```rust
-// in lex.rs, above the Token enum
-pub fn lex(input: String) -> Vec<Token> {
+// in tokenize.rs, above the Token enum
+pub fn tokenize(input: String) -> Vec<Token> {
     Vec::new()
 }
 ```
@@ -434,17 +443,17 @@ Now that we have a function (well, just the start of one), we can write our firs
 Up to this point, we've been introducing only one new concept at a time. However, being able to test your code is very important because it'll give you quick feedback and the ability to actually run your functions without leaving your editor. Let's rip the band-aid off and show the necessary concepts for running a unit test.
 
 ```rust
-// in lex.rs, below the Token enum
+// in tokenize.rs, below the Token enum
 #[cfg(test)]
 mod tests {
-    use super::{lex, Token};
+    use super::{tokenize, Token};
 
     #[test]
     fn comma() {
         let input = String::from(",");
         let expected = [Token::Comma];
 
-        let actual = lex(input);
+        let actual = tokenize(input);
 
         assert_eq!(actual, expected);
     }
@@ -461,7 +470,7 @@ The first error is because `Token` cannot be compared for equality with another 
 To resolve these compiler errors, add the following code:
 
 ```rust
-// in lex.rs, directly on the Token enum
+// in tokenize.rs, directly on the Token enum
 #[derive(Debug, PartialEq)]
 pub enum Token {
   // ...snip...
@@ -476,7 +485,7 @@ Go ahead and run the test! It fails... which is expected because we haven't actu
 
 ```txt
 running 1 test
-thread 'lex::tests::comma' panicked at 'assertion failed: `(left == right)`
+thread 'tokenize::tests::comma' panicked at 'assertion failed: `(left == right)`
   left: `[Comma]`,
  right: `[]`',
 ```
@@ -485,7 +494,7 @@ Note that the output message uses "left" and "right" to be as general as possibl
 
 <EmphasisBox>
 
-Whether you use Test Driven Development (TDD) principles or not, it's generally still a good idea to make sure a test fails before it succeeds - to avoid having tests that pass when they shouldn't.
+Whether you strictly adhere to Test Driven Development (TDD) principles or not, it's generally still a good idea to make sure a test fails before it succeeds - to avoid having tests that pass when they shouldn't due to a bug in the test itself.
 
 </EmphasisBox>
 
@@ -495,7 +504,7 @@ Now, going back to explain the new concepts from the unit test.
 
 More of an extension of the existing module concept we are aware of, modules can be defined within a file. A file can contain multiple modules if desired.
 
-As stated in the previous section on modules, the programmer explicitly defines the module tree, it is not implicit based on the filesystem. Also, the parent module defines its child module(s). In this case, the `lex` module defines a child module named `tests`.
+As stated in the previous section on modules, the programmer explicitly defines the module tree, it is not implicit based on the filesystem. Also, the parent module defines its child module(s). In this case, the `tokenize` module defines a child module named `tests`.
 
 </NewConcept>
 
@@ -513,13 +522,14 @@ The `#[something]` syntax in the code example is an [attribute](https://doc.rust
 
 The `use` keyword brings entities (module, type, function, constant, etc.) into the current scope.
 
-The `super` keyword when used in a path refers to the parent module. In this case, the current module is `lex::tests` and the parent module of that is `lex`.
+The `super` keyword when used in a path refers to the parent module. In this case, the current module is `tokenize::tests` and the parent module of that is `tokenize`.
 
 </NewConcept>
 
 Go ahead and add other tests as you see fit. For example:
 
 ```rust
+// inside of `mod tests`, among the other tests
 #[test]
 fn all_punctuation() {
     let input = String::from("[{]},:");
@@ -532,7 +542,7 @@ fn all_punctuation() {
         Token::Colon,
     ];
 
-    let actual = lex(input).unwrap();
+    let actual = tokenize(input).unwrap();
 
     assert_eq!(actual, expected);
 }
@@ -540,19 +550,23 @@ fn all_punctuation() {
 
 <EmphasisBox>
 
-I generally follow the "AAA" test style, which is Arrange-Act-Assert. - Arrange: set up the input data and expected result - Act: run the function - Assert: check the result
+I generally follow the "AAA" test style, which is Arrange-Act-Assert.
+
+- Arrange: set up the input data and expected result
+- Act: run the function
+- Assert: check the result
 
 </EmphasisBox>
 
-## Implementing the Lexer
+## Implementing the Tokenizing
 
-Time to actually implement the lexer!
+Time to actually implement the tokenizing!
 
 Wait, what were we doing again? Oh that's right, we were here:
 
 ```rust
-// lex.rs
-pub fn lex(input: String) -> Vec<Token> {
+// tokenize.rs
+pub fn tokenize(input: String) -> Vec<Token> {
     Vec::new()
 }
 ```
@@ -624,8 +638,8 @@ So we can't index into a string directly, what can we do?
 We can convert the `String` into something that we can index into directly.
 
 ```rust
-// lex.rs
-pub fn lex(input: String) -> Vec<Token> {
+// tokenize.rs
+pub fn tokenize(input: String) -> Vec<Token> {
     // replace the function body
     let chars: Vec<char> = input.chars().collect();
     let mut index = 0;
@@ -660,11 +674,11 @@ Hover over the `index` variable to see its type - it is type `usize`.
 
 ### Finally, make a Token
 
-Add two lines into the `lex` function, and create a new function.
+Add two lines into the `tokenize` function, and create a new function.
 
 ```rust
-// lex.rs
-pub fn lex(input: String) -> Vec<Token> {
+// tokenize.rs
+pub fn tokenize(input: String) -> Vec<Token> {
     // ...snip...
     while index < chars.len() {
         let token = make_token(chars[index]);
@@ -706,6 +720,8 @@ if ch == '[' {
   Token::Comma
 } else if ch == ':' {
   Token::Colon
+} else {
+  todo!("implement other tokens")
 }
 ```
 
@@ -713,7 +729,7 @@ Pattern matching happens in more places than just `match` expressions and has mo
 
 <NewConcept title='todo!()'>
 
-`todo!()` is a macro that's built into Rust, in this case, you can think of it like a built-in function. It allows your code to compile so you can run your code without everything being totally finished, which helps with prototyping and testing things out. I often will sketch out my module by defining the data, then defining the functions with input/output types and `todo!()` for the body.
+`todo!()` is a macro that's built into Rust, in this case, you can think of it like a built-in function. It allows your code to compile so you can run your code without everything being totally finished, which helps with prototyping and testing things out. I often will sketch out my module by defining the data, then defining the functions with input/output types and `todo!()` for the body. This allows for fast prototyping while also being explicit of what needs to be finished later.
 
 If the code actually reaches the `todo!()` at runtime, the program [panics](https://doc.rust-lang.org/book/ch09-00-error-handling.html).
 
@@ -741,7 +757,7 @@ fn make_token(ch: char) -> Token {
 
 ...and Houston we have a problem. In our current design, there's no way to move on to the next letter of a literal (`u` for null, `r` for true, and `a` for false). It worked previously because the punctuation tokens have a 1:1 relationship between character and token. This is not true for the rest of the tokens, we need a new design.
 
-There are a few ways to go about this. One way is to create a [Finite-State Machine](https://en.wikipedia.org/wiki/Finite-state_machine) that tracks states such as "Is Lexing Null Token" and looks for the appropriate letters. You'd also need to keep track of which letters have been processed so far.
+There are a few ways to go about this. One way is to create a [Finite-State Machine](https://en.wikipedia.org/wiki/Finite-state_machine) that tracks states such as "Is Tokenizing Null Token" and looks for the appropriate letters. You'd also need to keep track of which letters have been processed so far.
 
 Another approach is to give the `make_token` function the ability to increment the index on its own, because this function will know when to increment it. This requires changing our function.
 
@@ -754,7 +770,7 @@ The Rust book linked will describe this much better, but essentially:
 - _Ownership_: The owner of the data can decide what to do with it
 - _Borrowing_: Entities that are not the owner can borrow the data
 
-Consider the data we have so far. We have `chars` and `index` which are owned by the `lex` function. The `make_token` function needs this data so that it can crunch through the characters that it needs to create the next token. Let's see how that concept translates to Rust.
+Consider the data we have so far. We have `chars` and `index` which are owned by the `tokenize` function. The `make_token` function needs this data so that it can crunch through the characters that it needs to create the next token. Let's see how that concept translates to Rust.
 
 ```rust
 // update the signature of make_token
@@ -775,7 +791,7 @@ The Golden Rule of Rust borrowing is:
 
 > A borrow can be shared, or a borrow can be mutated, but not both.
 
-TODO: Drake meme (sharing Yes, mutating Yes, shared mutation No)
+TODO: Kombucha girl meme (sharing Yes, mutating Yes, shared mutation No)
 
 This concept might be familiar to you already as a "best practice" from other languages - i.e. "don't mutate shared state". If that's the case, you might be able to understand this pretty quickly as its really an encoding of that best practice into the type system of the language. However, if you're like me who wasn't exposed to this kind of thinking before, you may struggle to understand it at first. That's OK! Patient and practice will prevail.
 
@@ -787,7 +803,7 @@ Feel free to use a slice instead if you're comfortable.
 
 </Spoiler>
 
-Let's make the code compile again, we can [dereference]() the index and get the character at that index.
+Let's make the code compile again, we can **dereference** the index using the `*` operator and get the character at that index.
 
 ```rust
 fn make_token(chars: &Vec<char>, index: &mut usize) -> Token {
@@ -795,6 +811,16 @@ fn make_token(chars: &Vec<char>, index: &mut usize) -> Token {
     // ...snip...
 }
 ```
+
+<NewConcept title="dereferencing">
+
+Dereferencing is first discussed in the [References and Borrowing](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) section of the Rust book.
+
+When you have a value behind a reference, the unary prefix `*` operator can be used to get that value. Unary means this operator takes one argument (unlike binary `*` used for multiplication) and prefix means the operator comes before the argument.
+
+There's more to dereferencing than this, discussed in the Rust book in the [Smart Pointers](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) section, but this is not necessary to know for this tutorial.
+
+</NewConcept>
 
 <NewConcept title="usize">
 
@@ -807,7 +833,7 @@ fn make_token(chars: &Vec<char>, index: &mut usize) -> Token {
 
 </NewConcept>
 
-Let's add a function that looks for the characters "n", "u", "l", "l" to lex the literal `null` into a `Token`.
+Let's add a function that looks for the characters "n", "u", "l", "l" to tokenize the literal `null`.
 
 ```rust
 fn make_token(chars: &Vec<char>, index: &mut usize) -> Token {
@@ -816,7 +842,7 @@ fn make_token(chars: &Vec<char>, index: &mut usize) -> Token {
     match ch {
         // ...snip...
 
-        'n' => lex_null(chars, index),
+        'n' => tokenize_null(chars, index),
         't' => todo!("implement `true` token"),
         'f' => todo!("implement `false` token"),
 
@@ -824,7 +850,7 @@ fn make_token(chars: &Vec<char>, index: &mut usize) -> Token {
     }
 }
 
-fn lex_null(chars: &Vec<char>, index: &mut usize) -> Token {
+fn tokenize_null(chars: &Vec<char>, index: &mut usize) -> Token {
     for expected_char in "null".chars() {
         if expected_char != chars[*index] {
             // uh oh, what do we do here?
@@ -839,7 +865,7 @@ We've come to one of the major concepts in every programming language, which can
 
 ### Error Handling
 
-If we try to lex the following (not) JSON:
+If we try to tokenize the following (not) JSON:
 
 ```txt
 nooooooooooooo
@@ -852,24 +878,24 @@ In Rust, we don't throw an Exception and hope that someone else catches it. Ther
 1. Remember that we are building a **library**. Throwing an Exception from a library will affect the control flow of the _application_ that calls our library. This is an intrusive thing for a library to do because it breaks the API boundary between the library and the application.
 2. Exceptions in many languages affects the "honesty" of the function's return type. For example, in C# or TypeScript, the function might claim that it returns a `Token` but it actually only **sometimes** returns a `Token`. The core issue is that _any_ function may not return what it says that it returns. Eric Lippert (standardization committee of C# and former C# designer) calls these [Vexing Exceptions](https://learn.microsoft.com/en-us/archive/blogs/ericlippert/vexing-exceptions).
 3. The library should not decide what is **exceptional**, it is the application that is using the library that decides what is exceptional. It is the application that is aware of the domain it is being used for, whereas the library needs to be general and not make assumptions.
-4. In this particular case of a JSON parser, bad data is not exceptional at all. **Any time** that data is ingested from outside the system, you need to assume that the data might be bad. This is not exceptional, thus an Exception should not be used.
+4. In this particular case of JSON parsing, bad data is not exceptional at all. **Any time** that data is ingested from outside the system, you need to assume that the data might be bad. This is not exceptional, thus an Exception should not be used.
 
 So what do we do instead? We will return a **data structure** with two possibilities - the function succeeded or the function failed.
 
 This is a **closed set** (succeed or fail, no other variants), so based on what we've learned so far, what type of data is used? If you said `enum`, that's right! Rust has this kind of data structure built-in to its core library, called [Result](https://doc.rust-lang.org/std/result/). This is an `enum` with two possible variants, named `Ok` and `Err`.
 
 ```rust
-/// One of the possible errors that could occur while lexing the input
+/// One of the possible errors that could occur while tokenizing the input
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub enum LexError {
+pub enum TokenizeError {
     /// The input appeared to be the start of a literal value but did not finish
     UnfinishedLiteralValue,
 }
 
-fn lex_null(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
+fn tokenize_null(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeError> {
     for expected_char in "null".chars() {
         if expected_char != chars[*index] {
-            return Err(LexError::UnfinishedLiteralValue);
+            return Err(TokenizeError::UnfinishedLiteralValue);
         }
         *index += 1;
     }
@@ -877,20 +903,20 @@ fn lex_null(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
 }
 ```
 
-First, we defined an `enum` for ourselves to define the possible error variants. Second, we updated the `lex_null` function to return a `Result` containing a `Token` (when `Ok`) or containing a `LexError` (when `Err`).
+First, we defined an `enum` for ourselves to define the possible error variants. Second, we updated the `tokenize_null` function to return a `Result` containing a `Token` (when `Ok`) or containing a `TokenizeError` (when `Err`).
 
-Now that `lex_null` can fail, so can `make_token`.
+Now that `tokenize_null` can fail, so can `make_token`.
 
 ```rust
-fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
+fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeError> {
     let ch = chars[*index];
 
     let token = match ch {
         // ...snip...
 
-        'n' => match lex_null(chars, index) {
+        'n' => match tokenize_null(chars, index) {
             Ok(token) => token,
-            Err(lex_error) => return Err(lex_error),
+            Err(err) => return Err(err),
         },
 
         // ...snip...
@@ -903,23 +929,23 @@ fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
 We changed these parts of `make_token`:
 
 1. The return type to indicate it can fail by returning a `Result`
-2. We `match` on the Result of the `lex_null` function, because it can either succeed or fail. If it fails, we go ahead and `return` that error, otherwise we grab the `Token` from inside the `Result`.
+2. We `match` on the Result of the `tokenize_null` function, because it can either succeed or fail. If it fails, we go ahead and `return` that error, otherwise we grab the `Token` from inside the `Result`.
 3. At the bottom of the function, we return the `Token` inside of the `Ok` variant.
 
 <NewConcept title="question mark operator (?)">
 
-The `match` expression we just added in the previous step is a bit wordy. You can imagine we would have to do the same thing for any lexing that can fail, which will get repetitive and verbose. We can replace `match` expressions like that one with the `?` operator.
+The `match` expression we just added in the previous step is a bit wordy. You can imagine we would have to do the same thing for any tokenizing that can fail, which will get repetitive and verbose. We can replace `match` expressions like that one with the `?` operator.
 
 This `?` operator creates an "Error Propagation Expression". This expression "passes up" (i.e. returns) the error if it's an `Err`, otherwise it unwraps the `Ok` value. We can now replace that `match` expression with the `?` operator:
 
 ```rust
-fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
+fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeError> {
     let ch = chars[*index];
 
     let token = match ch {
         // ...snip...
 
-        'n' => lex_null(chars, index)?,
+        'n' => tokenize_null(chars, index)?,
 
         // ...snip...
     };
@@ -930,17 +956,17 @@ fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
 
 </NewConcept>
 
-We can now write the other functions for lexing the `true` and `false` literal values.
+We can now write the other functions for tokenizing the `true` and `false` literal values.
 
 ```rust
-fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
+fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeError> {
     let ch = chars[*index];
 
     let token = match ch {
         // ...snip...
 
-        'f' => lex_false(chars, index)?,
-        't' => lex_true(chars, index)?,
+        'f' => tokenize_false(chars, index)?,
+        't' => tokenize_true(chars, index)?,
 
         // ...snip...
     };
@@ -948,20 +974,20 @@ fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
     Ok(token)
 }
 
-fn lex_false(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
+fn tokenize_false(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeError> {
     for expected_char in "false".chars() {
         if expected_char != chars[*index] {
-            return Err(LexError::UnfinishedLiteralValue);
+            return Err(TokenizeError::UnfinishedLiteralValue);
         }
         *index += 1;
     }
     Ok(Token::False)
 }
 
-fn lex_true(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
+fn tokenize_true(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeError> {
     for expected_char in "true".chars() {
         if expected_char != chars[*index] {
-            return Err(LexError::UnfinishedLiteralValue);
+            return Err(TokenizeError::UnfinishedLiteralValue);
         }
         *index += 1;
     }
@@ -971,21 +997,22 @@ fn lex_true(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
 
 <EmphasisBox>
 
-The `lex_null`, `lex_false`, and `lex_true` all look quite similar. The only differences are the literal string being compared and the variant of the `Token` that is returned.
+The `tokenize_null`, `tokenize_false`, and `tokenize_true` all look quite similar. The only differences are the literal string being compared and the variant of the `Token` that is returned.
 
-How would you remove the duplication here? What are the tradeoffs of doing this?
+How would you implement a `tokenize_literal` function that could handle all of these cases? What are the tradeoffs of doing this?
 
 </EmphasisBox>
 
 Let's add some additional tests now, and feel free to add more as appropriate.
 
 ```rust
+// inside of `mod tests`, among the other tests
 #[test]
 fn just_null() {
     let input = String::from("null");
     let expected = [Token::Null];
 
-    let actual = lex(input).unwrap();
+    let actual = tokenize(input).unwrap();
 
     assert_eq!(actual, expected);
 }
@@ -995,7 +1022,7 @@ fn just_false() {
     let input = String::from("false");
     let expected = [Token::False];
 
-    let actual = lex(input).unwrap();
+    let actual = tokenize(input).unwrap();
 
     assert_eq!(actual, expected);
 }
@@ -1005,7 +1032,7 @@ fn just_true() {
     let input = String::from("true");
     let expected = [Token::True];
 
-    let actual = lex(input).unwrap();
+    let actual = tokenize(input).unwrap();
 
     assert_eq!(actual, expected);
 }
@@ -1014,18 +1041,62 @@ fn just_true() {
 Go ahead and run these tests, they should all pass. However, then add this test. What happens?
 
 ```rust
+// inside of `mod tests`, among the other tests
 #[test]
 fn true_comma() {
     let input = String::from("true,");
     let expected = [Token::True, Token::Comma];
 
-    let actual = lex(input).unwrap();
+    let actual = tokenize(input).unwrap();
 
     assert_eq!(actual, expected);
 }
 ```
 
-TODO: fix bug of incrementing index too much
+Oops! The test failed.
+
+```txt
+running 1 test
+thread 'tokenize::tests::true_comma' panicked at 'assertion failed: `(left == right)`
+  left: `[True]`,
+ right: `[True, Comma]`'
+```
+
+So what happened? We need to trace the flow of our program over time and track its state (or use a debugger!).
+
+`tokenize` has a main loop where it calls `make_token`, then increments the `index` by 1. This is necessary to avoid an infinite loop, after tokenizing a character such as `,` the index needs to be incremented to move on to the next character.
+
+OK, all good there. However, `make_token` in this case calls `tokenize_true`, which also increments the index after each letter of "true". This causes the index to be incremented by one extra!
+
+> There are 2 hard problems in computer science: cache invalidation, naming things, and off-by-1 errors.
+>
+> _\~Unknown Author_
+
+There are a few ways this can be solved in the `tokenize_true` function:
+
+1. Only increment the index if `expected_char != 'e'`
+2. Something fancy like convert the iterator to a [Peekable](https://doc.rust-lang.org/std/iter/struct.Peekable.html), and peek ahead to determine whether to increment the index or not
+3. Decrement the index at the end of the function
+4. Remove the increment in the main loop of `tokenize`. Increment the index variable in each of the match arms for the single-byte characters
+
+<EmphasisBox>
+
+Recall the previous design question of whether `tokenize_null`, `tokenize_false`, and `tokenize_true` should instead be replaced by a general `tokenize_literal` function. Would any of these options not work in that case?
+
+</EmphasisBox>
+
+Idea #3 is pretty simple to implement, and can be done as shown below:
+
+```rust
+fn tokenize_true(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeError> {
+    // ...snip...
+
+    *index -= 1; // index is incremented in the main loop
+    Ok(Token::True)
+}
+```
+
+The same solution needs to be applied to `tokenize_false` and `tokenize_null` (or `tokenize_literal`, if you chose to generalize these functions!). Afterwards, the tests that we had written will now pass. Feel free to add more tests as it seems appropriate.
 
 ## Numbers
 
@@ -1044,13 +1115,13 @@ Reminder: the code snippet above is a valid JSON document on its own. JSON docum
 We'll add another case to our main `match` expression, this time matching characters that are digits.
 
 ```rust
-fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
+fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeError> {
     let ch = chars[*index];
 
     let token = match ch {
         // ...snip...
 
-        c if c.is_ascii_digit() => lex_float(chars, index)?,
+        c if c.is_ascii_digit() => tokenize_float(chars, index)?,
 
         // ...snip...
     };
@@ -1065,10 +1136,10 @@ The `if` keyword after the match variable is a [match guard](https://doc.rust-la
 
 </NewConcept>
 
-We've introduced a new function, `lex_float`. Time to implement this:
+We've introduced a new function, `tokenize_float`. Time to implement this:
 
 ```rust
-fn lex_float(chars: &Vec<char>, curr_idx: &mut usize) -> Result<Token, LexError> {
+fn tokenize_float(chars: &Vec<char>, curr_idx: &mut usize) -> Result<Token, TokenizeError> {
     let mut unparsed_num = String::new();
     let mut has_decimal = false;
 
@@ -1087,7 +1158,7 @@ fn lex_float(chars: &Vec<char>, curr_idx: &mut usize) -> Result<Token, LexError>
 
     match unparsed_num.parse() {
         Ok(f) => Ok(Token::Number(f)),
-        Err(err) => Err(LexError::ParseNumberError(err)),
+        Err(err) => Err(TokenizeError::ParseNumberError(err)),
     }
 }
 ```
@@ -1111,9 +1182,59 @@ Look up `Result::map` and `Result::map_err` in the Rust standard library documen
 
 </EmphasisBox>
 
+Let's add a few tests for numbers.
+
+```rust
+// inside of `mod tests`, among the other tests
+#[test]
+fn integer() {
+    let input = String::from("123");
+    let expected = [Token::Number(123.0)];
+
+    let actual = tokenize(input).unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn floating_point() {
+    let input = String::from("1.23");
+    let expected = [Token::Number(1.23)];
+
+    let actual = tokenize(input).unwrap();
+
+    assert_eq!(actual, expected);
+}
+```
+
+Does this cover everything?
+
+<Spoiler title="hint">
+
+Our tests don't cover negative numbers.
+
+```rust
+// inside of `mod tests`, among the other tests
+#[test]
+fn negative_integer() {
+    let input = String::from("-123");
+    let expected = [Token::Number(-123.0)];
+
+    let actual = tokenize(input).unwrap();
+
+    assert_eq!(actual, expected);
+}
+```
+
+Does this test pass? If not, how can you fix it?
+
+Are there any other cases for numbers from [JSON.org](https://www.json.org) that we missed? Hint: what does "E" mean in a number?
+
+</Spoiler>
+
 ## Strings
 
-Time for the last kind of Token, and we are almost done!
+Time for the last kind of Token, and we are almost done with tokenizing!
 
 JSON strings look like this:
 
@@ -1124,13 +1245,13 @@ JSON strings look like this:
 The string starts with a `"` character and includes all characters until the next `"` character.
 
 ```rust
-fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
+fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeError> {
     let ch = chars[*index];
 
     let token = match ch {
         // ...snip...
 
-        '"' => lex_string(chars, index)?,
+        '"' => tokenize_string(chars, index)?,
 
         // ...snip...
     };
@@ -1142,7 +1263,7 @@ fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, LexError> {
 Here's the implementation:
 
 ```rust
-fn lex_string(chars: &[char], curr_idx: &mut usize) -> Result<Token, LexError> {
+fn tokenize_string(chars: &Vec<char>, curr_idx: &mut usize) -> Result<Token, TokenizeError> {
     let mut string = String::new();
 
     while *curr_idx < chars.len() {
@@ -1160,23 +1281,24 @@ fn lex_string(chars: &[char], curr_idx: &mut usize) -> Result<Token, LexError> {
 
 1. Create a mutable string buffer to push the characters into
 2. Loop through the available characters, adding every character to the buffer until the next `"` character
-3. Create a token from the lexed string and return it
+3. Create a token from the tokenized string and return it
 
 Let's add some tests to confirm our functionality.
 
 ```rust
+// inside of `mod tests`, among the other tests
 #[test]
 fn just_ken() {
     let input = String::from("\"ken\"");
-    let expected = [Token::String("ken".to_string())];
+    let expected = [Token::String(String::from("ken"))];
 
-    let actual = lex(input).unwrap();
+    let actual = tokenize(input).unwrap();
 
     assert_eq!(actual, expected);
 }
 ```
 
-However, we're not covering all of the cases! What should happen if the JSON document looked like this?
+However, we're not covering all of the cases! What should happen if the input looked like this?
 
 ```
 "no closing quote
@@ -1184,10 +1306,10 @@ However, we're not covering all of the cases! What should happen if the JSON doc
 
 This is not a valid JSON document because there isn't a closing quote character, so we need to return an error rather than a valid Token.
 
-That involves adding a new variant to our `LexError`:
+That involves adding a new variant to our `TokenizeError`:
 
 ```rust
-pub enum LexError {
+pub enum TokenizeError {
     // ...snip...
 
     /// String was never completed
@@ -1197,17 +1319,17 @@ pub enum LexError {
 }
 ```
 
-We'll need to rework the main loop of `lex_string`. Instead of breaking the loop when the index reaches the end of the input string, which naturally happened in the `while` loop, this case needs to be an error instead.
+We'll need to rework the main loop of `tokenize_string`. Instead of breaking the loop when the index reaches the end of the input string, which naturally happened in the `while` loop, this case needs to be an error instead.
 
 ```rust
-fn lex_string(chars: &[char], curr_idx: &mut usize) -> Result<Token, LexError> {
+fn tokenize_string(chars: &Vec<char>, curr_idx: &mut usize) -> Result<Token, TokenizeError> {
     // ...snip...
 
     // replace the `while` loop with this loop
     loop {
         *curr_idx += 1;
         if *curr_idx >= chars.len() {
-            return Err(LexError::UnclosedQuotes);
+            return Err(TokenizeError::UnclosedQuotes);
         }
         let ch = chars[*curr_idx];
         if ch == '"' {
@@ -1218,26 +1340,162 @@ fn lex_string(chars: &[char], curr_idx: &mut usize) -> Result<Token, LexError> {
 }
 ```
 
-Finally, a test for an unclosed quote. Note that tests for error conditions still follow the Arrange-Act-Assert format, because errors are just values too (this might be obvious to some readers, but it wasn't obvious to me at first, coming from languages where you have to test with assertions like `expect(foo).toThrow()`).
+Finally, a test for an unclosed quote. Note that tests for errors still follow the same format, because errors are also data. This might be obvious to some readers, but it wasn't obvious to me at first, coming from languages where you have to test with assertions like `expect(func()).toThrow()`.
 
 ```rust
+// inside of `mod tests`, among the other tests
 #[test]
 fn unclosed_string() {
     let input = String::from("\"unclosed");
-    let expected = Err(LexError::UnclosedQuotes);
+    let expected = Err(TokenizeError::UnclosedQuotes);
 
-    let actual = lex(input);
+    let actual = tokenize(input);
 
     assert_eq!(actual, expected);
 }
 ```
 
+<EmphasisBox>
+
+We are missing a pretty important part of string processing, which is "escape characters". For example:
+
+```json
+"the cat says \"woof\""
+```
+
+Our tokenizing would currently do two things incorrectly here:
+
+1. It would include `\` in the tokenized String
+2. It would stop tokenizing when it reaches the `"` _before_ the "woof"
+
+All of the possible escape characters, such as `\n` and `\t` can be found on [JSON.org](https://www.json.org).
+
+To handle these escape sequences, there are two main design possibilities - the tokenizing could handle it and produce a `Token::String` that is fully processed, or the tokenizing could understand just enough to not stop tokenizing when it hits a `\"` and handle the escape sequences later.
+
+For this tutorial, we are going to capture the whole string in the token, without processing escape sequences, and process those when parsing the token. We do need to at least change to not stop tokenizing when it hits a `\"`.
+
+</EmphasisBox>
+
+Just for fun, we can start implementing this by adding a test that will fail.
+
+```rust
+// inside of `mod tests`, among the other tests
+#[test]
+fn escaped_quote() {
+    let input = String::from(r#""the \" is OK""#);
+    let expected = [Token::String(String::from(r#"the \" is OK"#))];
+
+    let actual = tokenize(input).unwrap();
+
+    assert_eq!(actual, expected);
+}
+```
+
+<Spoiler summary="Repetitive code got you down?">
+
+There's going to be a bunch of `Token::String(String::from("..."))` throughout the rest of the tutorial. I don't particularly mind it, but I also think it's valid to want to reduce this. At least as an opportunity for an optional new concept 😃
+
+<NewConcept title="impl blocks">
+
+Functions can be associated to types by using [an `impl` block](https://doc.rust-lang.org/std/keyword.impl.html).
+
+```rust
+// can put this below the `enum Token` definition
+#[cfg(test)]
+impl Token {
+    fn string(input: &str) -> Self {
+        Self::String(String::from(input))
+    }
+}
+```
+
+This creates an [associated function](https://doc.rust-lang.org/reference/items/associated-items.html#associated-functions-and-methods), i.e. a function associated with a type. As with before, the `#[cfg(test)]` makes this function only included when running tests. Note that the **variant** name is `String` and the function is `string` (case-sensitive).
+
+`Self` is a "variable" that corresponds to the type of the `impl` block, so in this case, `Self` means `Token`.
+
+This function can be called with `Token::string("...")`, so for example, we can change our existing test to:
+
+```rust
+// inside of `mod tests`, among the other tests
+#[test]
+fn just_ken() {
+    let input = String::from("\"ken\"");
+    let expected = [Token::string("ken")];
+
+    let actual = tokenize(input).unwrap();
+
+    assert_eq!(actual, expected);
+}
+```
+
+A bit more concise, not a huge deal one way or the other, but a good opportunity for showing how the `impl` block for associated functions. The `impl` block can do more than this, read up about it if you're interested!
+
+</NewConcept>
+
+</Spoiler>
+
+<NewConcept title="raw string literal">
+
+The `r#` syntax at the front of the string and the `#` at the back in the previous example delimits a [Raw string literal](https://doc.rust-lang.org/rust-by-example/std/str.html#literals-and-escapes). These are nice because you don't have to escape quotes and backslashes for the Rust string.
+
+Testing and keeping all this escaping straight is challenging, because you have to keep track of three layers: Rust string -> JSON document -> JSON String Token
+
+At some point, a library author might seriously consider storing the input data for tests in separate `*.json` files to at least reduce the complexity of encoding the input data as a Rust string.
+
+</NewConcept>
+
+This test will fail, so let's implement the feature to make it pass. We're going to introduce a boolean variable to track whether we are in "escape mode" or not. The logic will be:
+
+1. If the character is a `"` and the previous character was not a backslash, tokenizing for this string is done so break out of the loop
+2. If the character is a `\`, flip the "escape mode" boolean variable
+   - This needs to **flip** the variable, not just set it to `true`, because the second backslash of a `\\` sequence need to turn off the "escape mode"
+3. Any character besides a `\` turns off "escape mode"
+
+There are three possibilities, so three arms in the `match`:
+
+```rust
+fn tokenize_string(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeError> {
+    let mut string = String::new();
+    let mut is_escaping = false;
+
+    loop {
+        *index += 1;
+        if *index >= chars.len() {
+            return Err(TokenizeError::UnclosedQuotes);
+        }
+
+        let ch = chars[*index];
+        match ch {
+            '"' if !is_escaping => break,
+            '\\' => is_escaping = !is_escaping,
+            _ => is_escaping = false,
+        }
+
+        string.push(ch);
+    }
+
+    Ok(Token::String(string))
+}
+```
+
+Feel free to use a different variable name for `is_escaping`, I'm not completely satisfied with that name.
+
+<NewConcept title="match guards">
+
+The `if` inside of the match arm is an example of a [match guard](https://doc.rust-lang.org/reference/expressions/match-expr.html#match-guards), this is often a nice way to have the number of match arms exactly "match" (hehe) the number of possibilities in the logic.
+
+The expression in the match guard can be arbitrarily complex, but it's best to not go too crazy in here for readability/maintainability.
+
+</NewConcept>
+
 ## Conclusion
 
-We have now completed _an_ implementation of a lexer for JSON tokens. This series continues in Part 2: Writing the Parser.
+We have now completed _an_ implementation of tokenizing for JSON tokens, ideally as a practical example to teach Rust syntax, semantics, and language features.
 
-Throughout this tutorial, you have learned \__ new concepts! (plus or minus a few). That's really good! One thing that's neat about Rust is that there are a few broad themes that connect everything (ownership, borrowing) but besides that each feature is generally self-contained and can be taught on its own (if you want to sound fancy, you'd say that the features are mostly \_orthogonal_ to each other).
+Throughout this tutorial, you have learned \_\_ new concepts! (plus or minus a few). That's really good! One thing that's neat about Rust is that there are a few broad themes that connect everything (ownership, borrowing) but besides that each feature is generally self-contained and can be taught on its own (if you want to sound fancy, you'd say that the features are mostly _orthogonal_ to each other).
 
-The next and last article in this series will contain much more code than this article, but fewer new concepts because most were learned already.
+The [next and last article](./json-parsing-rust-2) in this series will contain much more code than this article, but fewer new concepts because most were learned already.
 
-export default ({ children }) => <BlogsPage meta={meta}>{children}</BlogsPage>
+export default function ({ children }) {
+  return <BlogsPage meta={meta}>{children}</BlogsPage>
+}

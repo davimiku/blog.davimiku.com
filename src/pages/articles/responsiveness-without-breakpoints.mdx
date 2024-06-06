@@ -1,6 +1,6 @@
 export const meta = {
   title: 'Web Design: Responsiveness without breakpoints',
-  category: 'web-design',
+  category: 'articles',
   type: 'thoughts',
   slug: 'responsiveness-without-breakpoints',
   tagline: 'An experiment in responsive design without breakpoints',
@@ -13,6 +13,14 @@ import { EmphasisBox, Spoiler } from '../../components/blog'
 
 ## Web Design: Responsiveness without breakpoints
 
+<EmphasisBox>
+
+Author's Comment: When I originally wrote this post, I was using all of the techniques mentioned in this article to build this site without any breakpoints, and all of the techniques could be interacted with live on this site.
+
+However, since then, I have switched to using an off-the-shelf styling for written content called [Tufte CSS](https://edwardtufte.github.io/tufte-css/), and most of what's described in this post no longer exists on my site! I decided to leave this article up because the descriptions, examples, and links for further reading should still be useful.
+
+</EmphasisBox>
+
 During development of this website, I came across an article titled [The 100% correct way to do CSS breakpoints](https://www.freecodecamp.org/news/the-100-correct-way-to-do-css-breakpoints-88d6a5ba1862/), which describes the problem with setting up breakpoints in the "traditional" way:
 
 - X-Small: 0-576px
@@ -22,22 +30,24 @@ During development of this website, I came across an article titled [The 100% co
 - X-Large: 1200-1400px
 - XX-Large: >1400px
 
-The article (convincingly) argues that this is the wrong way to think about breakpoints, rather than breaking on exact device widths ("Wait, is the 768px inclusive or exclusive?"), you should instead think about _ranges_ instead of points, and groups of devices rather than single cut-off points. Go ahead and read that article, it's definitely worth it. However, coming across this article many years later, I can't help but to think there's more to the story now.
+The article (convincingly) argues that this is the wrong way to think about breakpoints, rather than breaking on **device widths** ("Wait, is the 768px inclusive or exclusive?"), you should instead think about _ranges_ instead of points, and groups of devices rather than single cut-off points. Go ahead and read that article, it's definitely worth it. Howeverhypocrite, coming across this article many years later, I can't help but to think there's more to the story now.
+The article (convincingly) argues that this is the wrong way to think about breakpoints, rather than breaking on **device widths** ("Wait, is the 768px inclusive or exclusive?"), you should instead think about _ranges_ instead of points, and groups of devices rather than single cut-off points. Go ahead and read that article, it's definitely worth it. Howeverhypocrite, coming across this article many years later, I can't help but to think there's more to the story now.
 
-It isn't just about the device being used, it's also about _how_ the device is used. For example, Android has a [One Handed Mode](https://www.androidcentral.com/how-enable-one-handed-mode-android-12) that changes how the screens are used. Windows has [Snap To Edge](https://support.microsoft.com/en-us/windows/snap-your-windows-885a9b1e-a983-a3b1-16cd-c531795e6241) - a legitimate use case is snapping your web application to one side and having another application snapped to the other side. The user may be on a laptop but not in the "laptop" breakpoint. Devices have multiple orientations that people often switch between, and mobile devices have made a full cycle back around to [being foldable](https://www.samsung.com/us/smartphones/galaxy-z-fold3-5g/specs/). People [cast](https://support.google.com/chromecast/answer/6006232?hl=en) websites to their TVs or plug their devices into a TV. One can imagine a world (or does it already exist?) where screens are present on common household items such as refrigerators, security system panels, thermostats, and desks.
+It isn't just about the **device width**, it's also about _how_ the device is used. For example, Android has a [One Handed Mode](https://www.androidcentral.com/how-enable-one-handed-mode-android-12) that changes how the screens are used. Windows has [Snap To Edge](https://support.microsoft.com/en-us/windows/snap-your-windows-885a9b1e-a983-a3b1-16cd-c531795e6241) - a legitimate use case is snapping your web application to one side and having another application snapped to the other side. The user may be on a laptop but not in the "laptop" device width. Even if we're designing our B2B application for laptop users, it's not enough to only handle laptop device widths. Many devices have multiple orientations that people can switch between, and mobile devices have made a full cycle back around to [being foldable](https://www.samsung.com/us/smartphones/galaxy-z-fold3-5g/specs/).
 
-These aren't just **statically** different devices, but also **dynamically** different - someone may be on your website interacting with their finger, and then fold open their phone and interact with a stylus without a page reload. People rearrange their windows all the time while on a website without refreshing (I use Win+Left and Win+Right constantly to snap applications around).
+People can [cast](https://support.google.com/chromecast/answer/6006232?hl=en) websites from their device to their TVs or plug their devices into a TV. This isn't just TVs at home, it's common for a group of colleagues to cast their screen onto a TV in a conference room to collaborate. One can imagine a world (or does it already exist?) where screens are present on common household items such as refrigerators, security system panels, thermostats, and desks.
 
-The "traditional" breakpoint sizes aren't the right tool to manage smooth responsiveness across the dynamic array of devices and uses.
+These aren't just **statically** different devices, but also **dynamically** different - someone may be on your website interacting with their finger, and then fold open their phone and interact with a stylus without a page reload. People rearrange their windows all the time while on a website without refreshing the page (I use Win+Left and Win+Right constantly to snap applications around), or change their display without a page refresh. I've seen Wordpress websites that use a jQuery plugin to query for the screen width when the page loads and adjusts elements/styles... don't do that either, because the screen width can change after page load.
+
+The mental model of designing for a "device width" doesn't really work, and "breakpoint" sizes aren't the right tool to manage smooth responsiveness across the dynamic array of devices and uses. So what is the right mental model? I believe that responsiveness is better achieved using relative sizing/units and smooth scaling rather than "breakpoints". However, it is still appropriate to use breakpoints if the core layout of the page is actually "breaking", i.e. a significantly different layout that cannot be achieved in another way.
 
 ### Background on Media Queries
 
 Media queries were originally developed to give developers the ability to display the website differently based on the media that it was being viewed on. The earliest application of this was to provide different styles for `screen` and `print` versions of the website, as elements could look different on a computer screen vs. a piece of paper. Later on, with the advent of mobile devices and the standardization of [Media Queries Level 3](https://www.w3.org/TR/mediaqueries-3/) these became almost synonymous with "breakpoints", as the most commonly used media query by far is `width`.
 
 <Spoiler summary="print media query">
-It's not that common to see media queries specifically for `print` anymore. A number of factors are responsible for this, including less need for printed information. For example, instead of printing directions from MapQuest, GPS/Maps are available directly on your mobile device.
 
-Another big reason we see less of the `print` media query is how easy it is to generate PDFs compared to the earlier days of the web. PDF was actually [not an open standard until 2008](https://en.wikipedia.org/wiki/History_of_PDF), and it still took a little while after that, but now it's easy to generate PDFs across programming languages and applications. Nowadays, for printing and sending documents, you'd probably rather generate a PDF than try to style a webpage with `print` media queries and CSS.
+It's not as common to see media queries for `print` anymore. This is likely due to just less need for printed information. For example, instead of printing directions from MapQuest to use while driving, GPS/Maps are available directly on your mobile device.
 
 </Spoiler>
 
@@ -49,16 +59,16 @@ Most front-end developers are comfortable with the idea of relative units, such 
 
 There are other units available also, such as `vw` (viewport width), `vh` (viewport height), `ch` (character width), and using percentages.
 
-Example from this site:
+Example:
 
 ```css
-.main {
-  margin: 0 auto 2rem auto;
+main {
+  margin: 0 auto;
   max-width: 110ch;
 }
 ```
 
-This is a simple example that keeps the main content centered and at a maximum of 110 characters wide (the "zero" character `0` is the baseline for the width of a character). If you stretch or shrink this page, you'll see the central column widen to 110 characters and then stay there. This is also quite easy to adjust, just changing the 110 to something else and the page remains intact.
+This is a simple example that keeps the main content centered and at a maximum of 110 "characters" wide (the "zero" character `0` is the baseline for the width of a character). If you stretch or shrink the page, the central column would widen to 110 characters and then stay there. This is also quite easy to adjust, just changing the 110 to something else and the page remains intact.
 
 ### clamp()
 
@@ -77,10 +87,11 @@ The function arguments are (MIN, VAL, MAX), and `rem` units are used for the MIN
 The `calc()` function can be used to... calculate values.
 
 ```css
-.main {
+main {
   /* Fluidly scale padding down to 1rem at small screen widths */
   --scaling-factor: 20;
   --relative-padding: calc(100vw - 320px);
+
   padding-left: calc(var(--relative-padding) / var(--scaling-factor) + 1rem);
   padding-right: calc(var(--relative-padding) / var(--scaling-factor) + 1rem);
 }
@@ -99,7 +110,7 @@ This is a little math that causes the horizontal padding to fluidly shrink as th
 
 ### CSS Grid
 
-There are many (better) resources available for learning CSS Grid (I like [CSS Tricks](https://css-tricks.com/snippets/css/complete-guide-grid/)). Here is an example from this site for making a grid that fluidly rearranges items in the grid and resizes them based on screen width.
+There are many (better) resources available for learning CSS Grid (I like [CSS Tricks](https://css-tricks.com/snippets/css/complete-guide-grid/)). Here is an example for making a grid that fluidly rearranges items in the grid and resizes them based on screen width.
 
 ```css
 .card-grid {
@@ -116,7 +127,7 @@ This allows for a 2x3 grid to fluidly resize to 3x2 and then 6x1 on a shrinking 
 
 ### Media Queries for Detecting Other Media
 
-Throughout this experiment, I haven't banned myself from using **media queries**, just "breakpoints". Media Queries are very useful! I'm using the [prefers-color-schema](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme) media query to default the dark/light mode based on your browser or operating system preferences. Applications that use animations really should use [prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion) for the comfort and safety of their users, and [prefers-contrast](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-contrast) to ensure that everyone can see the content effectively. We can detect if the device has a coarse pointer (ex. finger) or a fine pointer (ex. mouse) to make buttons easier to press/click using the [pointer](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/pointer) media query.
+Throughout the experiment, I didn't ban myself from using **media queries**, just "breakpoints". Media Queries are very useful! I'm using the [prefers-color-schema](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme) media query to default the dark/light mode based on your browser or operating system preferences. Applications that use animations really should use [prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion) for the comfort and safety of their users, and [prefers-contrast](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-contrast) to ensure that everyone can see the content effectively. We can detect if the device has a coarse pointer (ex. finger) or a fine pointer (ex. mouse) to make buttons easier to press/click using the [pointer](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/pointer) media query.
 
 Other interesting modern media queries can be seen in the Media Queries Level 4](https://www.w3.org/TR/mediaqueries-4/) specification. Of course, we should check for browser support, and only use these for progressive enhancement, not rely on them for essential functionality.
 
@@ -124,7 +135,7 @@ During research for this article, I came across [What if I told you that you can
 
 ### Container Queries
 
-At the time of writing, I haven't used any [Container Queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Container_Queries)
+At the time of writing, I haven't tried [Container Queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Container_Queries), though I plan to when there is more browser support available.
 
 ## Disclaimer and Closing Thoughts
 
@@ -134,4 +145,6 @@ I am **definitely not** a UI or CSS expert, these are just some neat tricks that
 
 I used this as an opportunity to learn about the real purpose of media queries and what we can do with them (and just as importantly, what we can do **without** them). The best part about all this is there is **_significantly less_** CSS that I have to write and maintain with the fluid design than with the "traditional" breakpoint approach. Gone are the days of adjusting fonts at every breakpoint, embrace robust and maintainable styling!
 
-export default ({ children }) => <BlogsPage meta={meta}>{children}</BlogsPage>
+export default function ({ children }) {
+  return <BlogsPage meta={meta}>{children}</BlogsPage>
+}
