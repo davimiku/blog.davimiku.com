@@ -1,24 +1,33 @@
 import Layout from 'layouts'
 import { BlogListing } from 'components/blog'
 
+export type PublishedBlogMeta = BlogMeta & {
+  publishedOn: string
+}
+
 export type BlogMeta = {
   title: string
   category: Category
   slug: string
   tagline: string
+  type: string
+  tags: string[]
   publishedOn?: string
-  tags?: string[]
+  updatedOn?: string
 }
 
 type Category = 'parsers' | 'web-design'
 
-import * as ResponsivenessWithoutBreakpoints from '../web-design/responsiveness-without-breakpoints.mdx'
-import * as JsonParserRust1 from '../parsers/json-parser-rust-1.mdx'
+import * as ResponsivenessWithoutBreakpoints from '../articles/responsiveness-without-breakpoints.mdx'
+import * as JsonParserRust1 from '../tutorials/json-parsing-rust-1.mdx'
 
 const articles = [ResponsivenessWithoutBreakpoints, JsonParserRust1]
-export const blogsMeta: BlogMeta[] = articles.map(blog => blog.meta)
+export const blogsMeta: PublishedBlogMeta[] = articles
+  .map(blog => blog.meta)
+  .filter(meta => meta.publishedOn)
 
 export default function BlogIndex() {
+  const blogSummaries = blogsMeta.map(meta => <BlogListing meta={meta} key={meta.slug} />)
   return (
     <Layout title='Blogs' description='Blog Posts'>
       <h1>Blog</h1>
@@ -31,11 +40,7 @@ export default function BlogIndex() {
         entry-level tutorials but far fewer quality materials for taking the next step from beginner
         to intermediate. I hope to help with that!
       </p>
-      <ul>
-        {blogsMeta.map(meta => (
-          <BlogListing meta={meta} key={meta.slug} />
-        ))}
-      </ul>
+      <ul>{blogSummaries}</ul>
     </Layout>
   )
 }

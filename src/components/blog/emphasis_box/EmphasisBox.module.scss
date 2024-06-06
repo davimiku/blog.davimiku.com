@@ -5,15 +5,18 @@
   border: 1px solid colors.$accent;
   border-radius: sizes.$border-radius;
 
-  padding: 1rem 2rem;
-  margin-bottom: 2rem;
+  padding: 1em;
+  margin-bottom: 2em;
 
-  /* matches Tufte-css for paragraph content */
-  width: 55%;
+  width: var(--tufte-css-paragraph-width);
 
   @media (max-width: 760px) {
     & {
       width: unset;
     }
   }
+}
+
+details .box {
+  width: unset;
 }

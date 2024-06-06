@@ -4,10 +4,10 @@
   border: 1px solid colors.$primary;
   border-radius: 0.25rem;
 
-  margin-top: 1rem;
+  margin-top: 1em;
+  margin-bottom: 1em;
 
-  /* matches Tufte-css for paragraph content */
-  width: 55%;
+  width: calc(var(--tufte-css-paragraph-width) + 2em);
 
   @media (max-width: 760px) {
     & {
@@ -21,8 +21,9 @@
 }
 
 .summary {
+  font-size: 1.25rem;
   padding: 0.5rem;
-  padding-left: 1rem;
+  padding-left: 1em;
   color: white;
   background-color: colors.$primary;
 }

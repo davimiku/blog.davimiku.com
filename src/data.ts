@@ -3,7 +3,7 @@ import { Project } from 'types/projects'
 export const projects: Project[] = [
   {
     name: 'blog.davimiku.com',
-    tagline: 'A simple website for writing blog articles and tutorials',
+    tagline: 'A static website for writing blog articles and tutorials',
     technologies: ['TypeScript', 'Next.js', 'React', 'SCSS'],
     topics: ['static site generation', 'fluid design', 'blog'],
     repo: {
@@ -16,23 +16,16 @@ export const projects: Project[] = [
   {
     name: 'Unnamed programming language',
     tagline:
-      'My own programming language - statically typed, mostly imperative, bytecode compiler and virtual machine, applications level language. ',
+      'My own programming language: a statically-typed, applications level language that JIT compiles to machine code.',
     description:
-      'Status: Recently added functions and function calls, so getting closer to an experimental release.',
+      'Status: Programs with simple values and functions work, currently working on adding composite types (unions and records).',
     technologies: ['Rust'],
-    topics: [
-      'language design',
-      'virtual machine',
-      'bytecode',
-      'parsers',
-      'combinator parsers',
-      'json',
-    ],
+    topics: ['language design', 'compilers'],
     repo: {
       name: 'unknown-lang',
       path: 'davimiku/unknown-lang',
       url: 'https://github.com/davimiku/unknown-lang',
-      description: 'A new programming language, compiler, and virtual machine',
+      description: 'A new programming language and compiler',
     },
   },
   {

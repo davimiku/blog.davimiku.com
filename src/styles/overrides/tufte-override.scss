@@ -1,0 +1,9 @@
+/* Remove code blocks being cut off */
+pre > code {
+  width: unset;
+}
+
+/* Inline code was too small */
+p > code {
+  font-size: 1.2rem;
+}

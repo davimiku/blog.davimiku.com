@@ -5,10 +5,7 @@ export type SpoilerProps = {
   summary: string
 }
 
-export function Spoiler({
-  summary,
-  children,
-}: PropsWithChildren<SpoilerProps>) {
+export function Spoiler({ summary, children }: PropsWithChildren<SpoilerProps>) {
   return (
     <details className={styles.details}>
       <summary className={styles.summary}>{summary}</summary>
