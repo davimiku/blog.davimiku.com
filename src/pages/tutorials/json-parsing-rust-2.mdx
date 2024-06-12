@@ -40,7 +40,7 @@ s either a JSON value or an error.
 
 The way that we're going to parse these tokens is a straight-forward translation of the diagrams on [json.org](https://www.json.org), keep these diagrams handy.
 
-TODO: the "value" diagram from json.org
+<img src='https://www.json.org/img/value.png' alt='flow diagram for JSON values' />
 
 This diagram has a branch with seven possibilities, so our code will do the same:
 
@@ -189,7 +189,7 @@ fn parse_tokens(tokens: Vec<Token>, index: &mut usize) -> Result<Value, TokenPar
 
 Reminder from the previous article:
 
-It was hinted that we didn't correctly tokenize JSON numbers, we don't handle the JSON number grammar related to scientific notation, i.e. numbers that look like `6.022e23`. Feel free to add that to the tokenizer!
+It was hinted that we didn't correctly tokenize JSON numbers, we don't handle the JSON number grammar related to scientific notation, i.e. numbers that look like `6.022e23`.
 
 We also fail-fast in the tokenizer on inputs that can't be represented by a 64-bit floating point number (`f64`). This is valid behavior but not all JSON parsers work like this. Check out the Appendix section at the end of the article for more discussion on JSON numbers.
 
@@ -309,7 +309,7 @@ What does the specification say about JSON strings that use a backslash to "esca
 
 <Spoiler summary="The curious case of the solidus">
 
-[RFC 8259](https://www.rfc-editor.org/rfc/rfc8259) specifically lists the solidus (also known as "forward slash") in the grammar for escaping characters. However, as far as I can tell, this never needs to be escaped. It **can** be escaped, in the same way that "p" and "q" **can** be escaped, as in the example above.
+[RFC 8259](https://www.rfc-editor.org/rfc/rfc8259) specifically lists the solidus (also known as "forward slash") in the grammar for escaping characters. However, earlier in that section it clearly lists that the characters that MUST be escaped are quotation mark, reverse solidus, and control characters (U+0000 through U+001F). The solidus **can** be escaped, in the same way that "p" and "q" **can** be escaped, as in the example above.
 
 In any case, when parsing if we see `\/`, `\p`, or `\q`, we would basically ignore the backslash and just store `/`, `p`, or `q` (respectively). This goes for any character not listed in the table above, which is why I did not list the solidus there.
 
@@ -535,8 +535,10 @@ Python has two different representations:
 -- example for 🌼 (U+1F33C)
 \U0001F33C
 
--- note that surrogate pairs \uD83C\uDF3C is *not* valid Python
+-- surrogate pairs \uD83C\uDF3C is *not* a valid escape in a Python string literal
 ```
+
+Note that we actually aren't going to handle surrogate pairs in this implementation. See the Appendix section for more details.
 
 </Spoiler>
 
@@ -545,7 +547,9 @@ What we want to do is:
 1. Initialize a sum variable (integer, start at zero)
 2. Walk forwards by 4 characters
    1. Convert the read character into a radix-16 digit (A=10, B=11, C=12, etc.)
-   2.
+   2. Add it to the sum
+3. Convert the sum from an integer (`u32`) to a `char`. Note that this can fail if the integer is larger than the maximum valid code point (U+10FFFF)
+4. Push this `char` to the current output
 
 ```rust
 // ...snip...
@@ -555,20 +559,34 @@ What we want to do is:
             let next_char = chars.next().ok_or(TokenParseError::UnfinishedEscape)?;
             let digit = next_char
                 .to_digit(16)
-                .ok_or(TokenParseError::InvalidCharInEscape)?;
+                .ok_or(TokenParseError::InvalidHexValue)?;
             total += (16u32).pow(3 - i) * digit;
         }
         let unescaped_char =
-            std::char::from_u32(sum).ok_or(TokenParseError::InvalidCharInEscape)?;
+            char::from_u32(sum).ok_or(TokenParseError::InvalidCodePointValue)?;
         output.push(unescaped_char);
     }
 // ...snip...
 
+
+// add these new variants to the enum
+pub enum TokenParseError {
+    // ...snip...
+
+    /// An escape sequence was started without 4 hexadecimal digits afterwards
+    UnfinishedEscape,
+    /// A character in an escape sequence was not valid hexadecimal
+    InvalidHexValue,
+    /// Invalid unicode value
+    InvalidCodePointValue,
+}
 ```
 
 <NewConcept title="integer literal suffixes">
 
-The `pow()` function above TODO
+The `16u32` is the integer 16 with a `u32` suffix which says which kind of integer it is (in Rust there are a bunch of kinds of integers, so just writing 16 can be ambiguous).
+
+The `pow()` function therefore takes a `u32` as its first parameter. Integers need to be surrounded by parentheses when using "dot syntax" (method call syntax) to call functions because otherwise the dot might be parsed as a decimal point.
 
 </NewConcept>
 
@@ -620,6 +638,12 @@ fn parse_array(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
     }
     Ok(Value::Array(array))
 }
+
+// add this new variant to the enum
+pub enum TokenParseError {
+    // ...snip...
+    ExpectedComma,
+}
 ```
 
 Now, adding a test:
@@ -656,7 +680,7 @@ fn parses_array_two_elements() {
 }
 ```
 
-What about this?
+OK that works too, what about this?
 
 ```rust
 // inside of `mod tests`, among the other tests
@@ -717,7 +741,7 @@ thread 'parse::tests::parses_nested_array' panicked at src\parse.rs:70:28:
 index out of bounds: the len is 7 but the index is 7
 ```
 
-This is the grungy side of an imperative, state-based style of parser with a manually incremented index. In this case, we've incremented the index one too many times.
+ugh. Another off-by-one error. This is the grungy side of an imperative, state-based style of parser with a manually incremented index. In this case, we've incremented the index one too many times.
 
 There are multiple ways this could be solved - all of them involve juggling where the index is incremented (remove it from here, add it to over there). If you have your own idea, feel free to break from the tutorial here!
 
@@ -748,7 +772,7 @@ The `matches!` with the exclamation mark that looks kind of like a function call
 
 Macros are written in a language that mostly resembles Rust, and the purpose of macros is to generate Rust code at compile time. In your code editor, you should be able to "Go To Definition" (usually F12) to see how the `matches!` macro is written. Macros are great for reducing repetitive code or improving local readability.
 
-However, as with anything, there is a balance. Too much macro-generated code can make it harder to read, and in larger cases can have an impact on compile time.
+However, as with anything, there is a balance. Too much macro-generated code can make it harder to read rather than easier, and in some cases can have an impact on compile time.
 
 </NewConcept>
 
@@ -772,9 +796,7 @@ Now, `parse_array` is responsible for incrementing for the LeftBracket, Comma, a
 
 ## Objects
 
-Objects are more complex than Arrays, but are the same idea.
-
-(TODO - sidenote - Objects can be thought of as an Array where the elements are String-Colon-Value)
+Objects are more complex than Arrays, but are the same idea. Conceptually, Objects can be thought of as an Array where the elements are String-Colon-Value.
 
 ```rust
 pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
@@ -787,8 +809,133 @@ pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
 }
 ```
 
+To start implementing `parse_object`, we'll follow a similar pattern as `parse_array`:
+
+```rust
+fn parse_object(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+    let mut map = HashMap::new();
+    loop {
+        // consume the previous LeftBrace or Comma token
+        *index += 1;
+        if tokens[*index] == Token::RightBrace {
+            break;
+        }
+    }
+    *index += 1;
+
+    Ok(Value::Object(map))
+}
+```
+
+Learned from our mistakes! We started with handling the "base case" of an empty object this time.
+
+```txt
+// OK cases
+LeftBrace -> RightBrace
+LeftBrace -> String -> Colon -> Value -> RightBrace
+LeftBrace -> [String -> Colon -> Value] -> Comma -> (repeat [*]) -> RightBrace
+```
+
+If the first token after the LeftBrace isn't a RightBrace, then it needs to be a String (the key of the property).
+
+```rust
+fn parse_object(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+    // ...snip...
+    loop {
+        // ...snip...
+
+        if let Token::String(s) = &tokens[*index] {
+            todo!();
+        } else {
+            return Err(TokenParseError::ExpectedProperty);
+        }
+    }
+    // ...snip...
+}
+
+// add this new variant to the enum
+pub enum TokenParseError {
+    // ...snip...
+    ExpectedProperty,
+}
+```
+
+<NewConcept title="if let">
+
+The [if let](https://doc.rust-lang.org/book/ch06-03-if-let.html) syntax is a way to do control flow when you want to match one pattern specifically. Just like in other pattern matching, the `s` variable is a **new** variable being defined if the token matches `Token::String`. This could also be written as:
+
+```rust
+match &tokens[*index] {
+    Token::String(s) => todo!(),
+    _ => return Err(TokenParseError::ExpectedProperty),
+}
+```
+
+In some cases, `if let` can be more concise. Another thing to consider with readability is _intent_, the `if let` syntax shows that one variant than the others, whereas in a `match`, all the variants are roughly "equal", so to speak.
+
+</NewConcept>
+
+We returned an error if the next token was not a `Token::String`, now for the logic if it is. The next tokens needs to be `Token::Colon`, otherwise there's an error.
+
+```rust
+fn parse_object(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+    // ...snip...
+    loop {
+        // ...snip...
+
+        if let Token::String(s) = &tokens[*index] {
+            *index += 1;
+            if Token::Colon == tokens[*index] {
+                todo!();
+            } else {
+                return Err(TokenParseError::ExpectedColon);
+            }
+        } else {
+            return Err(TokenParseError::ExpectedProperty);
+        }
+    }
+    // ...snip...
+}
+```
+
+<KnowledgeCheck>
+
+Why not `if let` this time?
+
+This time we didn't need to get the value "inside" the `Token::Colon` variant, because there is no value inside. `if let` is useful for checking for a match and getting the inner value in a single expression.
+
+</KnowledgeCheck>
+
+Now to actually add the value! We already have the String, which will be the **key** for the entry in the map. We need to clone the String because the `Token` currently owns it, so we need another copy to store in the `Value`.
+
+The **value** for the entry can be any JSON Value, including another Object - so we go to our trusty friend recursion again by calling `parse_tokens`, just like in the Array.
+
+```rust
+fn parse_object(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+    // ...snip...
+    loop {
+        // ...snip...
+
+        if let Token::String(s) = &tokens[*index] {
+            *index += 1;
+            if Token::Colon == tokens[*index] {
+                *index += 1;
+                let key = s.clone();
+                let value = parse_tokens(tokens, index)?;
+                map.insert(key, value);
+            } else {
+                return Err(TokenParseError::ExpectedColon);
+            }
+        } else {
+            return Err(TokenParseError::ExpectedProperty);
+        }
+    }
+    // ...snip...
+}
+```
+
 <Spoiler summary="Optional, kind of: do Object keys need to be unescaped?">
-    TL;DR - Yes - but if you want to just get to the end of the tutorial, you can skip this part!
+    TL;DR - Yes - but if you want to just get to the end of the tutorial, you can skip this part.
 
     [RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259) describes the grammar as:
 
@@ -804,7 +951,6 @@ pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
     We've already done all that work, just needs a little refactor to make it available. Split out the unescaping part from `parse_string` like this:
 
     ```rust
-
     fn parse_string(input: &str) -> ParseResult {
         let unescaped = unescape_string(input)?;
         Ok(Value::String(unescaped))
@@ -822,11 +968,112 @@ pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
     }
     ```
 
-Then in `parse_object` we can replace the `s.clone()` with `unescape_string(s)?`. Remember that the `?` is a postfix operator - so far we've only used it at the end of statements but it can appear after any expression.
+Then in `parse_object` we can replace the `let key = s.clone()` with `let key = unescape_string(s)?`.
 
 </Spoiler>
 
-## Appendix
+Almost done - after a key/value pair comes either a `Comma` or a `RightBrace`.
+
+```rust
+fn parse_object(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+    // ...snip...
+    loop {
+        // ...snip...
+        if let Token::String(s) = &tokens[*index] {
+            // ...snip...
+
+            match &tokens[*index] {
+                Token::Comma => {}
+                Token::RightBrace => break,
+                _ => return Err(TokenParseError::ExpectedComma),
+            }
+        } else {
+            // ...snip...
+        }
+    }
+    // ...snip...
+}
+```
+
+Add tests! This will be left as "an exercise for the reader".
+
+## Putting it all together!
+
+```rust
+// suggestion: put this near the top, just below `mod` and `use` statements
+pub fn parse(input: String) -> Result<Value, ParseError> {
+    let tokens = tokenize(input)?;
+    let value = parse_tokens(&tokens, &mut 0)?;
+    Ok(value)
+}
+
+// suggestion: put this below the definition of `Value`
+#[derive(Debug, PartialEq)]
+pub enum ParseError {
+    TokenizeError(TokenizeError),
+    ParseError(TokenParseError),
+}
+
+impl From<TokenParseError> for ParseError {
+    fn from(err: TokenParseError) -> Self {
+        Self::ParseError(err)
+    }
+}
+
+impl From<TokenizeError> for ParseError {
+    fn from(err: TokenizeError) -> Self {
+        Self::TokenizeError(err)
+    }
+}
+```
+
+The suggestion to put `parse` at the top of the `lib.rs` is because this is our main exported item. Anyone using our library will basically be focused on this. The function also exposes our types `Value` and `ParseError`, in that order, so I suggest defining those immediately after (in that order). Basically, public/exported items at the top and everything else below.
+
+<NewConcept title="From trait">
+
+Many times throughout this tutorial, we have used `#[derive(...)]` to automatically derive traits for the types that we have defined.
+
+In this case, we are directly implementing the `From` trait. This trait represents converting from one type of data to another where that conversion cannot fail (since there is no `Result` in the function signature, it cannot fail). In order to successfully implement the `From` trait, we must implement a `from` function which has a signature `T -> Self`.
+
+The `?` operator doesn't just propagate an error value, it also uses any `From` implementations as needed. This is how the error from `tokenize` and the error from `parse_tokens` are both able to convert to the top-level `ParseError`.
+
+</NewConcept>
+
+Consider writing more tests! Now that the public/exported `parse` function is written, you can write tests against this public function.
+
+Should you delete the existing tests for the internal `tokenize` and `parse_tokens` functions? Why or why not?
+
+## Appendix and Further Exercises
+
+A semi-random list of items to improve the current implementation of parsing or items for further research.
+
+### Better Error Handling
+
+The current implementation actually panics on malformed input, rather than cleanly returning an error. For example, run tests with an input of `[true` or `{"key":"value"` (unclosed brackets/braces). This is because in several places we increment the index variable and assume there is a token rather than checking.
+
+As a challenge, handle these kinds of input with an error. Consider abstracting out the idea of "get the next token" such that it handles errors instead of panics.
+
+### UTF-16 and Surrogate Pairs
+
+The Unicode escape sequence in JSON is `uXXXX` where each X is a hexadecimal digit. Thus, the total number of code points that can be represented in an escape sequence is 16^4 or 65,536. However, there are many code points with a value higher than that, such as 🌼 (U+1F33C).
+
+These are represented as "surrogate pairs". On their own, each item of the pair are not valid, but together with some math, they can be converted to the code point value.
+
+> Surrogates are code points from two special ranges of Unicode values, reserved for use as the leading, and trailing values of paired code units in UTF-16. Leading surrogates, also called high surrogates, are encoded from D800 to DBFF, and trailing surrogates, or low surrogates, from DC00 to DFFF. They are called surrogates, since they do not represent characters directly, but only as a pair.
+>
+> https://www.unicode.org/faq/utf_bom.html#utf16-1
+
+U+D800 through U+DFFF are permanently reserved for surrogate pairs and must not appear on their own in well-formed UTF-16 (unfortunately, ill-formed UTF-16 exists in the wild and [Windows file paths](https://github.com/golang/go/issues/32334) may contain values in this range that are unpaired).
+
+As a challenge, implement unescaping surrogate pairs in the parsing. A test case is that the escaped `r#"hello\uD83C\uDF3Cworld"#` should unescape to `"hello🌼world"`.
+
+### Trailing Commas
+
+Does our current implementation allow trailing commas in Array and Object? Is this correct or not?
+
+Does RFC8259 **forbid** trailing commas? i.e. if a parser correctly handles JSON syntax as defined in RFC8259 and additionally it also handles JSON with trailing commas, is that parser compliant with RFC8259?
+
+As a challenge, implement an error for trailing commas. Does this make the implementation more or less complicated?
 
 ### Objects with duplicate keys
 
@@ -855,7 +1102,7 @@ console.log(JSON.parse(str)) // --> { a: 2 }
 
 It keeps the last name/value pair only, our implementation will do the same.
 
-Interestingly, this non-specified behavior of JSON can lead to vulnerabilities! Further reading with examples of parsers that treat duplicate keys differently, and the impact: [An Exploration of JSON Interoperability Vulnerabilities](https://bishopfox.com/blog/json-interoperability-vulnerabilities)
+Interestingly, this non-specified behavior of JSON can lead to vulnerabilities! If one system keeps the first duplicated key and another system keeps the last key, a clever actor could find a way to exploit this. Further reading with examples of parsers that treat duplicate keys differently, and the impact: [An Exploration of JSON Interoperability Vulnerabilities](https://bishopfox.com/blog/json-interoperability-vulnerabilities)
 
 ### Object Key Ordering
 
@@ -883,9 +1130,15 @@ What Rust standard library type could we use instead if we wanted to keep the ke
 
 </KnowledgeCheck>
 
-## JSON numbers
+### Numbers with Scientific Notation
 
-What are the size limits on a JSON number? 32-bit integer? 64-bit floating point?
+JSON numbers are allowed to be written in "scientific notation", such as `6.022e23` which means "6.022 \* 10^23".
+
+As a challenge, implement tokenizing and parsing for this kind of number syntax.
+
+## Number precision
+
+What are the size limits on a JSON number? 32-bit integer? 64-bit floating point? What happens when numbers are really big or really close to zero?
 
 [RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259) says:
 
@@ -905,9 +1158,9 @@ Back to [RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259):
 
 > JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8
 
-UTF-8 is by far the most common encoding for messages sent on the internet, so this restriction makes a lot of sense. If you have your own servers communicating to each other, it's fine to use an alternative encoding, but public APIs would espect UTF-8.
+UTF-8 is by far the most common encoding for messages sent on the internet, so this restriction makes a lot of sense. If you have your own servers communicating to each other, it's fine to use an alternative encoding, but public APIs would expect UTF-8.
 
-Our library accepts a `String` parameter, which is guaranteed to be UTF-8 (assuming it was constructed without `unsafe`), so we've decided that it's not the responsibility of our library to deal with string encoding. We could have instead accepted a slice of bytes, which would lead to additional design decisions, i.e. do we report and error if it's not UTF-8? Do we try to dynamically detect the encoding and convert it automatically?
+Our library accepts a `String` parameter, which is guaranteed to be UTF-8, so we've decided that it's not the responsibility of our library to deal with string encoding. We could have instead accepted a slice of bytes, which would lead to additional design decisions, i.e. do we report and error if it's not UTF-8? Do we try to dynamically detect the encoding and convert it automatically?
 
 Another interesting note from RFC 8259:
 

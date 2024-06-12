@@ -60,40 +60,11 @@ The possible data types in JSON are fixed (a _closed set_), meaning that the for
 
 The "array" and "object" types are **recursive** - they contain other JSON values.
 
-<Spoiler summary="Edge case: JSON syntax as a subset of Javascript syntax">
-
-Until JavaScript's 2019 edition (ES2019), JSON syntax was _almost_ a subset of JavaScript syntax. There was one edge case -- JSON strings could contain `U+2028` (LINE SEPARATOR) and `U+2029` (PARAGRAPH SEPARATOR) unescaped while in JavaScript they had to be escaped.
-
-This means that valid JSON might not be valid JavaScript, which breaks that subset relationship. As of ES2019, with the approval and implementation of the [json-superset proposal](https://github.com/tc39/proposal-json-superset) proposal, JSON syntax is now a proper subset of JavaScript syntax.
-
-</Spoiler>
-
-<Spoiler summary="Edge case: Are JSON semantics a subset of JavaScript semantics?">
-
-Although JSON is a **syntactic** subset of JavaScript, it is not necessarily a **semantic** subset of Javascript. For example, the following produces a different result when parsed as Javascript vs. JSON.
-
-```javascript
-const str = `[{ "__proto__": [] }]`
-
-const fromJS = eval(str)
-const fromJSON = JSON.parse(str)
-```
-
-The `fromJS` result is an array with one item, where that item is an Object that has Array as its prototype.
-The `fromJSON` result is also an array with one item, and that item is an Object who has an own property with
-an identifier of `__proto__` (you can run this code in your browser console and compare the result of `Object.getOwnPropertyNames(x)` for `fromJS` and `fromJSON`).
-
-Edge cases are weird, right?
-
-</Spoiler>
-
 ### What is Parsing?
 
 In programming, "parsing" is transforming less-structured input into more-structured output by applying knowledge of the expected shape(s) of the data.
 
-<label for='sn-demo' class='margin-toggle sidenote-number'></label>
-<input type='checkbox' id='sn-demo' class='margin-toggle' />
-<span class='sidenote'> A "parser" is a function that does "parsing"</span>This transformation from less-structured
+This transformation from less-structured
 to more-structured might fail if the input isn't compatible with the desired output.
 
 This is a fairly flexible interpretation, and perhaps a little vague, so some breakdown on the statement above:
@@ -903,7 +874,7 @@ fn tokenize_null(chars: &Vec<char>, index: &mut usize) -> Result<Token, Tokenize
 }
 ```
 
-First, we defined an `enum` for ourselves to define the possible error variants. Second, we updated the `tokenize_null` function to return a `Result` containing a `Token` (when `Ok`) or containing a `TokenizeError` (when `Err`).
+First, we defined an `enum` for ourselves to define the possible error variants. We'll come back to this and define more variants as we go. Second, we updated the `tokenize_null` function to return a `Result` containing a `Token` (when `Ok`) or containing a `TokenizeError` (when `Err`).
 
 Now that `tokenize_null` can fail, so can `make_token`.
 
@@ -1161,6 +1132,17 @@ fn tokenize_float(chars: &Vec<char>, curr_idx: &mut usize) -> Result<Token, Toke
         Err(err) => Err(TokenizeError::ParseNumberError(err)),
     }
 }
+
+// add this import to the top of the file
+use std::num::ParseFloatError;
+
+// add this new variant to the enum
+pub enum TokenizeError {
+    // ...snip...
+
+    /// Unable to parse the float
+    ParseNumberError(ParseFloatError),
+}
 ```
 
 There's a lot going on here, so we'll break it down.
@@ -1306,19 +1288,6 @@ However, we're not covering all of the cases! What should happen if the input lo
 
 This is not a valid JSON document because there isn't a closing quote character, so we need to return an error rather than a valid Token.
 
-That involves adding a new variant to our `TokenizeError`:
-
-```rust
-pub enum TokenizeError {
-    // ...snip...
-
-    /// String was never completed
-    UnclosedQuotes,
-
-    // ...snip...
-}
-```
-
 We'll need to rework the main loop of `tokenize_string`. Instead of breaking the loop when the index reaches the end of the input string, which naturally happened in the `while` loop, this case needs to be an error instead.
 
 ```rust
@@ -1337,6 +1306,14 @@ fn tokenize_string(chars: &Vec<char>, curr_idx: &mut usize) -> Result<Token, Tok
         }
         string.push(ch);
     }
+}
+
+// add this new variant to the enum
+pub enum TokenizeError {
+    // ...snip...
+
+    /// String was never completed
+    UnclosedQuotes,
 }
 ```
 
@@ -1487,6 +1464,41 @@ The `if` inside of the match arm is an example of a [match guard](https://doc.ru
 The expression in the match guard can be arbitrarily complex, but it's best to not go too crazy in here for readability/maintainability.
 
 </NewConcept>
+
+## Empty Space
+
+We still have a lingering `todo!()` in the main match expression of `make_token`, and we haven't handled the very common scenario that a JSON document has empty space in it (space character, tab, newline, etc.).
+
+```rust
+fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeError> {
+    let mut ch = chars[*index];
+    while ch.is_ascii_whitespace() {
+        *index += 1;
+        if *index >= chars.len() {
+            return Err(TokenizeError::UnexpectedEof);
+        }
+        ch = chars[*index];
+    }
+    let token = match ch {
+        // ...snip...
+
+        ch => return Err(TokenizeError::CharNotRecognized(ch)),
+    };
+
+    Ok(token)
+}
+
+// add these new variants to the enum
+pub enum TokenizeError {
+    // ...snip...
+
+    /// The input ended early
+    UnexpectedEof,
+
+    /// Character is not part of a JSON token
+    CharNotRecognized(char),
+}
+```
 
 ## Conclusion
 
