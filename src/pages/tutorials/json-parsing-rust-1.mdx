@@ -8,6 +8,7 @@ export const meta = {
   publishedOn: '2023-10-10',
 }
 
+import Image from 'next/image'
 import { BlogsPage } from '../../layouts/blog'
 import { EmphasisBox, KnowledgeCheck, NewConcept, Spoiler } from '../../components/blog'
 
@@ -420,7 +421,7 @@ mod tests {
     use super::{tokenize, Token};
 
     #[test]
-    fn comma() {
+    fn just_comma() {
         let input = String::from(",");
         let expected = [Token::Comma];
 
@@ -450,7 +451,7 @@ pub enum Token {
 
 This provides `Token` with the ability to be compared for equality and to have a Debug representation for printing. If all is well, a "Run Test" button should appear next to the test function that you can click in VS Code. If you're not using VS Code or it's not working for some reason, you can run tests with the [cargo test](https://doc.rust-lang.org/cargo/commands/cargo-test.html) command.
 
-TODO: image of function with "run test"
+<img src='/images/blog/json-parsing/run_tests.png' alt='tests with run test button' />
 
 Go ahead and run the test! It fails... which is expected because we haven't actually implemented anything. You should see something like this in your test output.
 
@@ -762,8 +763,6 @@ The Golden Rule of Rust borrowing is:
 
 > A borrow can be shared, or a borrow can be mutated, but not both.
 
-TODO: Kombucha girl meme (sharing Yes, mutating Yes, shared mutation No)
-
 This concept might be familiar to you already as a "best practice" from other languages - i.e. "don't mutate shared state". If that's the case, you might be able to understand this pretty quickly as its really an encoding of that best practice into the type system of the language. However, if you're like me who wasn't exposed to this kind of thinking before, you may struggle to understand it at first. That's OK! Patient and practice will prevail.
 
 <Spoiler summary="Optional concept: slices">
@@ -903,7 +902,7 @@ We changed these parts of `make_token`:
 2. We `match` on the Result of the `tokenize_null` function, because it can either succeed or fail. If it fails, we go ahead and `return` that error, otherwise we grab the `Token` from inside the `Result`.
 3. At the bottom of the function, we return the `Token` inside of the `Ok` variant.
 
-<NewConcept title="question mark operator (?)">
+<NewConcept title="error propagation operator (?)">
 
 The `match` expression we just added in the previous step is a bit wordy. You can imagine we would have to do the same thing for any tokenizing that can fail, which will get repetitive and verbose. We can replace `match` expressions like that one with the `?` operator.
 

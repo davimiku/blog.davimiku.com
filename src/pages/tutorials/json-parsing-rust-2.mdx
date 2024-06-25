@@ -348,14 +348,15 @@ fn parse_string(input: &str) -> ParseResult {
     let mut output = String::new();
 
     let mut is_escaping = false;
-    for ch in input.chars() {
+    let mut chars = input.chars();
+    while let Some(next_char) = chars.next() {
         if is_escaping {
             todo!("implement")
             is_escaping = false;
-        } else if ch == '\\' {
+        } else if next_char == '\\' {
             is_escaping = true;
         } else {
-            output.push(ch);
+            output.push(next_char);
         }
     }
 
@@ -367,11 +368,15 @@ fn parse_string(input: &str) -> ParseResult {
 
 The value returned by `input.chars()` is an [iterator](https://doc.rust-lang.org/book/ch13-02-iterators.html), in this case an iterator of `char`. An iterator is a type that continuously produces the next item of a sequence. To get the next item, the `next()` function is called which produces an `Option<char>`, which is `Some(char)` if there is a next value, or `None` if there is not.
 
-The `for _____ in Iterator` syntax takes care of calling this `next()` function and ending the loop when that returns `None`.
+</NewConcept>
+
+<NewConcept title="while let">
+
+The [while let](https://doc.rust-lang.org/reference/expressions/loop-expr.html#predicate-pattern-loops) syntax here checks the value of the right-hand side of the assignment (`chars.next()`) and continues the loop if it is `Some` or ends the loop if it is `None`. When the value is some, it grabs the `char` value that's inside and assigns that to a variable named `next_char`.
 
 </NewConcept>
 
-We could have set up this iteration using the `loop` keyword and manually calling the `.next()` function ourselves, but a `for` loop is typically preferred when using iterators.
+We could have set up this iteration using the `loop` keyword and manually calling the `.next()` function ourselves, `match`ing on the value and breaking if a `None` value is encountered. Using the `while let` saves a bit of code, it is "syntax sugar".
 
 <Spoiler summary='Efficiency/Performance'>
 
@@ -432,10 +437,10 @@ fn parses_string_unescape_backslash() {
 
 ```rust
 // ...snip...
-// replace the entire `for ch in input.chars()` block with this:
-    for ch in input.chars() {
+// replace the entire `while let` block with this:
+    while let Some(next_char) = chars.next() {
         if is_escaping {
-            match ch {
+            match next_char {
                 '"' => output.push('"'),
                 '\\' => output.push('\\'),
                 // `\b` (backspace) is a valid escape in JSON, but not Rust
@@ -447,13 +452,13 @@ fn parses_string_unescape_backslash() {
                 't' => output.push('\t'),
                 'u' => todo!("Implement hex code escapes"),
                 // any other character *may* be escaped, ex. `\q` just push that letter `q`
-                _ => output.push(ch),
+                _ => output.push(next_char),
             }
             is_escaping = false;
         } else if ch == '\\' {
             is_escaping = true;
         } else {
-            output.push(ch);
+            output.push(next_char);
         }
     }
 // ...snip...
@@ -523,7 +528,7 @@ Java is similar to JSON (presumably JavaScript's syntax was based on Java), but 
 
 I'm honestly not sure of the usecase for infinite `u` characters but it's likely not common.
 
-Python has two different representations:
+Python (3) has two different representations:
 
 ```txt
 \uXXXX       -- up to (16^4) = 65,536
@@ -535,7 +540,7 @@ Python has two different representations:
 -- example for 🌼 (U+1F33C)
 \U0001F33C
 
--- surrogate pairs \uD83C\uDF3C is *not* a valid escape in a Python string literal
+-- surrogate pairs \uD83C\uDF3C is *not* a valid escape in a Python (3) string literal
 ```
 
 Note that we actually aren't going to handle surrogate pairs in this implementation. See the Appendix section for more details.
@@ -589,8 +594,6 @@ The `16u32` is the integer 16 with a `u32` suffix which says which kind of integ
 The `pow()` function therefore takes a `u32` as its first parameter. Integers need to be surrounded by parentheses when using "dot syntax" (method call syntax) to call functions because otherwise the dot might be parsed as a decimal point.
 
 </NewConcept>
-
-TODO - switch back to `while let` to be able to advance the iterator for \uXXXX sequences
 
 ## Arrays
 
