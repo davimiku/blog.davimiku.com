@@ -1040,7 +1040,7 @@ OK, all good there. However, `make_token` in this case calls `tokenize_true`, wh
 
 > There are 2 hard problems in computer science: cache invalidation, naming things, and off-by-1 errors.
 >
-> _\~Unknown Author_
+> _\~[Phil Karlton](https://skeptics.stackexchange.com/questions/19836/has-phil-karlton-ever-said-there-are-only-two-hard-things-in-computer-science), maybe_
 
 There are a few ways this can be solved in the `tokenize_true` function:
 
@@ -1190,7 +1190,7 @@ fn floating_point() {
 
 Does this cover everything?
 
-<Spoiler title="hint">
+<Spoiler summary="hint: Nah">
 
 Our tests don't cover negative numbers.
 
@@ -1209,7 +1209,19 @@ fn negative_integer() {
 
 Does this test pass? If not, how can you fix it?
 
-Are there any other cases for numbers from [JSON.org](https://www.json.org) that we missed? Hint: what does "E" mean in a number?
+Are there any other cases for numbers from [JSON.org](https://www.json.org) that we missed?
+
+<Spoiler summary="hint: Yeah">
+
+What does "E" mean in a number?
+
+<Spoiler summary="how many nested spoilers can we have?">
+
+Alright, I'm done now
+
+</Spoiler>
+
+</Spoiler>
 
 </Spoiler>
 
@@ -1315,6 +1327,12 @@ pub enum TokenizeError {
     UnclosedQuotes,
 }
 ```
+
+<EmphasisBox>
+
+We also could have instead kept the `while` loop and introduced a mutable boolean variable to track whether a closing quote had been seen. Either way works, as long as we return an error if the string isn't closed.
+
+</EmphasisBox>
 
 Finally, a test for an unclosed quote. Note that tests for errors still follow the same format, because errors are also data. This might be obvious to some readers, but it wasn't obvious to me at first, coming from languages where you have to test with assertions like `expect(func()).toThrow()`.
 
