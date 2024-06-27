@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 import styles from './BlogListing.module.scss'
 import { PublishDate } from 'components/blog/publish_date'
-import type { BlogMeta } from 'pages/blog'
+import type { BlogMeta } from 'pages/articles'
 
 const formatPath = (...paths: string[]) => '/' + paths.join('/').replace(/\.mdx$/, '')
 

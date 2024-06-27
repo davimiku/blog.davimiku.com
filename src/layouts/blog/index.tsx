@@ -4,7 +4,7 @@ import { ReactNode } from 'react'
 import Layout from 'layouts'
 
 import styles from './blog.module.scss'
-import type { BlogMeta } from 'pages/blog'
+import type { BlogMeta } from 'pages/articles'
 
 export type BlogsPageProps = {
   children: ReactNode

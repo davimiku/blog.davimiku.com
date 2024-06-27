@@ -13,7 +13,7 @@ export function Header() {
       <ul className={styles['nav-links']}>
         <HeaderNavLink href='/' linkText='home' />
         <HeaderNavLink href='/projects' linkText='projects' />
-        <HeaderNavLink href='/blog' linkText='blog' />
+        <HeaderNavLink href='/articles' linkText='articles' />
       </ul>
     </nav>
   )
