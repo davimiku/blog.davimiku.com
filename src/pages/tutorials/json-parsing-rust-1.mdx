@@ -642,7 +642,12 @@ The variable `chars` does not need to be mutable, because we are never modifying
 
 Hover over the `index` variable to see its type - it is type `usize`.
 
-`usize` is an "unsigned integer, with a size based on your machine". Specifically, the size is equivalent to the size to reference something in memory, sometimes called the "pointer size". For example, on a 32-bit platform this is 32 bits and on a 64-bit platform this is 64 bits. If we have 128-bit platforms in the future, this would be 128 bits.
+`usize` is one of the many [integer types](https://doc.rust-lang.org/reference/types/numeric.html) in Rust, and it means "unsigned integer that is the size of a pointer".
+
+- **unsigned** means no negative numbers
+- you are likely reading this article on a 64-bit machine, so the size of a pointer is 64 bits and therefore a `usize` is 64 bits. There are other machine architectures with different sizes
+
+`usize` is typically used for indexes, as in this case accessing elements of a `Vec` by index
 
 </NewConcept>
 
@@ -791,17 +796,6 @@ Dereferencing is first discussed in the [References and Borrowing](https://doc.r
 When you have a value behind a reference, the unary prefix `*` operator can be used to get that value. Unary means this operator takes one argument (unlike binary `*` used for multiplication) and prefix means the operator comes before the argument.
 
 There's more to dereferencing than this, discussed in the Rust book in the [Smart Pointers](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) section, but this is not necessary to know for this tutorial.
-
-</NewConcept>
-
-<NewConcept title="usize">
-
-`usize` is one of the many [integer types](https://doc.rust-lang.org/reference/types/numeric.html) in Rust, and it means "unsigned integer that is the size of a pointer".
-
-- **unsigned** means no negative numbers
-- you are likely reading this article on a 64-bit machine, so the size of a pointer is 64 bits and therefore a `usize` is 64 bits. There are other machine architectures with different sizes
-
-`usize` is typically used for indexes, as in this case accessing elements of a `Vec` by index
 
 </NewConcept>
 
