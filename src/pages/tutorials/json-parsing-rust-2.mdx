@@ -567,7 +567,7 @@ What we want to do is:
             let digit = next_char
                 .to_digit(16)
                 .ok_or(TokenParseError::InvalidHexValue)?;
-            total += (16u32).pow(3 - i) * digit;
+            sum += (16u32).pow(3 - i) * digit;
         }
         let unescaped_char =
             char::from_u32(sum).ok_or(TokenParseError::InvalidCodePointValue)?;
