@@ -641,6 +641,9 @@ fn parse_array(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
             _ => return Err(TokenParseError::ExpectedComma),
         }
     }
+    // consume the RightBracket token
+    *index += 1;
+
     Ok(Value::Array(array))
 }
 
@@ -826,6 +829,7 @@ fn parse_object(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
             break;
         }
     }
+    // Consume the RightBrace token
     *index += 1;
 
     Ok(Value::Object(map))
