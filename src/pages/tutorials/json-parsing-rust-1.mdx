@@ -902,7 +902,7 @@ We changed these parts of `make_token`:
 
 The `match` expression we just added in the previous step is a bit wordy. You can imagine we would have to do the same thing for any tokenizing that can fail, which will get repetitive and verbose. We can replace `match` expressions like that one with the `?` operator.
 
-This `?` operator creates an "Error Propagation Expression". This expression "passes up" (i.e. returns) the error if it's an `Err`, otherwise it unwraps the `Ok` value. We can now replace that `match` expression with the `?` operator:
+This `?` operator creates an "Error Propagation Expression". This expression propagates (i.e. "passes up") the error if it's an `Err`, otherwise it unwraps the `Ok` value. We can now replace that `match` expression with the `?` operator:
 
 ```rust
 fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeError> {
@@ -921,6 +921,26 @@ fn make_token(chars: &Vec<char>, index: &mut usize) -> Result<Token, TokenizeErr
 ```
 
 </NewConcept>
+
+Similarly, we'll also need to change the `tokenize` function, because this can also fail.
+
+```rust
+// tokenize.rs
+pub fn tokenize(input: String) -> Result<Vec<Token>, TokenizeError> {
+    let chars: Vec<char> = input.chars().collect();
+    let mut index = 0;
+
+    let mut tokens = Vec::new();
+    while index < chars.len() {
+        let token = make_token(&chars, &mut index)?;
+        tokens.push(token);
+        index += 1;
+    }
+    Ok(tokens)
+}
+```
+
+Notice how changing something from infallible (can't error) to fallible forces you to change all of the function signatures until the point where that error can be handled. Coming from TypeScript or C# where the function signatures pretend that errors don't exist can definitely make this explicit notation feel verbose/wordy, but the explicitness and strictness has benefits for the long-term readability and maintainability of the code.
 
 We can now write the other functions for tokenizing the `true` and `false` literal values.
 
