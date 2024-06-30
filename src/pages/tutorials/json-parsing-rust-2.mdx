@@ -1058,6 +1058,14 @@ The current implementation actually panics on malformed input, rather than clean
 
 As a challenge, handle these kinds of input with an error. Consider abstracting out the idea of "get the next token" such that it handles errors instead of panics.
 
+### Using &str instead of String
+
+In part 1, the `tokenize()` function takes a `String` argument. At the time, the concept of a "string slice" (`&str`) had not been explained yet in the tutorial, so `String` was a simpler way to get started.
+
+However, there are actually downsides of using `String` - this forces the user of our library to give ownership of their string to our library, when this really isn't necessary. Our library doesn't need ownership of the input string, we only need a read-only borrow (i.e. a shared borrow), and this is exactly what `&str` is for.
+
+Consider refactoring the `tokenize` function and the top-level `parse` function to accept a `&str` instead of `String`. Change all tests as appropriate (this actually removes some boilerplate from the tests too!).
+
 ### UTF-16 and Surrogate Pairs
 
 The Unicode escape sequence in JSON is `uXXXX` where each X is a hexadecimal digit. Thus, the total number of code points that can be represented in an escape sequence is 16^4 or 65,536. However, there are many code points with a value higher than that, such as 🌼 (U+1F33C).
