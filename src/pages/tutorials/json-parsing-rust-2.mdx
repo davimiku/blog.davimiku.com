@@ -29,7 +29,7 @@ Create a new file named `parse.rs`, which is where the parsing of tokens will be
 
 ```rust
 // parse.rs
-fn parse_tokens(tokens: Vec<Token>, index: &mut usize) -> Result<Value, TokenParseError> {
+fn parse_tokens(tokens: &[Token], index: &mut usize) -> Result<Value, TokenParseError> {
     todo!()
 }
 
@@ -37,8 +37,15 @@ fn parse_tokens(tokens: Vec<Token>, index: &mut usize) -> Result<Value, TokenPar
 enum TokenParseError {}
 ```
 
-This function uses the same kind of signature as our previous work, it borrows the tokens and produce
-s either a JSON value or an error.
+<NewConcept title="slice">
+
+In [Part 1](./json-parsing-rust-1), there was a remark that instead of borrowing a Vector using `&Vec<T>`, it was more idiomatic to use a [slice](https://doc.rust-lang.org/book/ch04-03-slices.html), which would be written like `&[T]`.
+
+Using a slice rather than a borrowed `Vec` gives more flexibility to callers of that function - there are many ways to create a slice, not just from a `Vec`.
+
+</NewConcept>
+
+This function uses the same kind of signature as our previous work from Part 1, it borrows the tokens and produces either a JSON value or an error.
 
 The way that we're going to parse these tokens is a straight-forward translation of the diagrams on [json.org](https://www.json.org), keep these diagrams handy.
 
@@ -48,7 +55,7 @@ This diagram has a branch with seven possibilities, so our code will do the same
 
 ```rust
 // parse.rs
-fn parse_tokens(tokens: Vec<Token>, index: &mut usize) -> Result<Value, TokenParseError> {
+fn parse_tokens(tokens: &[Token], index: &mut usize) -> Result<Value, TokenParseError> {
     let token = &tokens[*index];
     match token {
         Token::Null => todo!(),
@@ -79,7 +86,7 @@ The easiest match arms to start with are the literals.
 
 ```rust
 // parse.rs
-fn parse_tokens(tokens: Vec<Token>, index: &mut usize) -> Result<Value, TokenParseError> {
+fn parse_tokens(tokens: &[Token], index: &mut usize) -> Result<Value, TokenParseError> {
     let token = &tokens[*index];
     match token {
         Token::Null => Ok(Value::Null),
@@ -128,7 +135,7 @@ mod tests {
 
     #[test]
     fn parses_null() {
-        let input = vec![Token::Null];
+        let input = [Token::Null];
         let expected = Value::Null;
 
         let actual = parse_tokens(&input, &mut 0).unwrap();
@@ -137,6 +144,20 @@ mod tests {
     }
 }
 ```
+
+<NewConcept title="array">
+
+The square bracket syntax above is an [array](https://doc.rust-lang.org/book/ch03-02-data-types.html#the-array-type).
+
+```rs
+let input = [Token::Null];
+```
+
+Note that a Rust array is **fixed-length**, meaning that elements cannot be added or removed. Mutability of the array follows the same rules as the rest of Rust, meaning that the owner of the array can mutate it by reassigning an element or mutably borrowing an element. If an entity is not the owner of the array, then it would need to have an exclusive reference (`&mut`) in order to mutate it.
+
+Recall the note about why slices were preferred as function parameters before, this is an example of `parse_tokens` needing a slice, and in different places we've been able to provide that from either a `Vec` or an array.
+
+</NewConcept>
 
 Feel free to add similar tests for parsing `Token::False` and `Token::True` as well.
 
@@ -156,7 +177,7 @@ fn check(input: Vec<Token>, expected: Value) {
 
 #[test]
 fn parses_null() {
-    let input = vec![Token::Null];
+    let input = [Token::Null];
     let expected = Value::Null;
 
     check(input, expected);
@@ -177,7 +198,7 @@ The next easiest variant to translate from tokens to JSON value is number.
 
 ```rust
 // parse.rs
-fn parse_tokens(tokens: Vec<Token>, index: &mut usize) -> Result<Value, TokenParseError> {
+fn parse_tokens(tokens: &[Token], index: &mut usize) -> Result<Value, TokenParseError> {
     let token = &tokens[*index];
     match token {
         // ...snip...
@@ -215,9 +236,7 @@ fn parse_string(s: &str) -> Result<Value, TokenParseError> {
 
 <NewConcept title="&str">
 
-In the [previous article](./json-parsing-rust-1), there was a remark that instead of borrowing a Vector using `&Vec<T>`, it was more idiomatic to use a [slice](), which would be written like `&[T]`.
-
-Similarly for strings, rather than borrowing a `String` with `&String`, it's more idiomatic to use a _string slice_, which is written as `&str`.
+Similarly to how a `Vec<T>` can be borrowed as a slice `&[T]`, rather than borrowing a `String` with `&String`, it's more idiomatic to use a _string slice_, which is written as `&str`.
 
 The difference is subtle and important in general, for a better explanation, please reference the [String chapter](https://doc.rust-lang.org/stable/book/ch08-02-strings.html) of the Rust book.
 
@@ -234,7 +253,7 @@ type ParseResult = Result<Value, TokenParseError>;
 Then this alias can be used in the two functions that we currently have:
 
 ```rust
-pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+pub fn parse_tokens(tokens: &[Token], index: &mut usize) -> ParseResult {
     /// ...snip...
 }
 
@@ -323,7 +342,7 @@ First, let's call the new function in the main `match` arms:
 
 ```rust
 // parse.rs
-fn parse_tokens(tokens: Vec<Token>, index: &mut usize) -> Result<Value, TokenParseError> {
+fn parse_tokens(tokens: &[Token], index: &mut usize) -> Result<Value, TokenParseError> {
     let token = &tokens[*index];
     match token {
         // ...snip...
@@ -396,7 +415,7 @@ We can add a test to check that strings without escape sequences are copied over
 // inside of `mod tests`, among the other tests
 #[test]
 fn parses_string_no_escapes() {
-    let input = vec![Token::String("hello world".into())];
+    let input = [Token::String("hello world".into())];
     let expected = Value::String("hello world".into());
 
     check(input, expected);
@@ -409,7 +428,7 @@ This should work fine for non-ASCII as well.
 // inside of `mod tests`, among the other tests
 #[test]
 fn parses_string_non_ascii() {
-    let input = vec![Token::string("olá_こんにちは_नमस्ते_привіт")];
+    let input = [Token::string("olá_こんにちは_नमस्ते_привіт")];
     let expected = Value::String(String::from("olá_こんにちは_नमस्ते_привіт"));
 
     check(input, expected);
@@ -417,7 +436,7 @@ fn parses_string_non_ascii() {
 
 #[test]
 fn parses_string_with_emoji() {
-    let input = vec![Token::string("hello 💩 world")];
+    let input = [Token::string("hello 💩 world")];
     let expected = Value::String(String::from("hello 💩 world"));
 
     check(input, expected);
@@ -430,7 +449,7 @@ While we're at it, we can add tests that will fail until we implement the unesca
 // inside of `mod tests`, among the other tests
 #[test]
 fn parses_string_unescape_backslash() {
-    let input = vec![Token::String(r#"hello\\world"#.into())];
+    let input = [Token::String(r#"hello\\world"#.into())];
     let expected = Value::String(r#"hello\world"#.into());
 
     check(input, expected);
@@ -604,7 +623,7 @@ Arrays! The first of two more "complex" types, but the code is actually not bad.
 Looking back to our main `parse_tokens` function, we can add the case for arrays, which starts when a `LeftBracket` token is encountered.
 
 ```rust
-pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+pub fn parse_tokens(tokens: &[Token], index: &mut usize) -> ParseResult {
     let token = &tokens[*index];
     match token {
         // ...snip...
@@ -625,7 +644,7 @@ What we'll do is:
    3. Increment the index by 1 to get the next token. If it is a `RightBracket`, break the loop. If it is a `Comma`, consume that and continue the loop. Otherwise, it's an error.
 
 ```rust
-fn parse_array(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+fn parse_array(tokens: &[Token], index: &mut usize) -> ParseResult {
     let mut array: Vec<Value> = Vec::new();
     loop {
         // consume the previous LeftBracket or Comma token
@@ -661,7 +680,7 @@ Now, adding a test:
 #[test]
 fn parses_array_one_element() {
     // [true]
-    let input = vec![Token::LeftBracket, Token::True, Token::RightBracket];
+    let input = [Token::LeftBracket, Token::True, Token::RightBracket];
     let expected = Value::Array(vec![Value::Boolean(true)]);
 
     check(input, expected);
@@ -675,7 +694,7 @@ fn parses_array_one_element() {
 #[test]
 fn parses_array_two_elements() {
     // [null, 16]
-    let input = vec![
+    let input = [
         Token::LeftBracket,
         Token::Null,
         Token::Comma,
@@ -695,7 +714,7 @@ OK that works too, what about this?
 #[test]
 fn parses_empty_array() {
     // []
-    let input = vec![Token::LeftBracket, Token::RightBracket];
+    let input = [Token::LeftBracket, Token::RightBracket];
     let expected = Value::Array(vec![]);
 
     check(input, expected);
@@ -724,7 +743,7 @@ What about nested arrays? We should be able to handle that:
 #[test]
 fn parses_nested_array() {
     // [null, [null]]
-    let input = vec![
+    let input = [
         Token::LeftBracket,
         Token::Null,
         Token::Comma,
@@ -758,7 +777,7 @@ One way to solve it is that for the simple documents (Null, True, False, String,
 Up in the `parse_tokens` function we can go ahead and increment the index for the simple tokens. That way the `parse_array` (and `parse_object`) functions only have to worry about their own tokens.
 
 ```rust
-pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+pub fn parse_tokens(tokens: &[Token], index: &mut usize) -> ParseResult {
     let token = &tokens[*index];
     if matches!(
         token,
@@ -807,7 +826,7 @@ Now, `parse_array` is responsible for incrementing for the LeftBracket, Comma, a
 Objects are more complex than Arrays, but are the same idea. Conceptually, Objects can be thought of as an Array where the elements are String-Colon-Value.
 
 ```rust
-pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+pub fn parse_tokens(tokens: &[Token], index: &mut usize) -> ParseResult {
     // ...snip...
     match token {
         // ...snip...
@@ -820,7 +839,7 @@ pub fn parse_tokens(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
 To start implementing `parse_object`, we'll follow a similar pattern as `parse_array`:
 
 ```rust
-fn parse_object(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+fn parse_object(tokens: &[Token], index: &mut usize) -> ParseResult {
     let mut map = HashMap::new();
     loop {
         // consume the previous LeftBrace or Comma token
@@ -848,7 +867,7 @@ LeftBrace -> [String -> Colon -> Value] -> Comma -> (repeat [*]) -> RightBrace
 If the first token after the LeftBrace isn't a RightBrace, then it needs to be a String (the key of the property).
 
 ```rust
-fn parse_object(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+fn parse_object(tokens: &[Token], index: &mut usize) -> ParseResult {
     // ...snip...
     loop {
         // ...snip...
@@ -887,7 +906,7 @@ In some cases, `if let` can be more concise. Another thing to consider with read
 We returned an error if the next token was not a `Token::String`, now for the logic if it is. The next tokens needs to be `Token::Colon`, otherwise there's an error.
 
 ```rust
-fn parse_object(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+fn parse_object(tokens: &[Token], index: &mut usize) -> ParseResult {
     // ...snip...
     loop {
         // ...snip...
@@ -920,7 +939,7 @@ Now to actually add the value! We already have the String, which will be the **k
 The **value** for the entry can be any JSON Value, including another Object - so we go to our trusty friend recursion again by calling `parse_tokens`, just like in the Array.
 
 ```rust
-fn parse_object(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+fn parse_object(tokens: &[Token], index: &mut usize) -> ParseResult {
     // ...snip...
     loop {
         // ...snip...
@@ -984,7 +1003,7 @@ Then in `parse_object` we can replace the `let key = s.clone()` with `let key = 
 Almost done - after a key/value pair comes either a `Comma` or a `RightBrace`.
 
 ```rust
-fn parse_object(tokens: &Vec<Token>, index: &mut usize) -> ParseResult {
+fn parse_object(tokens: &[Token], index: &mut usize) -> ParseResult {
     // ...snip...
     loop {
         // ...snip...
