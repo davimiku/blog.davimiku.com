@@ -6,6 +6,8 @@ export const meta = {
   tagline: 'Learn the fundamentals of parsing by implementing JSON parsing from scratch',
   tags: ['JSON', 'Rust'],
   publishedOn: '2024-06-27',
+  updatedOn: '2024-11-03',
+  ogImage: 'banner.png',
 }
 
 import Image from 'next/image'
@@ -453,7 +455,10 @@ pub enum Token {
 
 This provides `Token` with the ability to be compared for equality and to have a Debug representation for printing. If all is well, a "Run Test" button should appear next to the test function that you can click in VS Code. If you're not using VS Code or it's not working for some reason, you can run tests with the [cargo test](https://doc.rust-lang.org/cargo/commands/cargo-test.html) command.
 
-<img src='/images/blog/json-parsing/run_tests.png' alt='tests with run test button' />
+<img
+  src='/images/blog/tutorials/json-parsing-rust-1/run_tests.png'
+  alt='tests with run test button'
+/>
 
 Go ahead and run the test! It fails... which is expected because we haven't actually implemented anything. You should see something like this in your test output.
 

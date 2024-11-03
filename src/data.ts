@@ -18,14 +18,14 @@ export const projects: Project[] = [
     tagline:
       'My own programming language: a statically-typed, applications level language that JIT compiles to machine code.',
     description:
-      'Status: Programs with simple values and functions work, currently working on adding composite types (unions and records).',
+      'Status: Programs with simple values and functions work, currently working on adding tagged unions.',
     technologies: ['Rust'],
     topics: ['language design', 'compilers'],
     repo: {
       name: 'unknown-lang',
       path: 'davimiku/unknown-lang',
       url: 'https://github.com/davimiku/unknown-lang',
-      description: 'A new programming language and compiler',
+      description: 'A new programming language, compiler, and language server',
     },
   },
   {

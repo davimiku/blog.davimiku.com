@@ -7,16 +7,15 @@ export type PublishedBlogMeta = BlogMeta & {
 
 export type BlogMeta = {
   title: string
-  category: Category
+  category: 'tutorials' | string
   slug: string
   tagline: string
   type: string
   tags: string[]
   publishedOn?: string
   updatedOn?: string
+  ogImage?: string
 }
-
-type Category = 'parsers' | 'web-design'
 
 import * as ResponsivenessWithoutBreakpoints from '../articles/responsiveness-without-breakpoints.mdx'
 import * as JsonParserRust1 from '../tutorials/json-parsing-rust-1.mdx'
