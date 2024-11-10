@@ -2,13 +2,13 @@
 
 .blog-listing {
   list-style: none;
-  padding-bottom: 1rem;
+  padding-bottom: 2rem;
 
   @media (prefers-color-scheme: light) {
-    border-bottom: 1px dotted colors.$primary;
+    border-top: 1px dotted colors.$primary;
   }
   @media (prefers-color-scheme: dark) {
-    border-bottom: 1px dotted white;
+    border-top: 1px dotted white;
   }
 
   ul {

@@ -17,7 +17,7 @@ export default function Home() {
 
   const recentBlogs = blogsMeta
     .slice(0, 3)
-    .sort((a, b) => (a.publishedOn < b.publishedOn ? 1 : -1))
+    .sort((a, b) => a.publishedOn.localeCompare(b.publishedOn))
     .map(meta => <BlogSummary key={meta.slug} {...meta} />)
   return (
     <Layout title="David's Website" description='My Projects'>

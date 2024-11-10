@@ -1,16 +1,15 @@
 import Link from 'next/link'
 
-import styles from './BlogListing.module.scss'
-import { PublishDate } from 'components/blog/publish_date'
-import type { BlogMeta } from 'pages/articles'
+import styles from './ArticleListing.module.scss'
+import type { ArticleMeta } from 'pages/articles'
 
 const formatPath = (...paths: string[]) => '/' + paths.join('/').replace(/\.mdx$/, '')
 
-export type BlogListingProps = {
-  meta: BlogMeta
+export type ArticleListingProps = {
+  meta: ArticleMeta
 }
 
-export function BlogListing({ meta }: BlogListingProps) {
+export function ArticleListing({ meta }: ArticleListingProps) {
   const { publishedOn, updatedOn } = meta
   const tags = meta.tags ?? []
 
