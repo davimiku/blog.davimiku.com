@@ -11,24 +11,31 @@ export type BlogListingProps = {
 }
 
 export function BlogListing({ meta }: BlogListingProps) {
-  const { publishedOn } = meta
-  const isPublished = Boolean(meta.publishedOn)
+  const { publishedOn, updatedOn } = meta
   const tags = meta.tags ?? []
+
+  const published = (
+    <>
+      Published: <time dateTime={publishedOn}>{publishedOn}</time>
+    </>
+  )
+  const updated = updatedOn ? (
+    <>
+      <br />
+      Updated: <time dateTime={publishedOn}>{publishedOn}</time>
+    </>
+  ) : null
 
   return (
     <li className={styles['blog-listing']}>
-      {/* TODO: Refactor to separate component */}
-      {isPublished ? (
-        <Link href={formatPath(meta.category, meta.slug)}>
-          <a>
-            <h2>{meta.title}</h2>
-          </a>
-        </Link>
-      ) : (
-        <h2 className={styles['wip']}>{meta.title}</h2>
-      )}
+      <Link href={formatPath(meta.category, meta.slug)}>
+        <a>
+          <h2>{meta.title}</h2>
+        </a>
+      </Link>
 
-      <PublishDate date={publishedOn} />
+      {published}
+      {updated}
       <p>{meta.tagline}</p>
       <ul>
         {tags.map(tag => (

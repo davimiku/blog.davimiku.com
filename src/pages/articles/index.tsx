@@ -15,6 +15,7 @@ export type BlogMeta = {
   publishedOn?: string
   updatedOn?: string
   ogImage?: string
+  readingTime?: number
 }
 
 import * as ResponsivenessWithoutBreakpoints from '../articles/responsiveness-without-breakpoints.mdx'
@@ -24,6 +25,7 @@ const articles = [ResponsivenessWithoutBreakpoints, JsonParserRust1]
 export const blogsMeta: PublishedBlogMeta[] = articles
   .map(blog => blog.meta)
   .filter(meta => meta.publishedOn)
+  .sort((a, z) => (a.publishedOn < z.publishedOn ? -1 : a.publishedOn > z.publishedOn ? 1 : 0))
 
 export default function BlogIndex() {
   const blogSummaries = blogsMeta.map(meta => <BlogListing meta={meta} key={meta.slug} />)
