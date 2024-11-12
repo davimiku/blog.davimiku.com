@@ -2,8 +2,8 @@ import { ExternalLink } from 'components/link/ExternalLink'
 import { projects } from 'data'
 import Layout from 'layouts'
 import React from 'react'
-import { blogsMeta } from './articles'
-import { BlogSummary } from 'components/summaries/BlogSummary'
+import { articlesMeta } from './articles'
+import { ArticleSummary } from 'components/summaries/BlogSummary'
 import Link from 'next/link'
 import { ProjectSummary } from 'components/summaries/ProjectSummary'
 
@@ -15,10 +15,10 @@ export default function Home() {
     .slice(0, 2)
     .map(project => <ProjectSummary key={project.repo.name} project={project} />)
 
-  const recentBlogs = blogsMeta
+  const recentArticles = articlesMeta
     .slice(0, 3)
-    .sort((a, b) => a.publishedOn.localeCompare(b.publishedOn))
-    .map(meta => <BlogSummary key={meta.slug} {...meta} />)
+    .sort((a, b) => b.publishedOn.localeCompare(a.publishedOn))
+    .map(meta => <ArticleSummary key={meta.slug} {...meta} />)
   return (
     <Layout title="David's Website" description='My Projects'>
       <h1>David's Website</h1>
@@ -49,7 +49,7 @@ export default function Home() {
 
       <hr />
       <h2>Recent Posts</h2>
-      <ol>{recentBlogs}</ol>
+      <ol>{recentArticles}</ol>
       <h3>
         <Link href='/articles'>See all posts</Link>
       </h3>

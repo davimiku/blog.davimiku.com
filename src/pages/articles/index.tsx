@@ -24,13 +24,17 @@ import * as JsonParserRust1 from '../tutorials/json-parsing-rust-1.mdx'
 import * as TsIoDecodingEncoding from '../tutorials/ts-io-decoding-encoding.mdx'
 
 const articles = [ResponsivenessWithoutBreakpoints, JsonParserRust1, TsIoDecodingEncoding]
-export const blogsMeta: PublishedArticleMeta[] = articles
+export const articlesMeta: PublishedArticleMeta[] = articles
   .map(blog => blog.meta)
-  .filter(meta => meta.publishedOn)
-  .sort((a, b) => a.publishedOn.localeCompare(b.publishedOn))
+  .filter(isPublished)
+  .sort((a, b) => b.publishedOn.localeCompare(a.publishedOn))
+
+function isPublished(meta: ArticleMeta): meta is PublishedArticleMeta {
+  return !!meta.publishedOn
+}
 
 export default function ArticleIndex() {
-  const blogSummaries = blogsMeta.map(meta => <ArticleListing meta={meta} key={meta.slug} />)
+  const blogSummaries = articlesMeta.map(meta => <ArticleListing meta={meta} key={meta.slug} />)
   return (
     <Layout title='Blogs' description='Blog Posts'>
       <h1>Blog</h1>

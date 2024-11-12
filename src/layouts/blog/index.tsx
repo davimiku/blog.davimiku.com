@@ -6,12 +6,12 @@ import Layout from 'layouts'
 import styles from './blog.module.scss'
 import type { ArticleMeta } from 'pages/articles'
 
-export type BlogsPageProps = {
+export type ArticlePageProps = {
   children: ReactNode
   meta: ArticleMeta
 }
 
-export function BlogsPage({ children, meta }: BlogsPageProps) {
+export function ArticlePage({ children, meta }: ArticlePageProps) {
   const { title, tagline, category, slug, publishedOn, updatedOn, ogImage } = meta
   const imageUrl = ogImage
     ? `https://blog.davimiku.com/images/blog/${category}/${slug}/${ogImage}`

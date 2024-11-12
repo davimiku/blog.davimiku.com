@@ -8,10 +8,11 @@ export const meta = {
   publishedOn: '2024-06-27',
   updatedOn: '2024-11-03',
   ogImage: 'banner.png',
+  readingTime: 40,
 }
 
 import Image from 'next/image'
-import { BlogsPage } from '../../layouts/blog'
+import { ArticlePage } from '../../layouts/blog'
 import { EmphasisBox, KnowledgeCheck, NewConcept, Spoiler } from '../../components/blog'
 
 <EmphasisBox>
@@ -1547,5 +1548,5 @@ Throughout this tutorial, you have learned \_\_ new concepts! (plus or minus a f
 The [next and last article](./json-parsing-rust-2) in this series will contain much more code than this article, but fewer new concepts because most were learned already.
 
 export default function ({ children }) {
-  return <BlogsPage meta={meta}>{children}</BlogsPage>
+  return <ArticlePage meta={meta}>{children}</ArticlePage>
 }

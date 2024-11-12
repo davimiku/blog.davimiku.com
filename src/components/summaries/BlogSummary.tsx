@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-export type BlogSummaryProps = {
+export type ArticleSummaryProps = {
   title: string
   category: string
   type: string
@@ -10,7 +10,7 @@ export type BlogSummaryProps = {
   publishedOn: string
 }
 
-export function BlogSummary({
+export function ArticleSummary({
   title,
   category,
   type,
@@ -18,7 +18,7 @@ export function BlogSummary({
   tagline,
   tags,
   publishedOn,
-}: BlogSummaryProps) {
+}: ArticleSummaryProps) {
   const href = `/${category}/${slug}`
   return (
     <li>
