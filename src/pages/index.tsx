@@ -1,11 +1,12 @@
-import { ExternalLink } from 'components/link/ExternalLink'
+import React from 'react'
+import Link from 'next/link'
+
 import { projects } from 'data'
 import Layout from 'layouts'
-import React from 'react'
-import { articlesMeta } from './articles'
-import { ArticleSummary } from 'components/summaries/BlogSummary'
-import Link from 'next/link'
+import { ExternalLink } from 'components/link/ExternalLink'
+import { ArticleSummary } from 'components/summaries/ArticleSummary'
 import { ProjectSummary } from 'components/summaries/ProjectSummary'
+import { articlesMeta } from './articles'
 
 /**
  * Component for the "home" page server at path '/'

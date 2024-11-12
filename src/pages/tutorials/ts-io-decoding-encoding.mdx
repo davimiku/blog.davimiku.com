@@ -10,7 +10,7 @@ export const meta = {
 }
 
 import Image from 'next/image'
-import { BlogsPage } from '../../layouts/blog'
+import { ArticlePage } from '../../layouts/blog'
 import { EmphasisBox, KnowledgeCheck, NewConcept, Spoiler } from '../../components/blog'
 
 <EmphasisBox>
@@ -22,7 +22,8 @@ import { EmphasisBox, KnowledgeCheck, NewConcept, Spoiler } from '../../componen
 
 **Recommended Proficiency Level**:
 
-- Proficient with common TypeScript code, including generics
+- Proficient with common TypeScript Code
+- Familiarity (but not expertise) with type parameters i.e. "generics"
 - No additional advanced feature knowledge required, every advanced topic will be introduced and explained individually
 
 **Learning Method**:
@@ -34,3 +35,345 @@ The final/full source code is available at: [https://github.com/davimiku/ts-io-d
 </EmphasisBox>
 
 ## Introduction
+
+In this tutorial, we will learn how to create a library in TypeScript that does decoding and encoding of data.
+
+First off, what do these terms mean? Or more specifically, how will I, the author, use these terms?
+
+**Decoding** is the act of converting incoming data from a less structured format into a more structured format by checking if the data matches an expected shape or not. This can also include _transforming_ the data into that expected shape if it is compatible, depending on the rules that the programmer defines. This is also referred to as "parsing", "deserializing", or "marshalling" - but the term "decoding" will be used throughout the rest of the article (see the Appendix for justification).
+
+Decoding can fail (and often does fail) if the input data doesn't match the desired shape or cannot be transformed to match the desired shape.
+
+TODO - image of decoding
+
+**Encoding** is precisely the opposite, taking data in a well-known structure and converting it back to a unstructured or opaque format.
+
+TODO - image of encoding
+
+<Spoiler summary="Decoding vs. Validating">
+
+Another common term for dealing with incoming data is "validation", but we're not using that term in this article, because it's contained within "decoding" and we're interested in the whole process. Decoding consists of:
+
+1. (Possibly) transforming the data towards the desired shape
+2. Validation - check that the actual shape matches the desired shape
+3. Information retention - the type system needs to **remember** the results of our validation. If it immediately forgets what we validated, then that's a difference between validation and decoding
+
+An overly simplified example of something that does #2 (validation) but not #3 (retain that information) is null/nil checks in a lot of languages. Consider the Go code below, where the type system doesn't remember that we checked for `nil` already, and we either have to check it again in different functions every time we use that data, or just trust that it is what we think it is (confidence of this might be p=100 when we initially write the code, but decays over time as the code continues to change).
+
+```go
+func NeedsARectangle(rectangle *Rectangle) {
+  if rectangle != nil {
+    // do some stuff...
+    AlsoNeedsARectangle(nil)
+  }
+}
+
+func AlsoNeedsARectangle(rectangle *Rectangle) {
+  // The type system doesn't retain the knowledge that we already
+  // validated so we either validate again or risk a SIGSEGV in
+  // the future (maybe?)
+  if rectangle != nil {
+    fmt.Println("not nil")
+  }
+}
+```
+
+As another example to illustrate that "validation" is a single part of "decoding", consider that "encoding" is the opposite of "decoding", but there's no "unvalidate" counterpart that's involved in the encoding process.
+
+[Parse, Don't Validate](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) is an essay with a more thorough explanation of this terminology difference.
+
+</Spoiler>
+
+## Who cares?
+
+Why is it beneficial to learn how to implement this?
+
+For me, I think it's a couple of reasons:
+
+1.) Basically every program ever written involves decoding data in, doing something with it, and encoding data back out. The middle part of that could be simple or extremely complex, but that's still the gist.
+
+I can't recall where, but I've read a quote that "every program is secretly a compiler", which is a program that decodes some data (your code), does some analysis on it, and encodes it back out (machine code / bytecode / etc.). This essay/rant [Rich Programmer Food](http://steve-yegge.blogspot.com/2007/06/rich-programmer-food.html) sort of hits on that topic.
+
+2.) I also think that _library development_ is an underappreciated and underdeveloped skill in many software engineers. There's no shortage of _application development_ tutorials, courses, guides, etc. but comparatively fewer for library development.
+
+This isn't even about making a popular open-source library, in every company's codebase there is a section that would be considered "core library" code (whether it's explicitly recognized as such or not), and the quality of this core library has massive impacts on the quality and reliability of what the company produces and the productivity of the engineers who produce it.
+
+## How do we actually do this?
+
+Rant over! From poking around a bit, I could find four ways to achieve decoding/encoding across different languages and ecosystems:
+
+1. The programmer defines the types, and then another process generates code for decoding/encoding during compilation
+
+- **Examples**: [serde](https://crates.io/crates/serde) (Rust), [typia](https://typia.io/docs/setup/) (TypeScript)
+- Accomplished using macros, compiler plugins, comptime code, etc.
+
+2. The programmer defines the decoding/encoding, then derives the type
+
+- **Examples**: [effect](https://effect.website/docs/schema/introduction/), [io-ts](https://gcanti.github.io/io-ts/), [zod](https://zod.dev/) (TypeScript)
+- This is most popular in (and maybe exclusive to) TypeScript due to the built-in `typeof` operator that can derive types from values
+
+3. Runtime reflection is used to compare incoming data to expected field types
+4. The programmer manually defines both the types and decoding/encoding code
+
+Each of these approaches has advantages and disadvantages. There's also a 5th "approach" where you just... don't do any of this, like call `json.load(input)` or whatever and assume it's the desired shape. For the purpose of an article like this, this approach isn't very interesting.
+
+In this tutorial, we'll learn how to build #2 - a library that allows a programmer to define the decoding/encoding code and derive their types from that.
+
+A sneak peek of the desired functionality of our library is below. If you've used similar libraries in the past, this should be familiar, but otherwise everything will be explained each step of the way!
+
+```typescript
+import * as io from 'our-new-library'
+
+// Creates the "Shape" that can be used to decode or encode data
+const Rectangle = io.struct({
+  width: io.number,
+  height: io.number,
+})
+
+// The plain type can be inferred from the "Shape"
+type Rectangle = io.Infer<typeof Rectangle>
+//    ^?       = { width: number, height: number }
+
+// Incoming `unknown` data can be decoded into a `Rectangle` or an error
+const result = Rectangle.decode(incomingData)
+//                                  ^? unknown
+
+if (result.isSuccess) {
+  // If it was decoded successfully, we can use the typed data
+  console.log('width:', result.width, 'height:', result.height)
+} else {
+  // Otherwise, we can see errors of why it was not successful
+  console.log(result.error)
+}
+```
+
+## Getting started
+
+Enough talk, let's go!
+
+Unfortunately, starting a TypeScript project has more options than a menu at The Cheesecake Factory. Feel free to use your own preferred setup, or you can use the [tutorial source code](https://github.com/davimiku/ts-io-decoding-encoding) as a starting point. I'm using NodeJS v22 (LTS at the time of writing) using TypeScript with ES Modules, and [vitest](https://vitest.dev/) for unit testing.
+
+Crank open the `src/index.ts` file (or whatever equivalent in your setup of choice)!
+
+### What's the data?
+
+In my [last tutorial](/tutorials/json-parsing-rust-1), I advised that the best thing to do when looking into the bottomless abyss (i.e. a blank module that you just started working on) is to define the data first!
+
+We'll also focus on **decoding** first, because that's harder and it's also the feature that would be used more.
+
+The central type which will be used everywhere and link everything together will be called `Shape`. This could also be called `Schema`, `Type`, or even `Codec` if you like (a [Codec](https://en.wikipedia.org/wiki/Codec) is a thing that both decodes and encodes, but it sounds like, nerdy or whatever).
+
+```typescript
+interface Shape<T> {
+  readonly __type: string
+  readonly decode: (input: unknown) => T
+}
+```
+
+<Spoiler summary="`type` vs. `interface`">
+
+Though I prefer defining types with the `type` keyword, the `interface` keyword is used specifically here for a very subtle reason not defined anywhere in the documentation (as far as I know). More on that later, for now, this will have to be a cliffhanger to hold your attention!
+
+</Spoiler>
+
+<NewConcept title="<T>: Type Parameters">
+
+The `<T>` and `T` in the type above are **type parameters**, sometimes referred to as "generics". Just like how functions have parameters, and then you can use those parameters in the body of your function, types can also have parameters that you can use in the body of the type.
+
+In this case, this type represents:
+
+> An object with a `__type` field that is a `string`, and a `decode` field that is a function which takes input of an `unknown` type and returns data of the same type `T` that was passed in as a parameter
+
+</NewConcept>
+
+## Built-ins: Primitives
+
+We need to define the building blocks, or "built-in types" of our library that our users (other programmers) can build from.
+
+```typescript
+interface Shape<T> {
+  /* ...snip... */
+}
+
+interface ShapeBoolean extends Shape<boolean> {
+  readonly __type: 'boolean'
+}
+
+interface ShapeString extends Shape<string> {
+  readonly __type: 'string'
+}
+
+interface ShapeNumber extends Shape<number> {
+  readonly __type: 'number'
+}
+```
+
+We started with (the types corresponding to) three of the [primitive values](https://developer.mozilla.org/en-US/docs/Glossary/Primitive) - `boolean`, `number`, and `string`. Of the remainder, it doesn't really make sense to include `null` or `undefined` as generic building blocks, and I'm omitting `symbol` from this tutorial for the sake of brevity. The remaining primitive value is `bigint`, which we will get to a bit later because it's slightly more interesting.
+
+<NewConcept title="<T>: Type Arguments">
+
+This is really the other half of the previous summary of Type Parameters. Whenever we say something like `Shape<number>`, the `number` is the **argument** passed in to the `Shape` type. The best way to think of it is a function that runs at compile-time, pass a type in, get a type out. In this example, `number` would be substituted in for `T` inside the body of the type.
+
+</NewConcept>
+
+<Spoiler summary="...snip... ?">
+
+Throughout the tutorial, I use comments with `...snip...` that indicate that this particular code is building on a previous code snippet.
+
+</Spoiler>
+
+We actually have one more "built-in" shape to add, corresponding to the `unknown` type.
+
+```typescript
+interface Shape<T> {
+  /* ...snip... */
+}
+
+interface ShapeUnknown extends Shape<unknown> {
+  readonly __type: 'unknown'
+}
+```
+
+This could be useful for people who are decoding data without a statically defined shape which they'll deal with outside of our library, or for fields of an object that they don't care about, which are essentially "pass-through".
+
+The next step is to provide an implementation of these built-in shapes, and these shapes are what other people will compose together to make what they need.
+
+```typescript
+// ...snip...
+
+export const unknown: ShapeUnknown = {
+  __type: 'unknown',
+  decode: (input: unknown): unknown => input,
+} as const
+```
+
+This is going to be the simplest implementation of `decode`, since it just returns the same data it's given (the [identity function](https://en.wikipedia.org/wiki/Identity_function)). This satisfies the type because the type parameter `T` from `Shape<T>` is substituted with `unknown`.
+
+<NewConcept title="`as const`">
+
+This annotation can go after a value and it makes it readonly at **compile-time**. This is different from [Object.freeze](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) which is a built-in JavaScript function that makes an object readonly at runtime (and TypeScript also recognizes this and makes it readonly at compile-time).
+
+</NewConcept>
+
+The rest will be a little different! Decoding into `unknown` is **infallible**, by definition of `unknown`. But decoding into `boolean` is not infallible, because it might not be a boolean!
+
+```typescript
+export const boolean: ShapeBoolean = {
+  __type: 'boolean',
+  decode: (input: unknown): boolean => {
+    if (typeof input !== 'boolean') {
+      throw new Error('oopsy whoopsy!')
+    }
+    return input
+  },
+} as const
+```
+
+We're doing a cop-out here by throwing a <del>tantrum</del> exception when things don't go our way. Incoming data not conforming to a certain shape is not exceptional, it's expected (as evidenced by us checking for it, we **expect** this is a possibility). I feel rather strongly that libraries should not throw exceptions unless absolutely necessary, and definitely shouldn't throw them by default.
+
+We'll fix this later in the tutorial, for now, we march onwards!
+
+<EmphasisBox>
+
+We could have actually implemented this built-in shape with infallible decoding by making it use truthiness of the incoming data to **transform** it into a boolean (truthy -> `true`, falsy -> `false`). In other words, if someone used our built-in `boolean` shape and the data was `"hello world"`, should that coerce to `true`?
+
+Would this be **useful** to include in a building block? If it's useful, does it make sense for it to be the **default** behavior?
+
+Questions for a library author such as yourself to ponder!
+
+</EmphasisBox>
+
+Next is `number`, which follows a similar pattern:
+
+```typescript
+export const number: ShapeNumber = {
+  __type: 'number',
+  decode(input: unknown): number {
+    if (typeof input !== 'number') {
+      throw new Error('oopsy whoopsy!')
+    }
+    return input
+  },
+}
+```
+
+<EmphasisBox>
+
+Not so fast! There are more decisions for this library author (you) to make.
+
+1. Should `NaN` be a success or failure?
+2. Should `Infinity` and `-Infinity` be success or failure?
+
+<Spoiler summary="my thoughts">
+
+I would say "failure" to both of these questions, as the times I've actually wanted `NaN` or `Infinity` data are few and far between. It's useful for this shape to represent a finite number. Though, a library author needs to consider all possible use cases and try to come up with a flexible solution that allows everyone to get what they want!
+
+</Spoiler>
+
+</EmphasisBox>
+
+String should be simple (I think?). This implementation is straight-forward, where any string (including empty string) passes:
+
+```typescript
+export const string: ShapeString = {
+  __type: 'string',
+  decode(input: unknown): string {
+    if (typeof input !== 'string') {
+      throw new Error('oopsy whoopsy!')
+    }
+    return input
+  },
+}
+```
+
+BigInt touches on one of the topics from the introduction, which is that we can also **transform** the data before decoding, or rather, that transformation is part of the process generally speaking.
+
+```typescript
+interface ShapeBigInt extends Shape<bigint> {
+  readonly __type: 'bigint'
+}
+
+export const bigint: ShapeBigInt = {
+  __type: 'bigint',
+  decode(input: unknown): bigint {
+    if (typeof input === 'bigint') {
+      return input
+    } else if (typeof input === 'number' && !Number.isNaN(input) && Number.isFinite(input)) {
+      return BigInt(input)
+    }
+    throw new Error('oopsy whoopsy!')
+  },
+}
+```
+
+In this implementation, if the data is already a `bigint` it passes, or if it's a finite `number` it's promoted to a `bigint` and passes, otherwise fails. This seems like a reasonable default behavior, except there's still a question of numbers with a fractional component. Should those still be coerced into `bigint`, losing the fraction part? Or should that fail?
+
+## Built-ins: Inference
+
+Let's go back to the desired usage/capabilities of our library from the introduction:
+
+```typescript
+// ...snip...
+
+// The plain type can be inferred from the "Shape"
+type Rectangle = io.Infer<typeof Rectangle>
+//    ^?       = { width: number, height: number }
+
+// ...snip...
+```
+
+We want to provide our users with this `Infer` type, so that they can define their shapes and infer their types from their shapes. Notice that this `Infer` type has a **type parameter**, so I should probably refer to it as `Infer<Shape>`.
+
+<NewConcept title="`typeof` keyword (type context)">
+
+The `typeof` keyword in the previous code example is the key to this entire part, and it's **not** this [typeof keyword](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof) from JavaScript.
+
+There are two contexts, the value context and the type context. This article discusses this concept with a clear diagram and explanation, that's worth reading at least the introduction: [An introduction to type programming in TypeScript](https://www.zhenghao.io/posts/type-programming).
+
+The `typeof` keyword here exists in the **type context** and it is a one-way path from the value context to the type context.
+
+</NewConcept>
+
+export default function ({ children }) {
+  return <ArticlePage meta={meta}>{children}</ArticlePage>
+}
