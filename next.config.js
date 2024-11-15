@@ -1,11 +1,9 @@
 // @ts-check
 
-const withPlugins = require('next-compose-plugins')
-const withSvgr = require('next-plugin-svgr')
+import createMDX from '@next/mdx'
+import rehypePrism from '@mapbox/rehype-prism'
 
-const rehypePrism = require('@mapbox/rehype-prism')
-
-const withMDX = require('@next/mdx')({
+const withMDX = createMDX({
   options: {
     remarkPlugins: [],
     rehypePlugins: [rehypePrism],
@@ -16,21 +14,13 @@ const withMDX = require('@next/mdx')({
 /**
  * @type {import('next').NextConfig}
  */
-const nextConfig = withPlugins(
-  [
-    withSvgr,
-    withMDX({
-      // Append the default value with md extensions
-      pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
-    }),
-  ],
-  {
-    experimental: {
-      images: {
-        unoptimized: true,
-      },
-    },
-  }
-)
+const nextConfig = {
+  output: 'export',
+  // Append the default value with md extensions
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
+  images: {
+    unoptimized: true,
+  },
+}
 
-module.exports = nextConfig
+export default withMDX(nextConfig)
