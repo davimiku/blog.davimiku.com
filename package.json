@@ -10,6 +10,8 @@
   "type": "module",
   "dependencies": {
     "@mapbox/rehype-prism": "^0.7.0",
+    "@mdx-js/loader": "^3.1.0",
+    "@mdx-js/react": "^3.1.0",
     "@next/mdx": "^13.5.0",
     "classnames": "^2.3.1",
     "next": "^13.5.0",
@@ -24,10 +26,9 @@
     "sass": "~1.51.0"
   },
   "devDependencies": {
-    "@next/codemod": "^15.0.3",
-    "@next/eslint-plugin-next": "^12.2.0",
-    "@types/node": "^18.0.6",
-    "@types/react": "~17.0.44",
+    "@next/eslint-plugin-next": "^13.5.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
     "@types/react-select": "^4.0.18",
     "@types/react-toggle": "~4.0.3",
     "@typescript-eslint/eslint-plugin": "~5.30.0",
@@ -36,7 +37,7 @@
     "eslint-config-next": "~12.2.0",
     "eslint-config-prettier": "~8.5.0",
     "eslint-plugin-mdx": "^2.0.1",
-    "prettier": "~2.7.0",
-    "typescript": "~4.7.0"
+    "prettier": "^3.3.0",
+    "typescript": "~5.6.0"
   }
 }
