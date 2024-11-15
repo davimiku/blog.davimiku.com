@@ -1,11 +1,9 @@
-@use '../../../styles/variables/colors';
-
 .blog-listing {
   list-style: none;
   padding-bottom: 2rem;
 
   @media (prefers-color-scheme: light) {
-    border-top: 1px dotted colors.$primary;
+    border-top: 1px dotted var(--color-primary);
   }
   @media (prefers-color-scheme: dark) {
     border-top: 1px dotted white;

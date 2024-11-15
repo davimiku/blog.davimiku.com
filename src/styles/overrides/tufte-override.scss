@@ -7,3 +7,8 @@ pre > code {
 p > code {
   font-size: 1.2rem;
 }
+
+.sidenote-number::after,
+.sidenote::before {
+  color: var(--color-code);
+}

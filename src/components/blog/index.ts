@@ -2,8 +2,10 @@
  * Components used within blog posts
  */
 
-export * from './emphasis_box'
-export * from './knowledge_check'
-export * from './listing'
-export * from './new_concept'
-export * from './spoiler'
+export * from './emphasis_box/EmphasisBox'
+export * from './knowledge_check/KnowledgeCheck'
+export * from './listing/ArticleListing'
+export * from './marginnote/MarginNote'
+export * from './new_concept/NewConcept'
+export * from './sidenote/Sidenote'
+export * from './spoiler/Spoiler'

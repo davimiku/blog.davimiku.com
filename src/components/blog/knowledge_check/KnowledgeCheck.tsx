@@ -1,8 +1,7 @@
 import { ReactNode } from 'react'
 import { FaSchool } from 'react-icons/fa'
 
-import styles from './KnowledgeCheck.module.scss'
-import { EmphasisBox } from '../emphasis_box'
+import { EmphasisBox } from '../emphasis_box/EmphasisBox'
 
 export type KnowledgeCheckProps = {
   children: ReactNode

@@ -11,7 +11,14 @@ export const meta = {
 
 import Image from 'next/image'
 import { ArticlePage } from '../../layouts/blog'
-import { EmphasisBox, KnowledgeCheck, NewConcept, Spoiler } from '../../components/blog'
+import {
+  EmphasisBox,
+  KnowledgeCheck,
+  NewConcept,
+  Spoiler,
+  SideNote,
+  MarginNote,
+} from '../../components/blog'
 
 <EmphasisBox>
 
@@ -28,7 +35,7 @@ import { EmphasisBox, KnowledgeCheck, NewConcept, Spoiler } from '../../componen
 
 **Learning Method**:
 
-This is a hands-on tutorial, just reading through won't get you much. You'll get the most out of it by actually firing up a code editor and following along! You can also follow along on the [TypeScript playground](https://www.typescriptlang.org/play/) for most of the tutorial (excluding unit tests).
+This is a hands-on tutorial, just reading through won't get you much. You'll get the most out of it by actually firing up a code editor and following along! You can also follow along on the [TypeScript playground](https://www.typescriptlang.org/play/) for most of the tutorial (excluding tests).
 
 The final/full source code is available at: [https://github.com/davimiku/ts-io-decoding-encoding](https://github.com/davimiku/ts-io-decoding-encoding)
 
@@ -38,11 +45,18 @@ The final/full source code is available at: [https://github.com/davimiku/ts-io-d
 
 In this tutorial, we will learn how to create a library in TypeScript that does decoding and encoding of data.
 
+This is split into three articles:
+
+1. Decoding (this article)
+2. Better errors (not written yet)
+3. Encoding (not written yet)
+
 First off, what do these terms mean? Or more specifically, how will I, the author, use these terms?
 
 **Decoding** is the act of converting incoming data from a less structured format into a more structured format by checking if the data matches an expected shape or not. This can also include _transforming_ the data into that expected shape if it is compatible, depending on the rules that the programmer defines. This is also referred to as "parsing", "deserializing", or "marshalling" - but the term "decoding" will be used throughout the rest of the article (see the Appendix for justification).
 
-Decoding can fail (and often does fail) if the input data doesn't match the desired shape or cannot be transformed to match the desired shape.
+{/* prettier-ignore */}
+<MarginNote id='decoding-fail'> Decoding failures are expected and non-exceptional any time we're dealing with input outside of our control</MarginNote>Decoding can fail if the input data doesn't match the desired shape or cannot be transformed to match the desired shape.
 
 TODO - image of decoding
 
@@ -52,7 +66,7 @@ TODO - image of encoding
 
 <Spoiler summary="Decoding vs. Validating">
 
-Another common term for dealing with incoming data is "validation", but we're not using that term in this article, because it's contained within "decoding" and we're interested in the whole process. Decoding consists of:
+Another common term for dealing with incoming data is "validation", and our definition of "decoding" **contains** validation as part of the process. Decoding consists of:
 
 1. (Possibly) transforming the data towards the desired shape
 2. Validation - check that the actual shape matches the desired shape
@@ -151,7 +165,7 @@ if (result.isSuccess) {
 
 Enough talk, let's go!
 
-Unfortunately, starting a TypeScript project has more options than a menu at The Cheesecake Factory. Feel free to use your own preferred setup, or you can use the [tutorial source code](https://github.com/davimiku/ts-io-decoding-encoding) as a starting point. I'm using NodeJS v22 (LTS at the time of writing) using TypeScript with ES Modules, and [vitest](https://vitest.dev/) for unit testing.
+Unfortunately, starting a TypeScript project has more options than a menu at The Cheesecake Factory. Feel free to use your own preferred setup, or you can use the [tutorial source code](https://github.com/davimiku/ts-io-decoding-encoding) as a starting point. I'm using NodeJS v22 (LTS at the time of writing) using TypeScript with ES Modules, and [vitest](https://vitest.dev/) for testing.
 
 Crank open the `src/index.ts` file (or whatever equivalent in your setup of choice)!
 
@@ -165,7 +179,7 @@ The central type which will be used everywhere and link everything together will
 
 ```typescript
 interface Shape<T> {
-  readonly __type: string
+  readonly __tag: string
   readonly decode: (input: unknown) => T
 }
 ```
@@ -182,7 +196,7 @@ The `<T>` and `T` in the type above are **type parameters**, sometimes referred 
 
 In this case, this type represents:
 
-> An object with a `__type` field that is a `string`, and a `decode` field that is a function which takes input of an `unknown` type and returns data of the same type `T` that was passed in as a parameter
+> An object with a `__tag` field that is a `string`, and a `decode` field that is a function which takes input of an `unknown` type and returns data of the same type `T` that was passed in as a parameter
 
 </NewConcept>
 
@@ -196,15 +210,15 @@ interface Shape<T> {
 }
 
 interface ShapeBoolean extends Shape<boolean> {
-  readonly __type: 'boolean'
+  readonly __tag: 'boolean'
 }
 
 interface ShapeString extends Shape<string> {
-  readonly __type: 'string'
+  readonly __tag: 'string'
 }
 
 interface ShapeNumber extends Shape<number> {
-  readonly __type: 'number'
+  readonly __tag: 'number'
 }
 ```
 
@@ -230,7 +244,7 @@ interface Shape<T> {
 }
 
 interface ShapeUnknown extends Shape<unknown> {
-  readonly __type: 'unknown'
+  readonly __tag: 'unknown'
 }
 ```
 
@@ -242,7 +256,7 @@ The next step is to provide an implementation of these built-in shapes, and thes
 // ...snip...
 
 export const unknown: ShapeUnknown = {
-  __type: 'unknown',
+  __tag: 'unknown',
   decode: (input: unknown): unknown => input,
 } as const
 ```
@@ -255,11 +269,11 @@ This annotation can go after a value and it makes it readonly at **compile-time*
 
 </NewConcept>
 
-The rest will be a little different! Decoding into `unknown` is **infallible**, by definition of `unknown`. But decoding into `boolean` is not infallible, because it might not be a boolean!
+The rest will be a little different! Decoding into `unknown` is **infallible**, by definition of `unknown`. But decoding into `boolean` is not infallible, because the input data might not be a boolean!
 
 ```typescript
 export const boolean: ShapeBoolean = {
-  __type: 'boolean',
+  __tag: 'boolean',
   decode: (input: unknown): boolean => {
     if (typeof input !== 'boolean') {
       throw new Error('oopsy whoopsy!')
@@ -269,7 +283,8 @@ export const boolean: ShapeBoolean = {
 } as const
 ```
 
-We're doing a cop-out here by throwing a <del>tantrum</del> exception when things don't go our way. Incoming data not conforming to a certain shape is not exceptional, it's expected (as evidenced by us checking for it, we **expect** this is a possibility). I feel rather strongly that libraries should not throw exceptions unless absolutely necessary, and definitely shouldn't throw them by default.
+{/* prettier-ignore */}
+<MarginNote id='excape-hatch'>Libaries can include "escape hatches" that use more powerful/dangerous/unexpected behavior for certain use cases, but we need to be very careful about what the **default** behavior is</MarginNote>We're doing a cop-out here by throwing a <del>tantrum</del> exception when things don't go our way. Incoming data not conforming to a certain shape is not exceptional, it's expected (as evidenced by us having code that checks for this, we **expect** this is a possibility). I feel rather strongly that libraries should not throw exceptions unless absolutely necessary, and definitely shouldn't throw them by default.
 
 We'll fix this later in the tutorial, for now, we march onwards!
 
@@ -287,7 +302,7 @@ Next is `number`, which follows a similar pattern:
 
 ```typescript
 export const number: ShapeNumber = {
-  __type: 'number',
+  __tag: 'number',
   decode(input: unknown): number {
     if (typeof input !== 'number') {
       throw new Error('oopsy whoopsy!')
@@ -296,6 +311,8 @@ export const number: ShapeNumber = {
   },
 }
 ```
+
+Pretty easy, right?
 
 <EmphasisBox>
 
@@ -306,7 +323,7 @@ Not so fast! There are more decisions for this library author (you) to make.
 
 <Spoiler summary="my thoughts">
 
-I would say "failure" to both of these questions, as the times I've actually wanted `NaN` or `Infinity` data are few and far between. It's useful for this shape to represent a finite number. Though, a library author needs to consider all possible use cases and try to come up with a flexible solution that allows everyone to get what they want!
+I would say "failure" to both of these questions, as the times I've actually wanted `NaN` or `+-Infinity` data are few and far between. It's useful for this shape to actually represent "finite number" (should we rename it? 🤔). Still, a library author needs to consider all possible use cases if someone actually wants `NaN` or `+-Infinity` and try to come up with a flexible solution that allows everyone to get what they want!
 
 </Spoiler>
 
@@ -316,7 +333,7 @@ String should be simple (I think?). This implementation is straight-forward, whe
 
 ```typescript
 export const string: ShapeString = {
-  __type: 'string',
+  __tag: 'string',
   decode(input: unknown): string {
     if (typeof input !== 'string') {
       throw new Error('oopsy whoopsy!')
@@ -326,15 +343,15 @@ export const string: ShapeString = {
 }
 ```
 
-BigInt touches on one of the topics from the introduction, which is that we can also **transform** the data before decoding, or rather, that transformation is part of the process generally speaking.
+BigInt is more interesting in that it touches on one of the topics from the introduction, we can **transform** the data before decoding, transformation can be part of the overall process.
 
 ```typescript
 interface ShapeBigInt extends Shape<bigint> {
-  readonly __type: 'bigint'
+  readonly __tag: 'bigint'
 }
 
 export const bigint: ShapeBigInt = {
-  __type: 'bigint',
+  __tag: 'bigint',
   decode(input: unknown): bigint {
     if (typeof input === 'bigint') {
       return input
@@ -362,7 +379,7 @@ type Rectangle = io.Infer<typeof Rectangle>
 // ...snip...
 ```
 
-We want to provide our users with this `Infer` type, so that they can define their shapes and infer their types from their shapes. Notice that this `Infer` type has a **type parameter**, so I should probably refer to it as `Infer<Shape>`.
+<MarginNote id="henceforth">It's using words like "henceforth" that gets me out of bed in the mornings</MarginNote>We want to provide our users with this `Infer` type, so that they can define their shapes and infer their types from their shapes. Notice that this `Infer` type has a **type parameter**, so we'll henceforth refer to it as `Infer<Shape>`.
 
 <NewConcept title="`typeof` keyword (type context)">
 
@@ -370,9 +387,642 @@ The `typeof` keyword in the previous code example is the key to this entire part
 
 There are two contexts, the value context and the type context. This article discusses this concept with a clear diagram and explanation, that's worth reading at least the introduction: [An introduction to type programming in TypeScript](https://www.zhenghao.io/posts/type-programming).
 
-The `typeof` keyword here exists in the **type context** and it is a one-way path from the value context to the type context.
+The `typeof` keyword here is in the **type context** and it is a one-way path from the value context to the type context.
 
 </NewConcept>
+
+Implementing this `Infer<Shape>` type is actually just mechanical, and not at all "clever", though it uses a more advanced TypeScript feature.
+
+We'll build it up piece by piece, starting with `unknown`:
+
+```typescript
+export type Infer<S extends Shape<unknown>> = unknown
+```
+
+This literally infers `unknown` for every possible shape, not very useful<SideNote id="yet">yet</SideNote>.
+
+<NewConcept title="'extends' as a constraint">
+
+The `extends` keyword, when used in a **type context**, provides a contraint on a type parameter. This is not to be confused with the `extends` keyword in a value context which is for a class to inherit from another class<SideNote id="extends">The TypeScript team historically tries to reuse keywords for the type context where possible, rather than inventing new keywords</SideNote>.
+
+When I see this keyword, in my head I read it as "is constrained to be" or "is a subtype of". Ruby uses the `<` symbol to indicate a subtype relationship, which I kind of love, but type parameters in TypeScript already use `<>` which would be hard to read.
+
+What this says, is similar to how we can constrain the values passed in to functions, which can also constrain the types passed into other types. Remember, types with parameters are more like functions that run at compile-time. In this case, whatever is passed in as `S` must constrain to being a subtype of `Shape<unknown>`. The actual `Shape<unknown>` itself is valid too, because types are already subtypes of themselves by definition.
+
+</NewConcept>
+
+Let's get a little more useful, and add boolean:
+
+```typescript
+// prettier-ignore
+export type Infer<S extends Shape<unknown>> = S extends ShapeUnknown
+  ? unknown
+  : S extends ShapeBoolean
+    ? boolean
+    : never
+```
+
+See what I mean by "mechanical"? It's not very exciting, we'll add a new case for every possible built-in shape in a big if/else chain.
+
+<NewConcept title="'extends' as a condition">
+
+We see the same `extends` keyword again, in a type context again, but yet still different. In this position, it is part of a [conditional type](https://www.typescriptlang.org/docs/handbook/2/conditional-types.html) (expression) where it **checks** if the parameter `S` is a subtype of `ShapeUnknown` and executes the first branch if true and the second branch if false.
+
+As an aside, there's no concept of "truthy"/"falsy" in these conditional types, if you do want a boolean result then it has to be explicit:
+
+```typescript
+type IsFalse = 'hello' extends number ? true : false
+type IsTrue = 'hello' extends string ? true : false
+```
+
+</NewConcept>
+
+<Spoiler summary="What could have been">
+
+We need to use this `c ? x : y` conditional operator because `if`/`else` and `switch` are **statements** rather than expressions in JavaScript. The TypeScript team prefers to design the type context syntax similar to the value context syntax, so this operator was brought into the type context as-is (they _could have_ made `if`/`else` and `switch` an _expression_ in the type context, but it also might have confused people).
+
+So we're stuck with this syntax, and it'll get worse throughout the rest of the tutorial. If only JavaScript had been more like [Scheme](<https://en.wikipedia.org/wiki/Scheme_(programming_language)>) as originally intended! We may have had expression-oriented programming as the base rather than statement-oriented programming with expressions trying to be bolted on later like [match expressions](https://github.com/tc39/proposal-pattern-matching?tab=readme-ov-file#expression-semantics) and [do expressions](https://github.com/tc39/proposal-do-expressions).
+
+</Spoiler>
+
+Let's add the rest of the built-in shapes we have so far.
+
+```typescript
+// prettier-ignore
+export type Infer<S extends Shape<unknown>> = S extends ShapeUnknown
+  ? unknown
+  : S extends ShapeBoolean
+    ? boolean
+    : S extends ShapeNumber
+      ? number
+      : S extends ShapeString
+        ? string
+        : S extends ShapeBigInt
+          ? bigint
+          : never
+```
+
+<NewConcept title="'never' type">
+
+We saw it in the previous code, but I deferred it to here in the pursuit of "one new concept at a time".
+
+`never` is the "bottom type", the subtype of all other types. Types represent sets of possible values, and the `never` type is the empty set, there is no possible value that has a type of `never`. Things like infinite loops and exceptions (because they never **return** a value) are represented by `never`.
+
+`never` also shows up when you have a union of finite possibilities, and an if/else or switch that exhausts those possibilities ("process of elimination") and there's still a branch of code left over. That branch of code can never be hit, so the type of the variable is narrowed to never.
+
+```typescript
+type Color = 'blue' | 'green'
+declare const color: Color
+switch (color) {
+  case 'blue':
+    break
+  case 'green':
+    break
+  default: {
+    console.log('yeah nah', color)
+    //                       ^?    never
+  }
+}
+```
+
+The TypeScript documentation describes this type in the documentation page for [Functions](https://www.typescriptlang.org/docs/handbook/2/functions.html#never) which is an interesting choice. A thorough explanation is here: [A complete guide to TypeScript's never type](https://www.zhenghao.io/posts/ts-never).
+
+</NewConcept>
+
+## Testing
+
+This is a good time to pause for some tests. The code below is placed in a summary/details because it's fairly long, and because you can skip this section if you just want to get to the rest of the tutorial<SideNote id="write-tests">but you probably should write tests</SideNote>.
+
+As mentioned in the introduction, I'm using [vitest](https://vitest.dev/). This lets me write my tests directly next to the code that it's testing, which I really like<SideNote id="adjacent-test">I used to think this was weird, then I tried it, and I don't think it's weird anymore</SideNote>.
+
+Additionally, I'm using the tips from [Total TypeScript](https://www.totaltypescript.com/how-to-test-your-types) on how to test your types. Yes, you read that correctly! Remember that we're writing code for both the type context and the value context, it's important that we test both contexts. The nice thing about testing types is that a failing test is shown as a compiler error.
+
+<Spoiler summary="example test setup">
+
+For each of the built-in shapes so far, we test both the `decode` function and the `Infer<Shape>` type for that shape.
+
+```typescript
+if (import.meta.vitest) {
+  const { test, expect, describe } = import.meta.vitest
+
+  // https://www.totaltypescript.com/how-to-test-your-types
+  type Expect<T extends true> = T
+  // prettier-ignore
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+  type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2)
+      ? true
+      : false
+
+  describe('Unknown', () => {
+    test('Unknown decoding', () => {
+      expect(unknown.decode('no idea')).toStrictEqual('no idea')
+
+      type Expected = unknown
+      type _Test = Expect<Equal<Infer<typeof unknown>, Expected>>
+    })
+  })
+
+  describe('Boolean', () => {
+    test('Boolean decoding', () => {
+      expect(boolean.decode(true)).toStrictEqual(true)
+      expect(boolean.decode(false)).toStrictEqual(false)
+
+      type Expected = boolean
+      type _Test = Expect<Equal<Infer<typeof boolean>, Expected>>
+    })
+  })
+
+  describe('Number', () => {
+    test('Number decoding', () => {
+      expect(number.decode(16)).toStrictEqual(16)
+      expect(number.decode(0)).toStrictEqual(0)
+      expect(number.decode(-0)).toStrictEqual(-0)
+      expect(number.decode(-16)).toStrictEqual(-16)
+
+      type Expected = number
+      type _Test = Expect<Equal<Infer<typeof number>, Expected>>
+    })
+  })
+
+  describe('String', () => {
+    test('String decoding', () => {
+      expect(string.decode('')).toStrictEqual('')
+      expect(string.decode('hello')).toStrictEqual('hello')
+
+      type Expected = string
+      type _Test = Expect<Equal<Infer<typeof string>, Expected>>
+    })
+  })
+```
+
+</Spoiler>
+
+## Collection types - Array
+
+We're going to start increasing the complexity now. Users of our library are going to want to be able to use **collections**, meaning they can `decode` more than one value at a time.
+
+The two kinds of collections that we'll support are:
+
+- Arrays: an ordered sequence of values of the same shape
+- Records: a set of key-value pairs where the keys are strings and the values are the same shape
+
+In TypeScript, these are written as `T[]` (or `Array<T>`, it's the same) and `Record<string, T>`, respectively.
+
+Array is slightly less complicated than records, so we'll start there.
+
+```typescript
+interface ShapeArray<S extends Shape<unknown>> extends Shape<Infer<S>[]> {
+  readonly __tag: 'array'
+}
+```
+
+Our new `ShapeArray` type has a type parameter, which we've seen before. It also `extends` another type, which we've also seen before. What's a bit new is the type that it is extending is, itself, a type with a parameter. It's like calling a function that calls another function.
+
+Just like functions can call themselves (recursion), types can also "call" themselves. The same rules that we all learned about recursion still apply, in addition to the recursive case(s) you also need base case(s) to escape the recursion. We already have those base cases, which are the primitive types defined earlier.
+
+```typescript
+// prettier-ignore
+export type Infer<S extends Shape<unknown>> = S extends ShapeUnknown
+  ? unknown
+  : S extends ShapeBoolean
+    ? boolean
+    : S extends ShapeNumber
+      ? number
+      : S extends ShapeString
+        ? string
+        : S extends ShapeBigInt
+          ? bigint
+          : S extends ShapeArray<infer ElementShape>
+            ? Infer<ElementShape>[]
+            : never
+```
+
+<NewConcept title="'infer' keyword'">
+
+A new keyword! This is described in the TypeScript handbook in [Inferring Within Conditional Types](https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#inferring-within-conditional-types).
+
+It helped me to understand this by converting this into imperative (pseudo)code, to get a sense of what's happening in this type-level code:
+
+```typescript
+// this ain't real code
+if (S is ShapeArray) {
+  // could also be thought of as "unwrapping" the type to get the delicious insides
+  let ElementShape = ShapeArray[0]
+
+  // remember capital-I `Infer` is like a function that you pass in a type and it gives you back a type
+  return Array.of(Infer(ElementShape))
+}
+```
+
+If `S` is (a subtype of) `ShapeArray<T>`, then the `infer` keyword makes a NEW type variable, which we're allowed to use in the 'true' branch.
+
+```typescript
+// ...snip...
+  : S extends ShapeArray<infer ElementShape>
+  //                     ^^^^^^^^^^^^^^^^^^ defines a NEW type variable called `ElementShape`
+    ? Infer<ElementShape>[]
+    //      ^^^^^^^^^^^^ We can use this in the 'true' branch
+    : never
+```
+
+For my Rustaceans out there, it reminds me of `if let` pattern matching:
+
+```rust
+// rust 🦀🦀🦀
+
+if let Some(data) = maybeData {
+  //        ^^^^ defines a NEW variable called `data`
+  use_the_data(data)
+  //           ^^^^ We can use this NEW variable in the 'true' branch
+}
+```
+
+</NewConcept>
+
+<KnowledgeCheck>
+
+Based on the concepts introduced so far, create a type called `GetElementType` which takes an Array type as its parameter and returns the type of the elements of that Array.
+
+For example:
+
+- given `string[]` it should return `string`
+- given `number[][]` it should return `number[]`
+
+Try it yourself, then check the spoiler below.
+
+<Spoiler summary="answer">
+
+```typescript
+type GetElementType<Arr extends unknown[]> = Arr extends Array<infer T> ? T : never
+
+type Test1 = GetElementType<string[]>
+//    ^?   = string
+
+type Test2 = GetElementType<number[][]>
+//    ^?   = number[]
+
+// etc.
+```
+
+Some additional notes:
+
+1. The first `extends` constrains the type parameter to be only Arrays
+2. The second `extends` is necessary to use the `infer` keyword to pull out the inner type
+3. Only the true branch will ever be hit. The `never` type is used for the false branch because we already constrained the type parameter to be an array
+
+Remember that the `extends` keyword is really more like two different keywords, depending on whether its used as a **constraint** vs. a **conditional** type.
+
+</Spoiler>
+
+</KnowledgeCheck>
+
+Now it's time to implement the built-in shape that we will provide to users for arrays. The previous shapes were implemented as object literals, but there's something new/different this time, which is that users will need to make "Array of ShapeNumber" or "Array of ShapeString" or "Array of Array of ShapeBoolean", etc. So instead of an object literal, we need to implement it as a **function** that returns the shape.
+
+```typescript
+function array<S extends Shape<unknown>>(elementShape: S): ShapeArray<S> {
+  return {
+    __tag: 'array',
+    decode(input: unknown): Infer<S>[] {
+      if (!Array.isArray(input)) {
+        throw new Error('oopsy whoopsy!')
+      }
+
+      return input.map(elementShape.decode) as Infer<S>[]
+    },
+  }
+}
+```
+
+When decoding the incoming data, we first check if the incoming data is an array, and error if not. Then, decodes every element of the array using the provided shape (both transforming and validating).
+
+The decode function returns `Infer<S>[]` which is "an array of the inferred type of the provided shape". So if the provided shape was `ShapeNumber`, then it returns `number[]`. Our `Infer<Shape>` type is already recursive, so this handles nested arrays automatically.
+
+Note the usage of the [type assertion](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions). This is typically something to **avoid using** when possible. However, this is a rule to selectively break when practical. There might be a clever way with advanced TypeScript features to avoid this assertion (or something obvious that I've simply missed), but in cases like this I think it's appropriate to use an assertion. Keep in mind also that more code in the type context is more code that needs to be run by the compiler every time it does type checking (including in your IDE/language server). Assertions can be a way to reduce this, though I don't know how to (or if it's possible to) run benchmarks of the compiler itself.
+
+We should add tests for this built-in shape - try it yourself, and feel free to take a look at the examples in the spoiler below as well.
+
+<Spoiler summary="example 'array' tests">
+
+```typescript
+describe('Array', () => {
+  test('Array decoding', () => {
+    const StringArray = array(string)
+
+    expect(StringArray.decode(['a', 'b', 'c'])).toStrictEqual(['a', 'b', 'c'])
+
+    type Expected = string[]
+    type _Test = Expect<Equal<Infer<typeof StringArray>, Expected>>
+  })
+
+  test('nested Array decoding', () => {
+    const StringArrayArray = array(array(string))
+
+    expect(
+      StringArrayArray.decode([
+        ['a', 'b'],
+        ['c', 'd'],
+        ['e', 'f'],
+      ])
+    ).toStrictEqual([
+      ['a', 'b'],
+      ['c', 'd'],
+      ['e', 'f'],
+    ])
+
+    type Expected = string[][]
+    type _Test = Expect<Equal<Infer<typeof StringArrayArray>, Expected>>
+  })
+})
+```
+
+</Spoiler>
+
+## Collection types - Record
+
+Records are similar to Arrays, based on our definition of the term which aligns to the [TypeScript utility type](https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type) of the same name. We're defining this as a collection of zero-to-many key/value pairs, where the keys are strings and the values are all of the same shape.
+
+We define the built-in shape very similarly to `ShapeArray`:
+
+```typescript
+interface ShapeRecord<S extends Shape<unknown>> extends Shape<Record<string, Infer<S>>> {
+  readonly __tag: 'record'
+}
+```
+
+This means the `decode` function will return `Record<string, Infer<S>>` meaning that if the user passes in `ShapeNumber`, it will return `Record<string, number>`.
+
+Then we mechanically add another case to the `Infer<Shape>` type (getting bored yet?):
+
+```typescript
+// prettier-ignore
+export type Infer<S extends Shape<unknown>> = S extends ShapeUnknown
+// ...snip...
+            : S extends ShapeRecord<infer ValueShape>
+              ? Record<string, Infer<ValueShape>>
+              : never
+```
+
+The implementation for Record is only slightly more interesting than Array because:
+
+1. The `typeof null === 'object' [<del>bug</del> feature](https://2ality.com/2013/10/typeof-null.html) means we need a truthy check first
+2. JavaScript doesn't provide a single-step way to map from one object to another, so we need to do this little dance with `Object.fromEntries` and `Object.entries`
+
+```typescript
+function record<S extends Shape<unknown>>(elementShape: S): ShapeRecord<S> {
+  return {
+    __tag: 'record',
+    decode(input: unknown): Record<string, Infer<S>> {
+      if (!input || typeof input !== 'object' || Array.isArray(input)) {
+        throw new Error('oopsy whoopsy!')
+      }
+
+      return Object.fromEntries(
+        Object.entries(input).map(([key, value]) => [key, elementShape.decode(value) as Infer<S>])
+      )
+    },
+  }
+}
+```
+
+Besides those additional wrinkles, it's the same as `array` where it recursively decodes the inner values into the desired shape (or error).
+
+Tests! Test test test test. Here's some example tests if you please:
+
+<Spoiler summary="example 'record' tests">
+
+```typescript
+describe('Record', () => {
+  test('Record decoding', () => {
+    const StringRecord = record(string)
+
+    expect(StringRecord.decode({ a: 'aa', b: 'bb' })).toStrictEqual({
+      a: 'aa',
+      b: 'bb',
+    })
+
+    type Expected = Record<string, string>
+    type Actual = Infer<typeof StringRecord>
+
+    type _Test = Expect<Equal<Actual, Expected>>
+  })
+
+  test('nested Record decoding', () => {
+    const StringRecordRecord = record(record(string))
+
+    expect(StringRecordRecord.decode({ a: { aa: 'aaa' }, b: { bb: 'bbb' } })).toStrictEqual({
+      a: { aa: 'aaa' },
+      b: { bb: 'bbb' },
+    })
+
+    type Expected = Record<string, Record<string, string>>
+    type Actual = Infer<typeof StringRecordRecord>
+
+    type _Test = Expect<Equal<Actual, Expected>>
+  })
+})
+```
+
+</Spoiler>
+
+<KnowledgeCheck>
+
+We had to implement `array` and `record` as functions because the user needs to pass in the inner shape.
+
+Should we also have implemented `boolean`/`number`/`string` as functions? Is there a scenario where we'd want people to pass in anything extra?
+
+<Spoiler summary="ideas">
+
+There's no "right" or "wrong" answer here, it's a matter of design. We could have implemented these as functions so that users could add (optional) constraints on these built-in shapes, such as:
+
+```typescript
+const NonEmptyString = string({ minLength: 1 })
+const BigNumber = number({ min: 100 }) // 100 is as high as I can count, so it must be big
+```
+
+That would require our built-ins to be a function. We also could probably figure out a way to make it like this instead:
+
+```typescript
+const NonEmptyString = string.minLength(1)
+const BigNumber = number.min(101) // I learned how to count the next number
+```
+
+and maybe these would not need to be functions. But we might make them functions anyways so that they're all the same kind of thing. Choices choices!
+
+</Spoiler>
+
+</KnowledgeCheck>
+
+## Shapey Shapes - struct
+
+This is going to be the most complicated shape... so far!
+
+Our `struct` is a set of key and value pairs like a record, but differs from `record`:
+
+- A record has zero-to-many key/value pairs, a struct has exactly as many key/values as are defined by the user
+- A record has keys that aren't known, a struct has keys that are known (as defined by the user)
+- A record has a single shape for all the values, a struct may have a different shape for each value (as defined by the user)
+
+At runtime, these are both just JavaScript objects, but we're making the distinction at compiletime in the type context.
+
+To implement the type, let's remind ourselves of what users will need to pass into our shapes to produce their custom shapes:
+
+- `unknown`, `boolean`, `number`, `string`, `bigint`: users pass in nothing, no parameters needed
+- `array`, `record`: users pass in ONE shape, since these are homogenous collections
+- `struct`: users pass in a **record**<SideNote id="record-first">This is why we did `record` before `struct`!</SideNote> of key/shape pairs to define their struct
+
+What does that look like in code?
+
+```typescript
+type StructFields = Record<string, Shape<unknown>>
+
+interface ShapeStruct<Fields extends StructFields> extends Shape<InferStruct<Fields>> {
+  readonly __tag: 'struct'
+}
+```
+
+We extracted out `StructFields` and `InferStruct` to improve readability, just like how you'd extract out a variable or function. The implementation of `InferStruct` is a little bit of a doozy:
+
+```typescript
+type InferStruct<Fields extends StructFields> = {
+  [Key in keyof Fields]: Infer<Fields[Key]>
+}
+```
+
+<NewConcept title="keyof operator">
+
+
+</NewConcept>
+
+<NewConcept title="indexed accessed types">
+
+[Indexed Accessed Types](https://www.typescriptlang.org/docs/handbook/2/indexed-access-types.html) are types that can be accessed by index!<MarginNote id="losing-decorum">I'm losing my decorum as we approach the end of this tutorial</MarginNote>. The indexing uses square brackets `[]` in the type context, using the same syntax as how you index into things in the value context.
+
+The part of the code above using this feature is `Fields[Key]`. You can index into an object type or an array type, and the key that you use for the indexing can be a `string`, `number`, or a union of strings and/or numbers.
+
+</NewConcept>
+
+Oops! Almost forgot<MarginNote id="almost-forgot">Well, I actually forgot until I wrote the tests and they failed, but since this isn't live you'd never know!</MarginNote>, we need to mechanically add another case to our `Infer<Shape>` type.
+
+```typescript
+// prettier-ignore
+export type Infer<S extends Shape<unknown>> = S extends ShapeUnknown
+// ...snip...
+            : S extends ShapeStruct<infer Fields>
+              ? InferStruct<Fields>
+              : never
+```
+
+<Spoiler summary="example 'struct' tests">
+
+Some example tests that you could add. Feel free to change it and/or add your own!
+
+```typescript
+describe('Struct', () => {
+  test('Struct decoding', () => {
+    const Point = struct({
+      x: number,
+      y: number,
+    })
+
+    expect(Point.decode({ x: 1, y: 2 })).toStrictEqual({ x: 1, y: 2 })
+
+    type Expected = {
+      x: number
+      y: number
+    }
+    type Actual = Infer<typeof Point>
+
+    type _Test = Expect<Equal<Actual, Expected>>
+  })
+
+  test('nested Struct decoding', () => {
+    const Point = struct({
+      x: number,
+      y: number,
+    })
+    const NestedPoint = struct({
+      start: Point,
+      end: Point,
+    })
+
+    expect(NestedPoint.decode({ start: { x: 1, y: 2 }, end: { x: 10, y: 20 } })).toStrictEqual({
+      start: { x: 1, y: 2 },
+      end: { x: 10, y: 20 },
+    })
+
+    type Expected = {
+      start: {
+        x: number
+        y: number
+      }
+      end: {
+        x: number
+        y: number
+      }
+    }
+    type Actual = Infer<typeof NestedPoint>
+
+    type _Test = Expect<Equal<Actual, Expected>>
+  })
+
+  test('Struct type inference', () => {
+    expect(true).toBe(true)
+
+    type Expected = {
+      n: number
+      s: string
+      a: boolean[]
+      r: Record<string, number>
+    }
+    type Actual = InferStruct<{
+      n: ShapeNumber
+      s: ShapeString
+      a: ShapeArray<ShapeBoolean>
+      r: ShapeRecord<ShapeNumber>
+    }>
+
+    type _Test = Expect<Equal<Actual, Expected>>
+  })
+})
+```
+
+</Spoiler>
+
+## Appendix
+
+### Constraining `Shape` further
+
+Our definition of `Shape` allowed for any string in the `__tag` field, and then our big conditional branch for `Infer<Shape>` assumed `never` at the end if the tag didn't match. That works fine, because if someone passed in a shape with an invalid tag to `Infer<Shape>`, then they would just get `never` as the result which they can't do anything with.
+
+This isn't likely to happen, because users are going to be using our provided shape-building functions, which all use valid tags. Still, if someone really wants to (or just makes an honest mistake), we can make the experience a little better by explicitly listing out which tags are allowed.
+
+```typescript
+interface Shape<T> {
+  readonly __tag:
+    | 'unknown'
+    | 'boolean'
+    | 'number'
+    | 'string'
+    | 'bigint'
+    | 'array'
+    | 'record'
+    | 'struct'
+    | 'union'
+  readonly decode: (input: unknown) => T
+}
+```
+
+Now, there will be a compiler error at the `Infer` call itself if an invalid shape is passed in, rather than no error and producing a `never` result.
+
+### Decoding vs. Parsing vs. Deserializing vs. Marshalling
+
+I chose not to use the terminology _parsing_, although it definitely fits, simply because there isn't a good opposite word ("unparsing", "deparsing", etc. sounds silly).
+
+_Deserializing_ is a pretty good synonym as well, but it implies that the input data is in a very "primitive" format such as a byte stream or a string. Our decoder does not have this restriction, in fact, many of our built-in shapes work on input data that is already a JavaScript object of some kind.
+
+Marshalling just sounds weird to me for some reason, maybe it reminds me of the Boy Scouts or something. This "reason" is entirely emotional, the vibes are just off.
+
+### Some other section
 
 export default function ({ children }) {
   return <ArticlePage meta={meta}>{children}</ArticlePage>

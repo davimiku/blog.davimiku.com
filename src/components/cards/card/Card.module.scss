@@ -1,8 +1,5 @@
-@use '../../../styles/variables/colors';
-@use '../../../styles/variables/sizes';
-
 .card {
-  border: 1px solid colors.$primary;
+  border: 1px solid var(--color-primary);
   border-radius: 0.5rem;
 
   padding: 2rem;
@@ -50,7 +47,7 @@
 
     @media (prefers-color-scheme: light) {
       a:hover {
-        background-color: colors.$darker;
+        background-color: var(--color-darker);
       }
     }
   }
@@ -60,7 +57,7 @@
 
     .card-footer {
       a:hover {
-        background-color: colors.$lighter;
+        background-color: var(--color-lighter);
       }
     }
   }

@@ -1,8 +1,5 @@
-@use '../../styles/variables/colors';
-@use '../../styles/variables/sizes';
-
 .button-link {
-  border: 1px solid colors.$primary;
+  border: 1px solid var(--color-primary);
 
   display: flex;
   align-items: stretch;
@@ -12,7 +9,7 @@
   margin-bottom: 1rem;
   margin-right: 1rem;
 
-  border-radius: sizes.$border-radius;
+  border-radius: var(--border-radius);
 
   a {
     display: flex;
@@ -23,7 +20,7 @@
     border-bottom: none;
 
     &:hover {
-      background-color: colors.$darker;
+      background-color: var(--color-darker);
     }
   }
 
@@ -31,7 +28,7 @@
     border-color: white;
     a {
       &:hover {
-        background-color: colors.$lighter;
+        background-color: var(--color-lighter);
       }
     }
   }

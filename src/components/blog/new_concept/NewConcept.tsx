@@ -1,8 +1,7 @@
 import { PropsWithChildren } from 'react'
 import { FaLightbulb } from 'react-icons/fa'
 
-import styles from './NewConcept.module.scss'
-import { EmphasisBox } from '../emphasis_box'
+import { EmphasisBox } from '../emphasis_box/EmphasisBox'
 
 export type NewConceptProps = {
   title: string

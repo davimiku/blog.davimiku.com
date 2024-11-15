@@ -1,9 +1,6 @@
-@use '../../../styles/variables/colors';
-@use '../../../styles/variables/sizes';
-
 .box {
-  border: 1px solid colors.$accent;
-  border-radius: sizes.$border-radius;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--border-radius);
 
   padding: 1em;
   margin-bottom: 2em;
@@ -17,6 +14,7 @@
   }
 }
 
-details .box {
+/** Ensure that the smaller width isn't double-applied */
+.box > details {
   width: unset;
 }

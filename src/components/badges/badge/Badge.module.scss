@@ -1,16 +1,14 @@
-@use "../../../styles/variables/colors";
-
 .badge {
   display: inline-block;
 
-  border: 1px solid colors.$accent-darker;
+  border: 1px solid var(--color-accent-darker);
   border-radius: 0.5rem;
 
   padding: 0.25rem 0.5rem;
   margin: 0 0.25rem 0.25rem 0.25rem;
 
   &--dark {
-    border-color: colors.$accent;
+    border-color: var(--color-accent);
   }
 
   svg {
