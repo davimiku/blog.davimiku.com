@@ -26,8 +26,8 @@ export function HeaderNavLink({ href, linkText }: HeaderNavLinkProps) {
   const className = router.pathname === href ? styles['nav-link-active'] : ''
   return (
     <li>
-      <Link href={href}>
-        <a className={className}>{linkText}</a>
+      <Link href={href} className={className}>
+        {linkText}
       </Link>
     </li>
   )

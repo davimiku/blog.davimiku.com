@@ -28,11 +28,8 @@ export function ArticleListing({ meta }: ArticleListingProps) {
   return (
     <li className={styles['blog-listing']}>
       <Link href={formatPath(meta.category, meta.slug)}>
-        <a>
-          <h2>{meta.title}</h2>
-        </a>
+        <h2>{meta.title}</h2>
       </Link>
-
       {published}
       {updated}
       <p>{meta.tagline}</p>

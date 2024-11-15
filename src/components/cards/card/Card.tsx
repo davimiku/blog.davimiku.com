@@ -29,8 +29,8 @@ export type CardTitleProps = {
 Card.Title = function ({ title, href, headingLevel = 'h3' }: CardTitleProps) {
   const className = styles['card-title']
   const inner = href ? (
-    <Link href={href}>
-      <a className={className}>{title}</a>
+    <Link href={href} className={className}>
+      {title}
     </Link>
   ) : (
     <span className={className}>{title}</span>

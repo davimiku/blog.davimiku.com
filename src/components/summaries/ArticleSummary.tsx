@@ -24,7 +24,9 @@ export function ArticleSummary({
     <li>
       <header>
         <h2>
-          <Link href={href}>{title}</Link>
+          <Link href={href} legacyBehavior>
+            {title}
+          </Link>
         </h2>
         <p className='subtitle'>Published: {publishedOn}</p>
       </header>
