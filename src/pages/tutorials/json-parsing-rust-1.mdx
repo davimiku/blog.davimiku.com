@@ -590,20 +590,23 @@ let example_2 = "🏳️‍🌈"
 example_2[1]
 ```
 
-In JavaScript, for the first example you get `\uDD80` and the second example you get `\uDFF3`. If that's what you expected, then you already know this topic and can skip to the next section 😊. In JavaScript, the 🦀🦀🦀 string is actually 12 bytes long! Furthermore, accessing index 1 of the string actually returns bytes 2 and 3. JavaScript uses UTF-16 encoding so each "index" number in the string is actually 2 bytes.
-
 <Spoiler summary="check in your browser console">
 
 You can check JavaScript's behavior in your browser console (F12 to open the console in most browsers).
 
-In addition to the code above, check this to see how many bytes are in these strings.
+In JavaScript, the '🦀🦀🦀' string is actually 12 bytes long! Each crab ([U+1F980](https://www.compart.com/en/unicode/U+1F980)) is 4 bytes, bytes 0-1 are [U+D83E](https://www.compart.com/en/unicode/U+D83E) and bytes 2-3 are [U+DD80](https://www.compart.com/en/unicode/U+DD80). These two together are known as a "surrogate pair", with a high surrogate and low surrogate, and together represent the crab emoji. This is how languages that use UTF-16 encoding represent values that can't fit in 16 bits.
+
+The [TextEncoder](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder) Web API can be used to check this to see how many bytes are in these strings.
 
 ```js
+console.log('🦀🦀🦀'.length) // 6
 console.log(new TextEncoder().encode('🦀🦀🦀').length) // 12
+
+console.log('🏳️‍🌈'.length) // 6
 console.log(new TextEncoder().encode('🏳️‍🌈').length) // 14
 ```
 
-Surprised? I definitely was not expecting the flag, which a person would consider a "single" "character" to be 14 bytes! The rainbow flag is actually not just one "character", it's three: 🏳️ (white flag) + Zero Width Joiner (ZWJ) + 🌈 (rainbow). Fun!
+The rainbow flag is actually not just one "character", it's three: 🏳️ (U+2690 white flag) + ZWJ (U+200D Zero Width Joiner) + 🌈 (U+1F308 rainbow). Fun!
 
 </Spoiler>
 
