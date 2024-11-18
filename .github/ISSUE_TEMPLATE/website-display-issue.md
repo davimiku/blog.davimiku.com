@@ -1,6 +1,6 @@
 ---
 name: Website display issue
-about: Report an issue with the website display / responsiveness
+about: Report an issue with the website display / responsiveness / accessibility
 title: ''
 labels: ''
 assignees: ''
