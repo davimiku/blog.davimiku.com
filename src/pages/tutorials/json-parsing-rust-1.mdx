@@ -13,7 +13,14 @@ export const meta = {
 
 import Image from 'next/image'
 import { ArticlePage } from '../../layouts/blog'
-import { EmphasisBox, KnowledgeCheck, NewConcept, Spoiler } from '../../components/blog'
+import {
+  EmphasisBox,
+  KnowledgeCheck,
+  NewConcept,
+  Spoiler,
+  MarginNote,
+  SideNote,
+} from '../../components/blog'
 
 <EmphasisBox>
 
@@ -522,7 +529,7 @@ fn all_punctuation() {
         Token::Colon,
     ];
 
-    let actual = tokenize(input).unwrap();
+    let actual = tokenize(input);
 
     assert_eq!(actual, expected);
 }
@@ -949,7 +956,30 @@ pub fn tokenize(input: String) -> Result<Vec<Token>, TokenizeError> {
 }
 ```
 
-Notice how changing something from infallible (can't error) to fallible forces you to change all of the function signatures until the point where that error can be handled. Coming from TypeScript or C# where the function signatures pretend that errors don't exist can definitely make this explicit notation feel verbose/wordy, but the explicitness and strictness has benefits for the long-term readability and maintainability of the code.
+We also need to update the existing `just_null` test and any other existing tests to unwrap the `Result`.
+
+```rust
+    #[test]
+    fn just_comma() {
+        let input = String::from(",");
+        let expected = [Token::Comma];
+
+        let actual = tokenize(input).unwrap();
+        //                          ^^^^^^^^^
+
+        assert_eq!(actual, expected);
+    }
+```
+
+<EmphasisBox>
+
+You may have heard that using `.unwrap()` is "bad". This is an OK mindset to use when first starting out, because unwrapping an `Ok` variant gives the inner value but unwrapping an `Err` variant produces a panic (crash). The key thing is it's "bad" to use 
+
+`.unwrap()` is a tool with certain use cases. It can be useful if there truly is a result that we always expect to be Ok (though `.expect("message")` is preferred here). Tests are also a valid use case, because if the result is unexpectedly `Err`, then the test will fail, which is what we want!
+
+</EmphasisBox>
+
+Notice how changing something from infallible (can't error) to fallible forces you to change all of the function signatures until the point where that error can be handled<MarginNote id="infectiousness">This is sometimes referred to as "infectiousness", static types are infectious because a change to a single function signature can spread across the entire codebase.</MarginNote>. Coming from TypeScript or C# where types pretend that errors don't exist can definitely make this explicit notation feel verbose/wordy, but the explicitness and strictness has benefits for the long-term readability and maintainability of the code.
 
 We can now write the other functions for tokenizing the `true` and `false` literal values.
 
