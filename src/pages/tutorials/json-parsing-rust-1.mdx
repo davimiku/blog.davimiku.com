@@ -973,7 +973,7 @@ We also need to update the existing `just_comma` test and any other existing tes
 
 <EmphasisBox>
 
-You may have heard that using `.unwrap()` is "bad". This is an OK mindset to use when first starting out, because unwrapping an `Ok` variant gives the inner value but unwrapping an `Err` variant produces a panic (crash). The key thing is it's "bad" to use
+You may have heard that using `.unwrap()` is "bad". This is an OK mindset to use when first starting out, because unwrapping an `Ok` variant gives the inner value but unwrapping an `Err` variant produces a panic (crash). The key thing is it's "bad" to use this in situations where the result could totally be either of the two variants and you'd really rather check it than unwrap or crash. I think if it was named `.or_panic()` it might be a bit more obvious of when to use it or not.
 
 `.unwrap()` is a tool with certain use cases. It can be useful if there truly is a result that we always expect to be Ok (though `.expect("message")` is preferred here). Tests are also a valid use case, because if the result is unexpectedly `Err`, then the test will fail, which is what we want!
 
