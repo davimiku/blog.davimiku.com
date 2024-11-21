@@ -956,7 +956,7 @@ pub fn tokenize(input: String) -> Result<Vec<Token>, TokenizeError> {
 }
 ```
 
-We also need to update the existing `just_null` test and any other existing tests to unwrap the `Result`.
+We also need to update the existing `just_comma` test and any other existing tests to unwrap the `Result`.
 
 ```rust
     #[test]
@@ -973,7 +973,7 @@ We also need to update the existing `just_null` test and any other existing test
 
 <EmphasisBox>
 
-You may have heard that using `.unwrap()` is "bad". This is an OK mindset to use when first starting out, because unwrapping an `Ok` variant gives the inner value but unwrapping an `Err` variant produces a panic (crash). The key thing is it's "bad" to use 
+You may have heard that using `.unwrap()` is "bad". This is an OK mindset to use when first starting out, because unwrapping an `Ok` variant gives the inner value but unwrapping an `Err` variant produces a panic (crash). The key thing is it's "bad" to use
 
 `.unwrap()` is a tool with certain use cases. It can be useful if there truly is a result that we always expect to be Ok (though `.expect("message")` is preferred here). Tests are also a valid use case, because if the result is unexpectedly `Err`, then the test will fail, which is what we want!
 
