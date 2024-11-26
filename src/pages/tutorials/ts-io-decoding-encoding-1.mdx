@@ -1,5 +1,5 @@
 export const meta = {
-  title: 'Tutorial: I/O Data Decoding/Encoding Library from Scratch in TypeScript (Part 1)',
+  title: 'Tutorial: I/O Data Decoding/Encoding Library from Scratch in TypeScript',
   category: 'tutorials',
   type: 'tutorial',
   slug: 'ts-io-decoding-encoding-1',
@@ -7,11 +7,14 @@ export const meta = {
     'Build your own library from scratch that decodes and encodes data. Deep-dive into TypeScript!',
   tags: ['TypeScript'],
   ogImage: 'banner.png',
+  publishedOn: '2024-11-26',
+  readingTime: 35,
 }
 
 import Image from 'next/image'
 import { ArticlePage } from '../../layouts/blog'
 import {
+  BlockQuote,
   EmphasisBox,
   Figure,
   KnowledgeCheck,
@@ -25,20 +28,20 @@ import {
 
 **Intended Audience**:
 
-- Anyone who has used a TypeScript library for input parsing/validation (`io-ts`, `effect-ts`, `zod`, `joi`, `yup`, etc.) and would like to learn how these work
 - People who enjoy hands-on learning by building things
+- Anyone who has used a TypeScript library for input parsing/validation (`io-ts`, `effect-ts`, `zod`, `joi`, `yup`, etc.) and would like to learn how these work
 
 **Recommended Proficiency Level**:
 
-- Proficient with common TypeScript Code
-- Familiarity (but not expertise) with type parameters i.e. "generics"
-- No additional advanced feature knowledge required, every advanced topic will be introduced and explained individually
+- Beginner to intermediate programmer
+- Familiar with common TypeScript code, including type parameters ("generics")
+- No additional advanced feature knowledge required -- every advanced topic will be introduced and explained individually
 
 **Learning Method**:
 
 This is a hands-on tutorial, just reading through won't get you much. You'll get the most out of it by actually firing up a code editor and following along! You can also follow along on the [TypeScript playground](https://www.typescriptlang.org/play/) for most of the tutorial (excluding tests).
 
-The final/full source code is available at: [https://github.com/davimiku/ts-io-decoding-encoding](https://github.com/davimiku/ts-io-decoding-encoding)
+The final/full source code is available at: [https://github.com/davimiku/ts-io-decoding-encoding#part-1](https://github.com/davimiku/ts-io-decoding-encoding/tree/part-1)
 
 </EmphasisBox>
 
@@ -57,14 +60,14 @@ First off, what do these terms mean? Or more specifically, how will I, the autho
 **Decoding** is the act of converting incoming data from a less structured format into a more structured format by checking if the data matches an expected shape or not. This can also include _transforming_ the data into that expected shape if it is compatible, depending on the rules that the programmer defines. This is also referred to as "parsing", "deserializing", or "marshalling" - but the term "decoding" will be used throughout the rest of the article (see the Appendix for justification).
 
 {/* prettier-ignore */}
-<MarginNote id='decoding-fail'> Decoding failures are expected and non-exceptional any time we're dealing with input outside of our control</MarginNote>Decoding can fail if the input data doesn't match the desired shape or cannot be transformed to match the desired shape.
+<MarginNote id='decoding-fail'> Decoding failures are expected and non-exceptional any time we're dealing with input outside of our control</MarginNote>The input data (`Input`) either matches or can be transformed to match the desired shape (`T`), otherwise there is an error (`Error`).
 
 <Figure
   src='/images/blog/tutorials/ts-io-decoding-encoding-1/decode.svg'
   caption='flow diagram of decoding input data into either the expected data or an error'
 />
 
-**Encoding** is taking data in a known structure (`T`) and converting it back to some kind of output format.
+**Encoding** is taking data in a known structure (`T`) and converting it back to some kind of output format (`Output`).
 
 <Figure
   src='/images/blog/tutorials/ts-io-decoding-encoding-1/encode.svg'
@@ -73,7 +76,7 @@ First off, what do these terms mean? Or more specifically, how will I, the autho
 
 <Spoiler summary="Decoding vs. Validating">
 
-Another common term for dealing with incoming data is "validation", and our definition of "decoding" **contains** validation as part of the process. Decoding consists of:
+Another common term for dealing with incoming data is "validation", and our definition of "decoding" contains validation as **part** of the process. Decoding consists of:
 
 1. (Optional) transforming the data towards the desired shape
 2. Validation - check that the actual shape matches the desired shape
@@ -101,6 +104,35 @@ func AlsoNeedsARectangle(rectangle *Rectangle) {
 
 [Parse, Don't Validate](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) is an essay with a more thorough explanation of this terminology difference.
 
+<Spoiler summary="another example">
+
+You better believe we do nested spoilers!
+
+Another short example of **information retention** vs. not, consider this implementation of `isArray`.
+
+```typescript
+function isArray(input: unknown): boolean {
+  return Array.isArray(input)
+}
+```
+
+Of course this is a silly function because you would normally just call `Array.isArray` directly. But this example returns a `boolean`, which means the type system immediately forgets the good work we just did.
+
+<Figure
+  src='/images/blog/tutorials/ts-io-decoding-encoding-1/validating_without_information_retention.png'
+  caption="returning a boolean doesn't help us retain information through the rest of the program"
+/>
+
+Throughout the rest of the tutorial, we'll learn how to make this better.
+
+<KnowledgeCheck>
+
+Why is the built-in `Array.isArray` better than our contrived example here? What language feature does it use that is unique to TypeScript?
+
+</KnowledgeCheck>
+
+</Spoiler>
+
 </Spoiler>
 
 ## Who cares?
@@ -111,7 +143,12 @@ For me, I think it's a couple of reasons:
 
 1.) Basically every program ever written involves decoding data in, doing something with it, and encoding data back out. The middle part of that could be simple or extremely complex, but that's still the gist.
 
-Occasionally, we need to dive deep into seemingly mundane topics to come out with a greater sense of understanding on the other side. Taking some time to focus on the little details every now and then is like... eating your vegetables, or something like that. Even Michael Jordan practiced free throws.
+Occasionally, we need to dive deep into seemingly mundane topics to come out with a greater sense of understanding on the other side. Taking some time to focus on the little details every now and then is like... eating your vegetables, or something like that. Even Michael Jordan practiced free throws, I think.
+
+<BlockQuote
+  content="If you find that you're spending almost all your time on theory, start turning some attention to practical things; it will improve your theories. If you find that you're spending almost all your time on practice, start turning some attention to theoretical things; it will improve your practice."
+  footer='Donald Knuth, "Theory and Practice". Theoretical Computer Science, 1991'
+></BlockQuote>
 
 2.) I also think that _library development_ is an underappreciated and underdeveloped skill in many software engineers. There's no shortage of _application development_ tutorials, courses, guides, etc. but comparatively fewer for library development.
 
@@ -138,7 +175,7 @@ Each of these approaches has advantages and disadvantages. There's also a 5th "a
 
 <Figure
   src='/images/blog/tutorials/ts-io-decoding-encoding-1/as_any.png'
-  caption="man slapping 'as any' on a leaking tank of water to cover the leak"
+  caption='TypeScript devs resolving compiler errors'
 />
 
 In this tutorial, we'll learn how to build #2 - a library that allows a programmer to define the decoding/encoding code and derive their types from that.
@@ -175,7 +212,7 @@ if (result.isSuccess) {
 
 Enough talk, let's go!
 
-Unfortunately, starting a TypeScript project has more options than a menu at The Cheesecake Factory. Feel free to use your own preferred setup, or you can use the [tutorial source code](https://github.com/davimiku/ts-io-decoding-encoding) as a starting point. I'm using NodeJS v22 (LTS at the time of writing) using TypeScript with ES Modules, and [vitest](https://vitest.dev/) for testing.
+Unfortunately, starting a TypeScript project has more options than a menu at The Cheesecake Factory. Feel free to use your own preferred setup, or you can use the [tutorial source code part 1](https://github.com/davimiku/ts-io-decoding-encoding/tree/part-1) as a starting point. I'm using NodeJS v22 (LTS at the time of writing) using TypeScript with ES Modules, and [vitest](https://vitest.dev/) for testing.
 
 Crank open the `src/index.ts` file (or whatever equivalent in your setup of choice)!
 
@@ -185,7 +222,7 @@ In my [last tutorial](/tutorials/json-parsing-rust-1), I advised that the best t
 
 We'll also focus on **decoding** first, because that's harder and it's also the feature that would be used more.
 
-The central type which will be used everywhere and link everything together will be called `Shape`. This could also be called `Schema`, `Type`, or even `Codec` if you like (a [Codec](https://en.wikipedia.org/wiki/Codec) is a thing that both decodes and encodes, but it sounds like, nerdy or whatever).
+The central type which will be used everywhere and link everything together will be called `Shape`. This could also be called `Schema`, `Type`, or even `Codec` if you like (a [Codec](https://en.wikipedia.org/wiki/Codec) is a thing that both decodes and encodes, so it's probably the right word, but it sounds like, nerdy or whatever).
 
 ```typescript
 interface Shape<T> {
@@ -206,7 +243,9 @@ The `<T>` and `T` in the type above are **type parameters**, sometimes referred 
 
 In this case, this type represents:
 
-> An object with a `__tag` field that is a `string`, and a `decode` field that is a function which takes input of an `unknown` type and returns data of the same type `T` that was passed in as a parameter
+- An object with a `__tag` field that is a `string`
+- and a `decode` field that is a function
+  - which takes input of an `unknown` type and returns data of the same type `T` that was passed in as a parameter
 
 </NewConcept>
 
@@ -232,6 +271,12 @@ interface ShapeNumber extends Shape<number> {
 }
 ```
 
+<Spoiler summary="...snip... ?">
+
+Throughout the tutorial, I use comments with `...snip...` that indicate that this particular code is building on a previous code snippet.
+
+</Spoiler>
+
 We started with (the types corresponding to) three of the [primitive values](https://developer.mozilla.org/en-US/docs/Glossary/Primitive) - `boolean`, `number`, and `string`. Of the remainder, it doesn't really make sense to include `null` or `undefined` as generic building blocks, and I'm omitting `symbol` from this tutorial for the sake of brevity. The remaining primitive value is `bigint`, which we will get to a bit later because it's slightly more interesting.
 
 <NewConcept title="<T>: Type Arguments">
@@ -239,12 +284,6 @@ We started with (the types corresponding to) three of the [primitive values](htt
 This is really the other half of the previous summary of Type Parameters. Whenever we say something like `Shape<number>`, the `number` is the **argument** passed in to the `Shape` type. The best way to think of it is a function that runs at compile-time, pass a type in, get a type out. In this example, `number` would be substituted in for `T` inside the body of the type.
 
 </NewConcept>
-
-<Spoiler summary="...snip... ?">
-
-Throughout the tutorial, I use comments with `...snip...` that indicate that this particular code is building on a previous code snippet.
-
-</Spoiler>
 
 We actually have one more "built-in" shape to add, corresponding to the `unknown` type.
 
@@ -258,7 +297,7 @@ interface ShapeUnknown extends Shape<unknown> {
 }
 ```
 
-This could be useful for people who are decoding data without a statically defined shape which they'll deal with outside of our library, or for fields of an object that they don't care about, which are essentially "pass-through".
+This could be useful for people who are decoding data without a statically defined shape which they'll deal with outside of our library, or for fields that they don't care about, which are essentially "pass-through".
 
 The next step is to provide an implementation of these built-in shapes, and these shapes are what other people will compose together to make what they need.
 
@@ -276,6 +315,10 @@ This is going to be the simplest implementation of `decode`, since it returns th
 <NewConcept title="`as const`">
 
 This annotation can go after a value and it makes it readonly at **compile-time**. This is different from [Object.freeze](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) which is a built-in JavaScript function that makes an object readonly at runtime (and TypeScript also recognizes this and makes it readonly at compile-time).
+
+Why do this at all? When something shouldn't be mutated, it should be marked as such, just as much for communication as it is for communication. "Self documenting code" includes annotations like this, because how else would you document "this object must not be mutated"?
+
+When you work with languages where immutability is the default and can be opted-out, you end up missing that in languages where mutability is the default.
 
 </NewConcept>
 
@@ -300,7 +343,7 @@ We'll fix this later in the tutorial, for now, we march onwards!
 
 <EmphasisBox>
 
-We could have actually implemented this built-in shape with infallible decoding by making it use truthiness of the incoming data to **transform** it into a boolean (truthy -> `true`, falsy -> `false`). In other words, if someone used our built-in `boolean` shape and the data was `"hello world"`, should that coerce to `true`?
+We could have actually implemented this built-in shape with infallible decoding by making it use truthiness of the incoming data to **transform** it into a boolean (truthy -> `true`, falsy -> `false`). In other words, if someone used our built-in `boolean` shape and the input data was `"hello world"`, should that coerce to `true`?
 
 Would this be **useful** to include in a building block? If it's useful, does it make sense for it to be the **default** behavior?
 
@@ -319,7 +362,7 @@ export const number: ShapeNumber = {
     }
     return input
   },
-}
+} as const
 ```
 
 Pretty easy, right?
@@ -350,10 +393,11 @@ export const string: ShapeString = {
     }
     return input
   },
-}
+} as const
 ```
 
-BigInt is more interesting in that it touches on one of the topics from the introduction, we can **transform** the data before decoding, transformation can be part of the overall process<MarginNote id="transform-becomes">Unlike a [type predicate](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) which is "Input is T", think of it as... "Input becomes T". Conceptually at least (there is no `becomes` keyword)</MarginNote>.
+{/* prettier-ignore */}
+<MarginNote id="transform-becomes">Unlike a [type predicate](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) which is "Input is T", think of this transform as... "Input becomes T". Conceptually at least - there is no `becomes` keyword</MarginNote>BigInt is more interesting in that it touches on one of the topics from the introduction, we can **transform** the data before decoding, transformation can be part of the overall process.
 
 ```typescript
 interface ShapeBigInt extends Shape<bigint> {
@@ -370,16 +414,18 @@ export const bigint: ShapeBigInt = {
     }
     throw new Error('oopsy whoopsy!')
   },
-}
+} as const
 ```
 
-In this implementation, if the data is already a `bigint` it passes, or if it's a finite `number` it's promoted to a `bigint` and passes, otherwise fails. This seems like a reasonable default behavior, except there's still a question of numbers with a fractional component. Should those still be coerced into `bigint`, losing the fraction part? Or should that fail?
+In this implementation, if the data is already a `bigint` it passes, or if it's a finite `number` it's promoted to a `bigint` and passes, otherwise fails. This seems like a reasonable default behavior, except there's still a question of numbers with a fractional component, like `1.2`. Should those still be coerced into `bigint`, losing the fraction part? Or should that fail?
 
 ## Built-ins: Inference
 
 Let's go back to the desired usage/capabilities of our library from the introduction:
 
 ```typescript
+import * as io from 'our-new-library'
+
 // ...snip...
 
 // The plain type can be inferred from the "Shape"
@@ -409,11 +455,16 @@ We'll build it up piece by piece, starting with `unknown`:
 export type Infer<S extends Shape<unknown>> = unknown
 ```
 
-This literally infers `unknown` for every possible shape, not very useful<SideNote id="yet">yet</SideNote>.
+This infers `unknown` for every possible shape, which... is not very useful<SideNote id="yet">yet</SideNote>.
 
-<NewConcept title="'extends' as a constraint">
+<Figure
+  src='/images/blog/tutorials/ts-io-decoding-encoding-1/cmon_do_something.jpg'
+  caption='Developers using a decoder that only infers `unknown`'
+/>
 
-The `extends` keyword, when used in a **type context**, provides a contraint on a type parameter. This is not to be confused with the `extends` keyword in a value context which is for a class to inherit from another class<SideNote id="extends">The TypeScript team historically tries to reuse keywords for the type context where possible, rather than inventing new keywords</SideNote>.
+<NewConcept title="`extends` as a constraint">
+
+The `extends` keyword, when used in a **type context**, provides a contraint on a type parameter. This is not to be confused with the `extends` keyword in a value context which is for a class to inherit from another class<SideNote id="extends">The TypeScript team historically tries to reuse keywords for the type context where possible, rather than inventing new keywords, which is mostly a good thing</SideNote>.
 
 When I see this keyword, in my head I read it as "is constrained to be" or "is a subtype of". Ruby uses the `<` symbol to indicate a subtype relationship, which I kind of love, but type parameters in TypeScript already use `<>` which would be hard to read.
 
@@ -434,9 +485,9 @@ export type Infer<S extends Shape<unknown>> = S extends ShapeUnknown
 
 See what I mean by "mechanical"? It's not very exciting, we'll add a new case for every possible built-in shape in a big if/else chain.
 
-<NewConcept title="'extends' as a condition">
+<NewConcept title="`extends` as a condition">
 
-We see the same `extends` keyword again, in a type context again, but yet still different. In this position, it is part of a [conditional type](https://www.typescriptlang.org/docs/handbook/2/conditional-types.html) (expression) where it **checks** if the parameter `S` is a subtype of `ShapeUnknown` and executes the first branch if true and the second branch if false.
+We see the same `extends` keyword again, in a type context again, but still different<SideNote id="maybe-not-good-after-all">Maybe not a good idea to reuse keywords after all</SideNote>. In this position, it is part of a [conditional type](https://www.typescriptlang.org/docs/handbook/2/conditional-types.html) (expression) where it **checks** if the parameter `S` is a subtype of `ShapeUnknown` and executes the first branch if true and the second branch if false.
 
 As an aside, there's no concept of "truthy"/"falsy" in these conditional types, if you do want a boolean result then it has to be explicit:
 
@@ -450,6 +501,8 @@ type IsTrue = 'hello' extends string ? true : false
 <Spoiler summary="What could have been">
 
 We need to use this `c ? x : y` conditional operator because `if`/`else` and `switch` are **statements** rather than expressions in JavaScript. The TypeScript team prefers to design the type context syntax similar to the value context syntax, so this operator was brought into the type context as-is (they _could have_ made `if`/`else` and `switch` an _expression_ in the type context, but it also might have confused people).
+
+This is one of the reasons why some people write off this kind of compiletime code completely, because the syntax is borderline unreadable. I think that's completely valid, I also think it's fine for a library to take this "syntactic salt" upon itself if it means applications become simpler or easier (it's certainly easier to generate decoders like we're doing than to write bespoke decoding logic for every single data type that an application uses). There's a new, interesting [programming language called Zig](https://ziglang.org/documentation/master/#comptime) that asks "what if compiletime syntax actually wasn't bad?" which I think is pretty cool.
 
 So we're stuck with this syntax, and it'll get worse throughout the rest of the tutorial. If only JavaScript had been more like [Scheme](<https://en.wikipedia.org/wiki/Scheme_(programming_language)>) as originally intended! We may have had expression-oriented programming as the base rather than statement-oriented programming with expressions trying to be bolted on later like [match expressions](https://github.com/tc39/proposal-pattern-matching?tab=readme-ov-file#expression-semantics) and [do expressions](https://github.com/tc39/proposal-do-expressions).
 
@@ -472,11 +525,11 @@ export type Infer<S extends Shape<unknown>> = S extends ShapeUnknown
           : never
 ```
 
-<NewConcept title="'never' type">
+<NewConcept title="`never` type">
 
 We saw it in the previous code, but I deferred it to here in the pursuit of "one new concept at a time".
 
-`never` is the "bottom type", the subtype of all other types. Types represent sets of possible values, and the `never` type is the empty set, there is no possible value that has a type of `never`. Things like infinite loops and exceptions (because they never **return** a value) are represented by `never`.
+`never` is the "bottom type", the subtype of all other types. Types represent sets of possible values, and the `never` type is the empty set, there is no possible value that has a type of `never`. Things like infinite loops and exceptions (because they never **return** a value<SideNote id="technicalities">Technicalities like this are extremely important in understanding a type system</SideNote>) are represented by `never`.
 
 `never` also shows up when you have a union of finite possibilities, and an if/else or switch that exhausts those possibilities ("process of elimination") and there's still a branch of code left over. That branch of code can never be hit, so the type of the variable is narrowed to never.
 
@@ -495,17 +548,17 @@ switch (color) {
 }
 ```
 
-The TypeScript documentation describes this type in the documentation page for [Functions](https://www.typescriptlang.org/docs/handbook/2/functions.html#never) which is an interesting choice. A thorough explanation is here: [A complete guide to TypeScript's never type](https://www.zhenghao.io/posts/ts-never).
+The TypeScript documentation describes the `never` type in the page for [Functions](https://www.typescriptlang.org/docs/handbook/2/functions.html#never) which is an interesting choice. A thorough explanation is here: [A complete guide to TypeScript's never type](https://www.zhenghao.io/posts/ts-never).
 
 </NewConcept>
 
 ## Testing
 
-This is a good time to pause for some tests. The code below is placed in a summary/details because it's fairly long, and because you can skip this section if you just want to get to the rest of the tutorial<SideNote id="write-tests">but you probably should write tests</SideNote>.
+This is a good time to pause for some tests. The code below is placed in a summary/details because it's fairly long, and because you can skip this section if you just want to get to the rest of the tutorial<SideNote id="write-tests">but you probably should write tests of some kind</SideNote>.
 
 As mentioned in the introduction, I'm using [vitest](https://vitest.dev/). This lets me write my tests directly next to the code that it's testing, which I really like<SideNote id="adjacent-test">I used to think this was weird, then I tried it, and I don't think it's weird anymore</SideNote>.
 
-Additionally, I'm using the tips from [Total TypeScript](https://www.totaltypescript.com/how-to-test-your-types) on how to test your types. Yes, you read that correctly! Remember that we're writing code for both the type context and the value context, it's important that we test both contexts. The nice thing about testing types is that a failing test is shown as a compiler error.
+Additionally, I'm using the tips from [Total TypeScript](https://www.totaltypescript.com/how-to-test-your-types) on how to test your types. Yes, you read that correctly! Remember that we're writing code for two contexts, the type context and the value context, it's important that we test both contexts. The nice thing about testing types is that a failing test is shown as a compiler error so you get feedback even faster than traditional tests.
 
 <Spoiler summary="example test setup">
 
@@ -577,10 +630,10 @@ We're going to start increasing the complexity now. Users of our library are goi
 
 The two kinds of collections that we'll support are:
 
-- Arrays: an ordered sequence of values of the same shape
-- Records: a set of key-value pairs where the keys are strings and the values are the same shape
+- **Arrays**: an ordered sequence of values of the same shape
+- **Records**: a set of key-value pairs where the keys are strings and the values are the same shape
 
-In TypeScript, these are written as `T[]` (or `Array<T>`, it's the same) and `Record<string, T>`, respectively.
+In TypeScript, these are written as `T[]` (or `Array<T>`, it's the same thing) and `Record<string, T>`, respectively.
 
 Array is slightly less complicated than records, so we'll start there.
 
@@ -592,7 +645,7 @@ interface ShapeArray<S extends Shape<unknown>> extends Shape<Infer<S>[]> {
 
 Our new `ShapeArray` type has a type parameter, which we've seen before. It also `extends` another type, which we've also seen before. What's a bit new is the type that it is extending is, itself, a type with a parameter. It's like calling a function that calls another function.
 
-Just like functions can call themselves (recursion), types can also "call" themselves. The same rules that we all learned about recursion still apply, in addition to the recursive case(s) you also need base case(s) to escape the recursion. We already have those base cases, which are the primitive types defined earlier.
+Just like functions can call themselves (recursion), types can also "call" themselves. The same rules that we all learned about recursion still apply, you need both the recursive case(s) and base case(s) to escape the recursion. We already have those base cases, which are the primitive types defined earlier, so we can add a recursive case.
 
 {/* prettier-ignore */}
 ```typescript
@@ -611,7 +664,7 @@ export type Infer<S extends Shape<unknown>> = S extends ShapeUnknown
             : never
 ```
 
-<NewConcept title="'infer' keyword'">
+<NewConcept title="`infer` keyword">
 
 A new keyword! This is described in the TypeScript handbook in [Inferring Within Conditional Types](https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#inferring-within-conditional-types).
 
@@ -620,10 +673,12 @@ It helped me to understand this by converting this into imperative (pseudo)code,
 ```typescript
 // this ain't real code
 if (S is ShapeArray) {
-  // could also be thought of as "unwrapping" the type to get the delicious insides
+  // could also be thought of as "unwrapping" the type to get
+  // the delicious insides
   let ElementShape = ShapeArray[0]
 
-  // remember capital-I `Infer` is like a function that you pass in a type and it gives you back a type
+  // remember capital-I `Infer` is like a function that you
+  // pass in a type and it gives you back a type
   return Array.of(Infer(ElementShape))
 }
 ```
@@ -633,7 +688,8 @@ If `S` is (a subtype of) `ShapeArray<T>`, then the `infer` keyword makes a NEW t
 ```typescript
 // ...snip...
   : S extends ShapeArray<infer ElementShape>
-  //                     ^^^^^^^^^^^^^^^^^^ defines a NEW type variable called `ElementShape`
+  //                     ^^^^^^^^^^^^^^^^^^ defines a NEW
+  //                     type variable called `ElementShape`
     ? Infer<ElementShape>[]
     //      ^^^^^^^^^^^^ We can use this in the 'true' branch
     : never
@@ -688,6 +744,8 @@ Remember that the `extends` keyword is really more like two different keywords, 
 
 </Spoiler>
 
+A practical usage of this concept is getting the inner type `T` out of a defined `FormGroup<T>` in the Angular framework.
+
 </KnowledgeCheck>
 
 Now it's time to implement the built-in shape that we will provide to users for arrays. The previous shapes were implemented as object literals, but there's something new/different this time, which is that users will need to make "Array of ShapeNumber" or "Array of ShapeString" or "Array of Array of ShapeBoolean", etc. So instead of an object literal, we need to implement it as a **function** that returns the shape.
@@ -707,11 +765,13 @@ function array<S extends Shape<unknown>>(elementShape: S): ShapeArray<S> {
 }
 ```
 
-When decoding the incoming data, we first check if the incoming data is an array, and error if not<MarginNote id="array-is-array">Sadly, `Array.isArray` produces `any[]` rather than `unknown[]`, so we have to be careful with the output, or maybe assert that it's `unknown[]` to remove some potential for issues</MarginNote>. Then, decodes every element of the array using the provided shape (both transforming and validating).
+When decoding the incoming data, we first check if the incoming data is an array, and error if not<MarginNote id="array-is-array">Sadly, `Array.isArray` produces `any[]` rather than `unknown[]`, so we have to "[just](https://www.todepond.com/wikiblogarden/better-computing/just/) be careful" with the output, or maybe change it to `unknown[]` via assertion to remove some potential for issues</MarginNote>. Then, decodes every element of the array using the provided shape (both transforming and validating).
 
-The decode function returns `Infer<S>[]` which is "an array of the inferred type of the provided shape". So if the provided shape was `ShapeNumber`, then it returns `number[]`. Our `Infer<Shape>` type is already recursive, so this handles nested arrays automatically.
+The decode function returns `Infer<S>[]` which is "an array of the inferred type of the provided shape". So if the provided shape was `ShapeNumber`, then it returns `number[]`. Our `Infer<Shape>` type is already recursive, so this already handles nested arrays automatically.
 
-Note the usage of the [type assertion](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions). This is typically something to **avoid using** when possible. However, this is a rule to selectively break when practical. There might be a clever way with advanced TypeScript features to avoid this assertion (or something obvious that I've simply missed), but in cases like this I think it's appropriate to use an assertion. Keep in mind also that more code in the type context is more code that needs to be run by the compiler every time it does type checking (including in your IDE/language server). Assertions can be a way to reduce this, though I don't know how to (or if it's possible to) run benchmarks of the compiler itself.
+Note the usage of the [type assertion](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions). This is typically something to **avoid using** when possible. However, this is a rule to selectively break when practical. There might be a clever way with advanced TypeScript features to avoid this assertion (or something obvious that I've simply missed), but in cases like this I think it's appropriate to use an assertion.
+
+Keep in mind also that more code in the type context is more code that needs to be run by the compiler every time it does type checking (including in your IDE/language server). Assertions can be a way to reduce this, though I don't know how to (or if it's possible to) run benchmarks of the compiler itself to see if this is an issue in reality.
 
 We should add tests for this built-in shape - try it yourself, and feel free to take a look at the examples in the spoiler below as well.
 
@@ -781,7 +841,7 @@ export type Infer<S extends Shape<unknown>> = S extends ShapeUnknown
 The implementation for Record is only slightly more interesting than Array because:
 
 1. The `typeof null === 'object' [<del>bug</del> feature](https://2ality.com/2013/10/typeof-null.html) means we need a truthy check first
-2. JavaScript doesn't provide a single-step way to map from one object to another, so we need to do this little dance with `Object.fromEntries` and `Object.entries`
+2. JavaScript doesn't provide a single-step way to map from one object to another, so we need to do this little dance with `Object.fromEntries` and `Object.entries`<SideNote id="objects-as-data">There's complications with having a built-in for this, such as how to handle prototype inheritance, non-enumerable properties, configurable properties, proxies (?), encapsulation, and probably a bunch of other edge cases. The fundamental language design complication is [conflating objects and data](https://dpc.pw/posts/data-vs-code-aka-objects-oop-conflation-and-confusion/) as the same thing</SideNote>
 
 ```typescript
 function record<S extends Shape<unknown>>(valueShape: S): ShapeRecord<S> {
@@ -801,6 +861,14 @@ function record<S extends Shape<unknown>>(valueShape: S): ShapeRecord<S> {
 ```
 
 Besides those additional wrinkles, it's the same as `array` where it recursively decodes the inner values into the desired shape (or error).
+
+<KnowledgeCheck>
+
+Should we have used the built-in [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) to represent this? Why or why not? How would you implement `decode` to transform input data that was a plain object **into** a Map if you decided to go this route?
+
+Bonus knowledge check: Why didn't TypeScript define the `Record` utility type to use the built-in `Map`?
+
+</KnowledgeCheck>
 
 Tests! Test test test test. Here's some example tests if you please:
 
@@ -860,7 +928,7 @@ const NonEmptyString = string.minLength(1)
 const BigNumber = number.min(101) // I learned how to count the next number
 ```
 
-and maybe these would not need to be functions. But we might make them functions anyways so that they're all the same kind of thing. Choices choices!
+and maybe these would not need to be functions. But we might make them functions anyways so that they're all homogenous. Choices choices!
 
 </Spoiler>
 
@@ -902,9 +970,9 @@ type InferStruct<Fields extends StructFields> = {
 }
 ```
 
-<NewConcept title="keyof operator">
+<NewConcept title="`keyof` operator">
 
-Similar to the `typeof` operator (the type context one, not the value context one), the [keyof operator](https://www.typescriptlang.org/docs/handbook/2/keyof-types.html) is a unary operator in the type context. Its argument is **object type**, and it returns a union type of the keys of that object.
+The [keyof operator](https://www.typescriptlang.org/docs/handbook/2/keyof-types.html) is a unary operator in the type context, similar to the `typeof` operator (the type context one, not the value context one), t. Its argument is **object type**, and it returns a union type of the keys of that object.
 
 ```typescript
 type ConfigOptions = { dryRun: boolean; logLevel: LogLevel; apiKey: string }
@@ -931,6 +999,7 @@ The part of the code above using this feature is `Fields[Key]`. You can index in
 Like before, I think it can be helpful to imagine an imperative (pseudo)code of this more complicated type code. For example, this `InferStruct<Fields>` generic type can be thought of like:
 
 ```typescript
+// this ain't real code
 function InferStruct(fields: Record<string, Shape<unknown>>) {
   let returnType = {}
   let keys = Object.keys(fields)
@@ -942,9 +1011,9 @@ function InferStruct(fields: Record<string, Shape<unknown>>) {
 }
 ```
 
-So the type code before is kind of like a loop that takes the key/values from the input object (type) and maps those to an output object (type). This loop runs at compiletime or in your IDE whenever type checking is done.
+So the type code before, the part with the `in` keyword, is like a loop that takes the key/values from the input object (type) and maps those to an output object (type). This loop runs at compiletime or in your IDE whenever type checking is done.
 
-Oops! Almost forgot<MarginNote id="almost-forgot">Well, I actually did forget until I wrote the tests and they failed, but since this isn't live you'd never know!</MarginNote>, we need to mechanically add another case to our `Infer<Shape>` type.
+Oops! Almost forgot<MarginNote id="almost-forgot">Well, I actually did forget until I wrote the type tests and they failed, but since this isn't live you'd never know!</MarginNote>, we need to mechanically add another case to our `Infer<Shape>` type.
 
 {/* prettier-ignore */}
 ```typescript
@@ -955,7 +1024,7 @@ export type Infer<S extends Shape<unknown>> = S extends ShapeUnknown
               : never
 ```
 
-Let's implement the `decode` function for this shape. The runtime code (value context) is quite similar to `record` because these **are** the same thing at runtime. The distinction between these two shapes is really a compile-time distinction.
+Let's implement the `decode` function for this shape. The runtime code (value context) is quite similar to `record` because these **are** the same thing at runtime in the value context. The distinction between these two shapes is really a compile-time distinction in the type context.
 
 ```typescript
 const UnknownRecord = record(unknown)
@@ -1066,20 +1135,23 @@ The final shape we'll implement is [tagged unions](https://en.wikipedia.org/wiki
 
 <EmphasisBox>
 
-You could actually stop here if you want, what we have so far is surprisingly usable (besides the poor error handling, which will be addressed in the next article). Oh, and what we have so far completely doesn't handle optional fields 😬 (which _might_ be addressed in a future article, depending on how much energy I have, so it might be an "exercise for the reader").
+You could actually stop here if you want, what we have so far is surprisingly usable (besides the poor error handling, which will be addressed in the next article). Oh, and what we have so far completely doesn't handle optional fields 😬 (which _might_ be addressed in a future article, depending on how much energy I have, but it might be an "exercise for the reader").
 
-I do think this tagged unions is quite an interesting topic, and messy too in TypeScript.
+I do think this tagged unions is quite an interesting and messy topic in TypeScript.
 
 </EmphasisBox>
 
-The TypeScript documentation for discriminated unions is located on the page about [Narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions), which is an interesting choice.
+The TypeScript documentation for discriminated unions is located on the page about [Narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
 
-Tagged/discriminated unions are a set of _variants_, where the data can be **exactly one** of those variants (not multiple, not none, exactly one). Every time you describe business logic and use the word "or", that could be modeled by a tagged union. Every flow chart with a choice point where one path becomes two or more paths could be modeled by a tagged union. The struct type is the "AND", the tagged union is the "OR".
+Tagged/discriminated unions are a set of _variants_, where the data can be **exactly one** of those variants (not multiple, not zero, exactly one and only one). Every time you describe business logic and use the word "or", that could be modeled by a tagged union. Every flow chart with a choice point where one path becomes two or more paths could be modeled by a tagged union<MarginNote id="struct-union">A struct type represents "AND", a tagged union represents "OR"</MarginNote>.
 
-The TypeScript documentation describes this as an example of a discriminated union (paraphactored by yours truly):
+The TypeScript documentation provides this as an example of a discriminated union (paraphactored by yours truly):
 
+{/* prettier-ignore */}
 ```typescript
-type Shape = { kind: 'circle'; radius: number } | { kind: 'square'; sideLength: number }
+type Shape = 
+  | { kind: 'circle', radius: number } 
+  | { kind: 'square', sideLength: number }
 ```
 
 The field "kind" is the _discriminant_, meaning that this field is used to _discriminate_ (distinguish) between which variant is this data. There's nothing special about the word "kind" used as the field name, the field could be named "babaganoush" and it would still be treated as the discriminant. How is that possible? The TypeScript compiler uses heuristics to essentially _guess_ what the discriminant is. When you look at other languages that have tagged unions built-in to the language, there's no guessing involved because the tag has a different syntax than the rest of the fields.
@@ -1122,8 +1194,11 @@ In each of these languages, the tag/discriminant is **separate** from the data o
 
 There's another syntax for discriminated unions that the documentation doesn't tell you about:
 
+{/* prettier-ignore */}
 ```typescript
-type Shape = ['circle', { radius: number }] | ['square', { sideLength: number }]
+type Shape = 
+  | ['circle', { radius: number }] 
+  | ['square', { sideLength: number }]
 
 declare const shape: Shape
 
@@ -1141,13 +1216,13 @@ switch (shape[0]) {
 }
 ```
 
-Instead of an object with a key as the discriminant (determined by heuristics), you can use variants of arrays where the first element is the discriminant<SideNote id="array-discriminant">It actually doesn't have to be the first element either. If you switch the order and indexes in the example above, it still works. So is there a limit? It's not documented</SideNote>. After checking the discriminant, you can use the associated variant data in each branch.
+Instead of an object with a key as the discriminant (determined by heuristics), you can use variants of arrays where the first element is the discriminant<SideNote id="array-discriminant">It actually doesn't have to be the first element either. If you switch the order and indexes in the example above, it still works. So is there a limit? Could it be the 999th element? It's not documented</SideNote>. After checking the discriminant, you can use the associated variant data in each branch.
 
-It gets better! There can actually be **multiple discriminants** in each variant! I didn't even know this was possible until logging [an issue](https://github.com/microsoft/TypeScript/issues/52358) to improve an error message, that ended up being (this is now fixed).
+It gets better! There can actually be **multiple discriminants** in each variant! I didn't even know this was possible until [logging an issue](https://github.com/microsoft/TypeScript/issues/52358) to improve an error message, that ended up being related to multiple discriminants (this is now fixed).
 
 This isn't some wild tangent. As a library author, if you want to support discriminated unions, you need to know all of these fine details and decide exactly what you want to support.
 
-For the purpose of this tutorial, we are only going to implement the array version with a single discriminant that must be a string in the first element position.
+For the purpose of this tutorial, we are only going to implement the array version with a single discriminant that must be a string in the first element position. Whether that's useful or not could be measured by how many GitHub issues are logged for our library asking for more options with tagged unions.
 
 With these restrictions in place, it's not much different than the struct definition:
 
@@ -1192,7 +1267,7 @@ function union<Variants extends UnionVariants>(variants: Variants): ShapeUnion<V
 }
 ```
 
-We need the first type assertion because TypeScript doesn't track array lengths. So unlike some other cases of [narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html), where by doing `if` checks you can narrow the type, checking for `.length === 2` doesn't narrow `unknown[]` to `[unknown, unknown]`, you have to assert it yourself. If this sounds like an interesting research topic, look up [dependently typed languages](https://en.wikipedia.org/wiki/Category:Dependently_typed_languages)!. We need the second type assertion for the same reason described earlier, we're using the assertion for the intended purpose which is to have the compiler trust us for something that we're proving with runtime checking outside the capabilities of the type checker.
+We need the type assertion to `[unknown, unknown]` because TypeScript doesn't track array lengths at compiletime. So unlike some other cases of [narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html), where by doing `if` checks you can narrow the type, checking for `.length === 2` doesn't narrow `unknown[]` to `[unknown, unknown]`, you have to assert it yourself<MarginNote id="dependently-typed-languages">If this sounds like an interesting research topic, look up [dependently typed languages](https://en.wikipedia.org/wiki/Category:Dependently_typed_languages)!</MarginNote>. We need the second type assertion for the same reason described earlier, we're using the assertion for the intended purpose which is to have the compiler trust us for something that we're proving with runtime checking outside the capabilities of the type checker.
 
 Oh yeah, some tests too:
 
@@ -1267,7 +1342,7 @@ describe('Union', () => {
 
 Made it to the end! Thank you for staying with me so far.
 
-Up next will be Part 2 and Part 3. In Part 2<SideNote id='hopefully-shorter'>Which is **hopefully** shorter</SideNote> we'll fix the error handling in the decoding. In Part 3 we'll implement encoding and finish out how users will be able to define their own custom decoder/encoders.
+Up next will be Part 2 and Part 3. In Part 2<SideNote id='hopefully-shorter'>Which is **hopefully** shorter</SideNote> we'll provide the capability for users to define their own custom decoders and explain why this is good, and we'll fix the error handling in the decoding. In Part 3 we'll implement encoding and finish out any other odds and ends.
 
 There's more in the Appendix below that's recommended and Part 2 and 3 will assume that this code has been followed. However, it's not strictly necessary for the functioning of the library so it's moved down there.
 
@@ -1283,17 +1358,19 @@ The TypeScript type system is intentionally designed with holes in it via the `a
 
 Write a wrapper around the native [fetch]() function that requires a shape to be passed in, and returns the decoded type from that shape (assume JSON format).
 
+An example use case of your `myFetch` function could be something like this:
+
 ```typescript
 const Point = struct({ x: number, y: number })
 type Point = Infer<typeof Point>
 
-const point = await yourFetch('/some/url', PointShape)
-//    ^^^^^ this should be type Point and was decoded
+const point = await myFetch('/some/url', Point)
+//    ^^^^^ this should be type Point and was decoded properly
 ```
 
 </KnowledgeCheck>
 
-### Constraining `Shape` further
+### Exercise - Constraining `Shape` further
 
 Our definition of `Shape` allowed for any string in the `__tag` field, and then our big conditional branch for `Infer<Shape>` assumed `never` at the end if the tag didn't match. That works fine, because if someone passed in a shape with an invalid tag to `Infer<Shape>`, then they would get `never` as the result which they can't do anything with.
 
@@ -1319,7 +1396,7 @@ interface Shape<T> {
 
 Now, there will be a compiler error at the `Infer` call itself if an invalid shape is passed in, rather than no error and producing a `never` result.
 
-### Do we need a runtime value for the tag?
+### Conceptual - Do we need a runtime value for the tag?
 
 Do we need a runtime value for the tag, when it's never checked or used at runtime?
 
@@ -1343,9 +1420,9 @@ Hint: It does **not** mean "empty object".
 
 </KnowledgeCheck>
 
-### Decoding vs. Parsing vs. Deserializing vs. Marshalling
+### Vocabulary - Decoding vs. Parsing vs. Deserializing vs. Marshalling
 
-I chose not to use the terminology _parsing_, although it definitely fits, simply because there isn't a good opposite word ("unparsing", "deparsing", etc. sounds silly).
+I chose not to use the terminology _parsing_, although it definitely fits, simply because there isn't a good opposite word ("unparsing", "deparsing", etc. sounds silly). Decoding and encoding has a nice symmetry.
 
 _Deserializing_ is a pretty good synonym as well, but it implies that the input data is in a "primitive" format such as a byte stream or a string. Our decoder does not have this restriction, in fact, many of our built-in shapes work on input data that is already a JavaScript object of some kind.
 
@@ -1359,9 +1436,9 @@ It's pretty common to see TypeScript types like this:
 type Color = 'red' | 'green' | 'blue'
 ```
 
-It's especially common to see this in data that's close to the boundary of the program, because serialization and deserialization is easy when it's a plain string (or plain number) compared to a TypeScript `enum` which is a runtime object<SideNote id='const-enum'>Except for `const enum` which isn't a runtime object. As a library author, if you wanted to support enums, you'd have to decide whether to support that too (if it's even possible)</SideNote>.
+It's especially common to see this in data that's close to the boundary of the program, because serialization and deserialization is easy when it's a plain string (or plain number) compared to a TypeScript `enum` which is a runtime object.
 
-How would you support this? If you think about it, it's like our existing (tagged) `union` shape except there's only a tag and no associated data. Would you add this use case to this existing shape or make a new shape?
+How would you support this? If you think about it, it's similar to our existing (tagged) `union` shape except there's only a tag and no associated data. Would you add this use case to this existing shape or make a new shape?
 
 Try implementing it, and see what additional questions come up.
 
