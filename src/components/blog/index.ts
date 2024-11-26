@@ -3,6 +3,7 @@
  */
 
 export * from './emphasis_box/EmphasisBox'
+export * from './figure/Figure'
 export * from './knowledge_check/KnowledgeCheck'
 export * from './listing/ArticleListing'
 export * from './marginnote/MarginNote'

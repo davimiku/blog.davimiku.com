@@ -1,0 +1,519 @@
+export const meta = {
+  title: 'Tutorial: I/O Data Decoding/Encoding Library from Scratch in TypeScript (Part 1)',
+  category: 'tutorials',
+  type: 'tutorial',
+  slug: 'ts-io-decoding-encoding-1',
+  tagline:
+    'Build your own library from scratch that decodes and encodes data. Deep-dive into TypeScript!',
+  tags: ['TypeScript'],
+  ogImage: 'banner.png',
+}
+
+import Image from 'next/image'
+import { ArticlePage } from '../../layouts/blog'
+import {
+  EmphasisBox,
+  KnowledgeCheck,
+  NewConcept,
+  Spoiler,
+  SideNote,
+  MarginNote,
+} from '../../components/blog'
+
+## Introduction
+
+This is Part 2 of a 3 part series.
+
+1. [Decoding](./ts-io-decoding-encoding-1)
+2. Custom decoders and better errors (this article)
+3. Encoding (WIP)
+
+If you haven't started with Part 1, go ahead and check it out now! That explains the motivation behind this tutorial and the goals of what we'll accomplish.
+
+## Custom Decoders
+
+Currently, our users can compose together the builtin functionality, which is great! However, there are going to be times where users will want to make their own custom decoder.
+
+This could be for one or both of the following reasons:
+
+1. They want to decode into some type `T` that isn't supported by our builtins, such as a 3rd party type or a 1st party type
+2. They want to apply their own transformation logic that helps the input data _become_ `T`
+
+<EmphasisBox>
+
+A concrete example I had from a previous job is that we would get data from a bunch of different vendors that had to all be normalized into the same kind of struct. In particular, the date strings were wildly different from vendor to vendor, some actually used ISO 8601 like `YYYY-MM-DD` which was amazing but others used `MM/DD/YYYY`(🇺🇸🇺🇸🇺🇸), and if I recall some were `MM_DD_YYYY` and probably other even weirder formats.
+
+We made a custom decoder using [io-ts](https://www.npmjs.com/package/io-ts) that handled all of these cases and decoded it into a [Luxon DateTime](https://moment.github.io/luxon/#/), which is what we were using for date-based business logic.
+
+Custom decoders allow for both transformation and for adapters between different libraries.
+
+</EmphasisBox>
+
+We'll start by adding a new possibility for the runtime tag:
+
+{/* prettier-ignore */}
+```typescript
+type ShapeTag =
+// ...snip...
+  | 'custom'
+```
+
+and add a new shape to use this new tag:
+
+```typescript
+interface ShapeCustom<T> extends Shape<T> {
+  readonly __tag: 'custom'
+}
+```
+
+Recall that `T` here is the return type of the `decode` function, so there's no constraints because our users can use this to decode into any type.
+
+We can add another case to the bottom of the `Infer<Shape>` type:
+
+{/* prettier-ignore */}
+```typescript
+export type Infer<S extends Shape<unknown>> = S extends ShapeUnknown
+// ...snip...
+            : S extends ShapeCustom<infer T>
+              ? T
+              : never
+```
+
+If the user is inferring from a custom decoder, we'll already know what type it is because they provided it when defining the custom decoder. Typically, this would be used much because a custom decoder would most likely be for a type that already exists, so it doesn't need to be inferred.
+
+Since we're not exporting any of the shape interfaces directly (to keep the tag private so there's no shenanigans), we should export a `custom` function that users can use to make their types.
+
+```typescript
+export function custom<T>(decode: (input: unknown) => T): ShapeCustom<T> {
+  return {
+    __tag: 'custom',
+    decode,
+  }
+}
+```
+
+This way the runtime tag remains an implementation detail that they don't have to worry about. An example usage of this (tests) for the previous Date example is given below:
+
+<Spoiler summary="example 'custom' tests">
+
+Example of an incoming date string that might be one of 3 possibilities, and we'd like to get a `Date` on the other side (or an error):
+
+```typescript
+describe('Custom', () => {
+  const regexes = [
+    /^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})$/, // YYYY-MM-DD
+    /^(?<month>\d{2})\/(?<day>\d{2})\/(?<year>\d{4})$/, // MM/DD/YYYY
+    /^(?<month>\d{2})_(?<day>\d{2})_(?<year>\d{4})$/, // MM_DD_YYYY
+  ]
+  function customDateDecoder(input: unknown): Date {
+    if (typeof input !== 'string') {
+      throw new Error('oopsy whoopsy!')
+    }
+    for (const regex of regexes) {
+      const match = input.match(regex)
+      if (match) {
+        const year = Number.parseInt(match.groups!['year'])
+        const month = Number.parseInt(match.groups!['month'])
+        const day = Number.parseInt(match.groups!['day'])
+        return new Date(year, month - 1, day) // month starts at zero...
+      }
+    }
+    throw new Error('oopsy whoopsy!')
+  }
+
+  test('custom decoder inference', () => {
+    const CustomDate = custom(customDateDecoder)
+    expect(true).toBe(true)
+
+    type Expected = Date
+    type Actual = Infer<typeof CustomDate>
+
+    type _Test = Expect<Equal<Expected, Actual>>
+  })
+
+  test('custom decoder functionality', () => {
+    const CustomDate = custom(customDateDecoder)
+
+    const testData = [
+      // input, expected
+      ['2024-11-18', new Date(2024, 10, 18)],
+      ['11/18/2024', new Date(2024, 10, 18)],
+      ['11_18_2024', new Date(2024, 10, 18)],
+    ] as const
+
+    for (const [input, expected] of testData) {
+      const actual = CustomDate.decode(input)
+      expect(actual).toStrictEqual(expected)
+    }
+  })
+})
+```
+
+</Spoiler>
+
+## Input type other than unknown
+
+Up to this point, we've made an assumption that the input data is always an `unknown` type. For the builtin shapes, this was true (and should be true), because the builtins should be able to make all the appropriate runtime checks.
+For custom decoders though, it would be nice if the input data could be narrowed in the first place sometimes.
+
+In the previous example, we always were working with a string input that we had gotten from a CSV file<MarginNote id="csv-string">Always treat CSV fields like a string and don't use the "helpful" conversions from the CSV library, or they'll treat some of your zip codes like octal numbers. Ask me how I know</MarginNote>. It's nicer in this case if our `CustomDate` decoder was only allowed to receive a string as input, so we didn't have to check for that.
+
+Thankfully, this is pretty easy. We can update our main `Shape` and `ShapeCustom` types to take an optional type parameter that defaults to `unknown`:
+
+```typescript
+interface Shape<T, Input = unknown> {
+  readonly __tag: ShapeTag
+  readonly decode: (input: Input) => T
+}
+
+interface ShapeCustom<T, Input> extends Shape<T, Input> {
+  readonly __tag: 'custom'
+}
+```
+
+We have to add `infer Input` inside the last branch of the `Infer<Shape>` type, even though we aren't using it,
+
+```typescript
+
+export type Infer<S extends Shape<unknown>> = S extends ShapeUnknown
+// ...snip...
+                  : S extends ShapeCustom<infer T, infer Input>
+                    ? T
+                    : never
+```
+
+and then we update our `custom` function to also take that type parameter, which it will infer from the decoder that's passed in:
+
+```typescript
+export function custom<T, Input>(decode: (input: Input) => T): ShapeCustom<T, Input> {
+  return {
+    __tag: 'custom',
+    decode,
+  }
+}
+```
+
+If you added the tests from Part 1 for the custom decoder, you should have type errors now (this is why we test all of our code, including our types!)<MarginNote id="may-or-may-not">Actually you may or may not have type errors, depending on your compiler configuration. More on that below.</MarginNote>.
+
+<img
+  src='/images/blog/tutorials/ts-io-decoding-encoding-2/error_custom_shape_infer.png'
+  alt='Compiler error - ShapeCustom<Date, string> does not satisfy the constraint Shape. Types of property decode are incompatible. Type (input: string) => Date is not assignable to type (input: unknown) => unknown. Type unknown is not assignable to type string'
+/>
+
+This is a good time as any to learn about...
+
+<NewConcept title="covariance and contravariance">
+
+[Covariance and contravariance](<https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)>) are examples of different kinds of **variance**, which describes different ways that subtypes are allowed to interact and what substitutions are considered OK vs. considered a type error. These concepts have been well established in computer science for decades, dating back to the 1980s or possibly earlier.
+
+When working with function types, such as `(a: A) => B`, we have two types that we're dealing with:
+
+1. Parameter/argument type `A`
+2. Return type `B`
+
+Let's say that the function has to be constrained to satisfy `A => B`, and we pass in `CoolA => CoolB`. What do we know about the constraints on `CoolA` and `CoolB`?
+
+`B` is in the return position, which means its **covariant**. This means that `CoolB` can be `B` or any _subtype_ of `B`.
+
+`A` is in the parameter position, which is opposite, meaning it is **contravariant**. This means that `CoolA` can be `A` or any _supertype_ of `A`.
+
+</NewConcept>
+
+By default, TypeScript doesn't type check according to these rules. I'm not really sure what it does, but it can be opted in with the [strictFunctionTypes](https://www.typescriptlang.org/tsconfig/#strictFunctionTypes) compiler configuration setting which thankfully is included in the "strict" overall setting. But another crazy thing is it depends on the syntax you use for the function type!. For example, if we had written our type like this, then there would be no errors even with the "strict" flags on.
+
+```typescript
+interface Shape<T, Input = unknown> {
+  readonly __tag: ShapeTag
+  decode(input: Input): T // no contravariance checking with this syntax
+  // decode: (input: Input) => T // checks parameter type contravariantly
+}
+```
+
+Feel free to use that approach to suppress errors, but just note that this can cause runtime crashes to easily slip in because it's not actually correctly type checking (there's a reason that smart people write academic papers about all this stuff). To fix this the right way, we need to update the contraint in our `Infer<Shape>` type.
+
+```typescript
+export type Infer<S extends Shape<unknown, never>> = S extends ShapeUnknown
+//                                       ^^^^^^^
+// ...snip...
+```
+
+We explicitly pass in `never` for the `Input` type parameter, which appears in the contravariant position of the `decode` function. This way, since everything is a supertype of `never`, users will be able to define their own input type (or more accurately, we can infer their input type from the decoder that they provide).
+
+## Better error handling
+
+Part 1 contained a section on the rationale of why our current library design is not friendly to users.
+
+1. We're just using the string `"oopsy whoopsy!"` on every error, which is obviously not good, because it doesn't tell the user anything about what happened. That's something we'd clean up anyways, but also:
+2. Exceptions are invisible in the type system, defeating the purpose of static typing. The `decode` function **claims** to always give back a `T`, but that's not true
+3. Decoding errors are not exceptional, in principle, any time we're dealing with external data we should expect that it may not confirm to the desired shape
+4. Even if it was exceptional, that's not a decision for a general library to make. The users of our library (application developers) are who determines what is exceptional or not, based on their domain
+
+So what can we do? In some other languages, there's a data structure in the standard library that represents the result of a fallible function (often called `Result`), but that doesn't exist in JavaScript/TypeScript. We could import one from a third party library, but this tutorial is supposed to be from scratch, so we'll make it ourself!
+
+One way to do it is like this:
+
+```typescript
+type Result<T, Err> = [T, null] | [null, Err]
+```
+
+This maybe works, but doesn't distinguish well the possibility that an operation succeeds but has nothing to return (analogous to an HTTP 204). Or that an operation failed but there's no meaningful error to give, such as searching for an item in an array, the only way it fails is if the item isn't in the array so it's not worth having a runtime value for that. Maybe these are issues in theory but not in practice 🤷
+
+### A `Result` tagged union
+
+I prefer to leave less "room for error"<SideNote id="room-for-error">Or more precisely, to keep the error in a separate room from the success</SideNote> and have something with an explicit tag.
+
+```typescript
+type ResultSuccess<T> = { tag: 'success'; value: T }
+type ResultError<Err> = { tag: 'error'; error: Err }
+type Result<T, Err> = ResultSuccess<T> | ResultError<Err>
+```
+
+This will work fine. We can provide a couple of helper functions, but it's not strictly necessary:
+
+```typescript
+function success<T>(value: T): ResultSuccess<T> {
+  return { tag: 'success', value }
+}
+
+function isSuccess<T, Err>(result: Result<T, Err>): result is ResultSuccess<T> {
+  return result.tag === 'success'
+}
+
+function error<Err>(error: Err): ResultError<Err> {
+  return { tag: 'error', error }
+}
+
+function isError<T, Err>(result: Result<T, Err>): result is ResultError<Err> {
+  return result.tag === 'error'
+}
+
+const Result = {
+  success,
+  isSuccess,
+  error,
+  isError,
+} as const
+```
+
+This can be expanded/improved, but this will suit the purposes of this tutorial.
+
+<KnowledgeCheck>
+
+Try to implement a `map` and `flatMap` function<SideNote id="monad">Congrats! You made a monad</SideNote>.
+
+The `map` function should a `Result<T>` and a function `T => U` and give back a `Result<U>`.
+
+The `flatMap` function should take a `Result<T>` and a function `T => Result<U>` and give back a `Result<U>`.
+
+</KnowledgeCheck>
+
+Time to cause a bunch of red squigglies! Let's update our type signature of `decode` to indicate that it is fallible.
+
+```typescript
+interface Shape<T, Input = unknown> {
+  readonly __tag: ShapeTag
+  readonly decode: (input: Input) => Result<T, unknown>
+}
+```
+
+So the only problem now is... What is `Err` in this case? For now, let's define an empty type and we'll build it up as we learn what we need. We can also define an alias for convenience (this is optional).
+
+```typescript
+type DecodeError = {}
+type DecodeResult<T> = Result<T, DecodeError>
+
+interface Shape<T, Input = unknown> {
+  readonly __tag: ShapeTag
+  readonly decode: (input: Input) => DecodeResult<T>
+}
+```
+
+The first error to resolve is on the unknown shape<MarginNote id="tests-with-compile-errors">Depending on your test setup, you may still be able to run tests when there are compiler errors. This can be pretty useful for situations like this where there's an "infectious" change causing a lot of errors, the tests can help verify the refactor in each location</MarginNote>, this one is straight-forward given what we've learned so far:
+
+```typescript
+export const unknown: ShapeUnknown = {
+  __tag: 'unknown',
+  decode: (input: unknown) => Result.success(input),
+} as const
+```
+
+### Booleans
+
+Now for the boolean decoder, it can only fail in one way, which is if the input is not a boolean. As we kind of hinted earlier, in **some** cases when there's only one mode of failure, you don't _have_ to provide any additional detail. However, here, we still should, because even though the boolean only has one mode of failure, it will be **composed** inside of other decoders and we should provide context for the user, especially because an array/record/struct can have multiple failures.
+
+ex. for a struct with a `coolFlag` field, the error might end up looking like `{ coolFlag: 'expected boolean, got string' }`
+
+```typescript
+type DecodeError = string
+//                 ^^^^^^
+
+// ...snip...
+
+export const boolean: ShapeBoolean = {
+  __tag: 'boolean',
+  decode: (input: unknown): DecodeResult<boolean> => {
+    if (typeof input !== 'boolean') {
+      return Result.error(`expected 'boolean', got '${typeof input}'`)
+    }
+    return Result.success(input)
+  },
+} as const
+```
+
+<EmphasisBox>
+
+Oh shucks, `typeof null` returns `'object'`! This means our users will see "got 'object'" when the input data was null. Maybe this is technically correct, but it is likely confusing to our users.
+
+I made a custom `typeOf` function to deal with this edge case, though this is optional. The builtin `typeof` unary operator still needs to be used to narrow the type, this is only for constructing the error message.
+
+```typescript
+function typeOf(input: unknown): string {
+  if (input === null) {
+    return 'null'
+  }
+  return typeof input
+}
+```
+
+Replace the `got '${typeof input}'` with `got '${typeOf(input)}'` if you'd like. That way, users will see "got 'null'" instead of "got 'object'".
+
+</EmphasisBox>
+
+<KnowledgeCheck>
+
+Two random design thoughts about this decoder:
+
+1. Does the return type of `decode` here need to be written out explicitly or could it be inferred? What are the trade-offs to both choices?
+2. We're executing `typeof input` twice. Performance is not an issue unless it's proven by a good benchmark to actually be a bottleneck, but for the sake of academic curiosity, does this still work if you pull out `typeof input` to a separate variable so it only executes once? Why or why not?
+
+</KnowledgeCheck>
+
+### Numbers
+
+The number decoder has three ways of failing:
+
+```typescript
+export const number: ShapeNumber = {
+  __tag: 'number',
+  decode(input: unknown): DecodeResult<number> {
+    if (typeof input !== 'number') {
+      return Result.error(`expected 'number', got '${typeOf(input)}'`)
+    }
+    if (Number.isNaN(input)) {
+      return Result.error(`expected 'number', got 'NaN'`)
+    }
+    if (!Number.isFinite(input)) {
+      return Result.error(`expected finite 'number', got '${input}'`)
+    }
+
+    return Result.success(input)
+  },
+}
+```
+
+<KnowledgeCheck>
+
+Updating the `bigint` decoder is an "exercise for the reader", because it depends on the design decisions you made in Part 1 on what input was allowed or not allowed.
+
+</KnowledgeCheck>
+
+### Strings
+
+The decoder for string is straight-forward as well.
+
+```typescript
+export const string: ShapeString = {
+  __tag: 'string',
+  decode(idnput: unknown): DecodeResult<string> {
+    if (typeof input !== 'string') {
+      return Result.error(`expected 'string', got '${typeOf(input)}'`)
+    }
+    return Result.success(input)
+  },
+}
+```
+
+### Arrays
+
+Now we get more interesting, because for arrays there's two sources of failure:
+
+1. The data being decoded itself is not an array
+2. One or more of the elements of the array fail their own decoding
+
+If it's the first failure, a simple string still suffices, no additional context is needed besides what we'll include in the message. However, for the second failure, we need to provide more context to the user on which elements failed decoding.
+
+We need to update our `DecodeError` to have the potential to carry more information:
+
+```typescript
+type DecodeError = string | { [key: string]: string | DecodeError }
+```
+
+Just like we've seen a bunch of times throughout this tutorial, this is **recursion** in action which has (at least) a base case and (at least) a recursive case.
+
+<KnowledgeCheck>
+
+Why can't the [Record utility type](https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type) be used here?
+
+</KnowledgeCheck>
+
+Down to the array function, the new signature is:
+
+```typescript
+export function array<S extends Shape<unknown>>(elementShape: S): ShapeArray<S> {
+  return {
+    __tag: 'array',
+    decode(input: unknown): DecodeResult<Infer<S>[]> {
+      // ...snip...
+    },
+  }
+}
+```
+
+Try implementing this yourself, referencing the information from the beginning of this section. When you're finished, or if you're stuck, feel free to check the sample implementation in the spoiler below.
+
+<Spoiler summary="array decode implementation">
+
+This is one approach to implementing this. This is an "imperative" approach, which is completely fine by me, as JavaScript/TypeScript support multiple paradigms.
+
+```typescript
+export function array<S extends Shape<unknown>>(elementShape: S): ShapeArray<S> {
+  return {
+    __tag: 'array',
+    decode(input: unknown): DecodeResult<Infer<S>[]> {
+      if (!Array.isArray(input)) {
+        return Result.error(`expected 'Array', got '${typeOf(input)}'`)
+      }
+
+      const errors: DecodeError = {}
+      const output = Array<Infer<S>>(input.length)
+
+      for (let i = 0; i < input.length; i++) {
+        const result = elementShape.decode(input[i])
+        if (Result.isSuccess(result)) {
+          output[i] = result.value as Infer<S>
+        } else {
+          errors[i] = result.error
+        }
+      }
+
+      if (Object.keys(errors).length > 1) {
+        return Result.error(errors)
+      }
+
+      return Result.success(output)
+    },
+  }
+}
+```
+
+We can use the number `i` to index into an object because JavaScript [coerces properties to strings](https://262.ecma-international.org/#sec-topropertykey) when used in get or set operations.
+
+</Spoiler>
+
+### Records
+
+As with Part 1, records and arrays are similar to each other<MarginNote id="exponential-types">The mathematical basis for this could be a topic for another article</MarginNote>.
+
+export default function ({ children }) {
+  return <ArticlePage meta={meta}>{children}</ArticlePage>
+}
