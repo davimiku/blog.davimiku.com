@@ -9,9 +9,10 @@
 
 :root {
   // Theme colors
-  --color-code: orange;
+  --color-off-black: #151515;
 
   --color-primary: rgb(35, 87, 132);
+  --color-primary-lighter: rgba(35, 87, 132, 0.8);
   --color-secondary: rgb(64, 168, 196);
   --color-tertiary: rgb(188, 219, 223);
   --color-accent: rgb(247, 170, 0);
@@ -20,14 +21,27 @@
   --color-black: rgb(0, 0, 0);
   --color-dark-gray: rgb(50, 50, 50);
 
+  --color-code: light-dark(var(--color-primary), var(--color-accent));
+  --color-code-background: light-dark(var(--color-tertiary), var(--color-off-black));
+  --color-border: light-dark(var(--color-primary), var(--color-accent));
+
   --color-lighter: rgba(255, 255, 255, 0.2);
   --color-darker: rgba(0, 0, 0, 0.2);
 }
 
-body.dark p > code,
-body.dark li > code,
+:root.dark {
+  color-scheme: dark;
+}
+
+:root.light {
+  color-scheme: light;
+}
+
+p > code,
+li > code,
 td > code {
   color: var(--color-code);
+  background-color: var(--color-code-background);
 }
 
 section > pre {

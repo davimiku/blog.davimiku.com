@@ -37,7 +37,7 @@ export default function ArticleIndex() {
   const blogSummaries = articlesMeta.map(meta => <ArticleListing meta={meta} key={meta.slug} />)
   return (
     <Layout title='Blogs' description='Blog Posts'>
-      <h1>Blog</h1>
+      <h1>Articles</h1>
       <p>
         Below are the articles in my blog. I enjoy technical writing in general, and I mostly write
         about Software Engineering and Programming Languages.

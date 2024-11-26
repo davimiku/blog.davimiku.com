@@ -24,7 +24,7 @@
     }
   }
 
-  &--dark {
+  @media (prefers-color-scheme: dark) {
     border-color: white;
     a {
       &:hover {

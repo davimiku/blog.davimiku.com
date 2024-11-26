@@ -1,12 +1,10 @@
 import { HTMLAttributes, PropsWithChildren, ReactNode } from 'react'
-import { useColorSchemeClass } from 'hooks/useColorScheme'
 import styles from './Card.module.scss'
 import Link from 'next/link'
 
 export function Card({ children, ...rest }: PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
-  const cardClass = useColorSchemeClass(styles, 'card')
   return (
-    <div className={cardClass} {...rest}>
+    <div className={styles['card']} {...rest}>
       {children}
     </div>
   )
@@ -52,6 +50,5 @@ export type CardFooterProps = {
 }
 
 Card.Footer = function ({ children }: CardFooterProps) {
-  const className = useColorSchemeClass(styles, 'card-footer')
-  return <footer className={className}>{children}</footer>
+  return <footer className={styles['card-footer']}>{children}</footer>
 }

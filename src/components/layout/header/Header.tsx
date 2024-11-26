@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import styles from './Header.module.scss'
+import { ColorSchemeToggle } from 'components/color_scheme_toggle/ColorSchemeToggle'
 
 export function Header() {
   return (
@@ -11,6 +11,7 @@ export function Header() {
         <HeaderNavLink href='/projects' linkText='projects' />
         <HeaderNavLink href='/articles' linkText='articles' />
       </ul>
+      <ColorSchemeToggle />
     </nav>
   )
 }
@@ -21,14 +22,9 @@ export type HeaderNavLinkProps = {
 }
 
 export function HeaderNavLink({ href, linkText }: HeaderNavLinkProps) {
-  const router = useRouter()
-
-  const className = router.pathname === href ? styles['nav-link-active'] : ''
   return (
     <li>
-      <Link href={href} className={className}>
-        {linkText}
-      </Link>
+      <Link href={href}>{linkText}</Link>
     </li>
   )
 }

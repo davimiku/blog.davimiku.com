@@ -4,7 +4,9 @@ pre > code {
 }
 
 /* Inline code was too small */
-p > code {
+p > code,
+li > code,
+td > code {
   font-size: 1.2rem;
 }
 

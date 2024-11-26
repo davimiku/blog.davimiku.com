@@ -1,4 +1,3 @@
-import { useColorSchemeClass } from 'hooks/useColorScheme'
 import { HTMLAttributeAnchorTarget, PropsWithChildren } from 'react'
 
 import { IoArrowForward } from 'react-icons/io5'
@@ -10,9 +9,8 @@ export type ButtonLink = {
 }
 
 export function ButtonLink({ href, target = '_self', children }: PropsWithChildren<ButtonLink>) {
-  const className = useColorSchemeClass(styles, 'button-link')
   return (
-    <div className={className}>
+    <div className={styles['button-link']}>
       <a href={href} target={target} rel='noreferrer'>
         {children}
         &nbsp;
