@@ -2,6 +2,7 @@
  * Components used within blog posts
  */
 
+export * from './blockquote/BlockQuote'
 export * from './emphasis_box/EmphasisBox'
 export * from './figure/Figure'
 export * from './knowledge_check/KnowledgeCheck'
