@@ -21,9 +21,9 @@ export type ArticleMeta = {
 
 import * as ResponsivenessWithoutBreakpoints from '../articles/responsiveness-without-breakpoints.mdx'
 import * as JsonParserRust1 from '../tutorials/json-parsing-rust-1.mdx'
-import * as TsIoDecodingEncoding from '../tutorials/ts-io-decoding-encoding.mdx'
+import * as TsIoDecodingEncoding1 from '../tutorials/ts-io-decoding-encoding-1.mdx'
 
-const articles = [ResponsivenessWithoutBreakpoints, JsonParserRust1, TsIoDecodingEncoding]
+const articles = [ResponsivenessWithoutBreakpoints, JsonParserRust1, TsIoDecodingEncoding1]
 export const articlesMeta: PublishedArticleMeta[] = articles
   .map(blog => blog.meta)
   .filter(isPublished)
