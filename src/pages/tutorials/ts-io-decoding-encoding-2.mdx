@@ -229,7 +229,7 @@ interface Shape<T, Input = unknown> {
 }
 ```
 
-Feel free to use that approach to suppress errors, but just note that this can cause runtime crashes to easily slip in because it's not actually correctly type checking (there's a reason that smart people write academic papers about all this stuff). To fix this the right way, we need to update the contraint in our `Infer<Shape>` type.
+Feel free to use that approach to suppress errors, but just note that this can cause runtime crashes to easily slip in because it's not actually checking the types correctly. To fix this the right way, we need to update the contraint in our `Infer<Shape>` type.
 
 ```typescript
 export type Infer<S extends Shape<unknown, never>> = S extends ShapeUnknown
@@ -237,16 +237,16 @@ export type Infer<S extends Shape<unknown, never>> = S extends ShapeUnknown
 // ...snip...
 ```
 
-We explicitly pass in `never` for the `Input` type parameter, which appears in the contravariant position of the `decode` function. This way, since everything is a supertype of `never`, users will be able to define their own input type (or more accurately, we can infer their input type from the decoder that they provide).
+We pass in `never` for the `Input` type parameter, which appears in the **contravariant** position of the `decode` function. This way, since everything is a supertype of `never`, users will be able to define their own input type (or more accurately, we can infer their input type from the decoder that they provide).
 
 ## Better error handling
 
-Part 1 contained a section on the rationale of why our current library design is not friendly to users.
+Part 1 contained a section on the rationale of why our current library design is not friendly to users, but to repeat and expand:
 
-1. We're just using the string `"oopsy whoopsy!"` on every error, which is obviously not good, because it doesn't tell the user anything about what happened. That's something we'd clean up anyways, but also:
+1. We're just using the string `"oopsy whoopsy!"` on every error, which is obviously not useful, because it doesn't tell the user anything about what happened
 2. Exceptions are invisible in the type system, defeating the purpose of static typing. The `decode` function **claims** to always give back a `T`, but that's not true
 3. Decoding errors are not exceptional, in principle, any time we're dealing with external data we should expect that it may not confirm to the desired shape
-4. Even if it was exceptional, that's not a decision for a general library to make. The users of our library (application developers) are who determines what is exceptional or not, based on their domain
+4. Even if it was exceptional, that's not a decision for a general library to make. The users of our library (application developers) are who determines what is exceptional or not, based on their domain knowledge
 
 So what can we do? In some other languages, there's a data structure in the standard library that represents the result of a fallible function (often called `Result`), but that doesn't exist in JavaScript/TypeScript. We could import one from a third party library, but this tutorial is supposed to be from scratch, so we'll make it ourself!
 
@@ -256,7 +256,7 @@ One way to do it is like this:
 type Result<T, Err> = [T, null] | [null, Err]
 ```
 
-This maybe works, but doesn't distinguish well the possibility that an operation succeeds but has nothing to return (analogous to an HTTP 204). Or that an operation failed but there's no meaningful error to give, such as searching for an item in an array, the only way it fails is if the item isn't in the array so it's not worth having a runtime value for that. Maybe these are issues in theory but not in practice 🤷
+This maybe works, but doesn't distinguish well the possibility that an operation succeeds but has nothing to return (analogous to an HTTP 204 - succeeded with no content). Or that an operation failed but there's no meaningful error to give, such as searching for an item in an array, the only way it fails is if the item isn't in the array so it's not worth having a runtime value for that. Maybe these are issues in theory but not in practice 🤷
 
 ### A `Result` tagged union
 
@@ -287,6 +287,7 @@ function isError<T, Err>(result: Result<T, Err>): result is ResultError<Err> {
   return result.tag === 'error'
 }
 
+// if you added this code to a separate module, export this
 const Result = {
   success,
   isSuccess,
@@ -299,11 +300,13 @@ This can be expanded/improved, but this will suit the purposes of this tutorial.
 
 <KnowledgeCheck>
 
-Try to implement a `map` and `flatMap` function<SideNote id="monad">Congrats! You made a monad</SideNote>.
+Try to implement a `map` and `flatMap` function.
 
 The `map` function should a `Result<T>` and a function `T => U` and give back a `Result<U>`.
 
 The `flatMap` function should take a `Result<T>` and a function `T => Result<U>` and give back a `Result<U>`.
+
+Congrats! You made a monad. Bask in your superiority.
 
 </KnowledgeCheck>
 
@@ -471,9 +474,18 @@ export function array<S extends Shape<unknown>>(elementShape: S): ShapeArray<S> 
 
 Try implementing this yourself, referencing the information from the beginning of this section. When you're finished, or if you're stuck, feel free to check the sample implementation in the spoiler below.
 
-<Spoiler summary="array decode implementation">
+If we encounter an error on the Xth element, we shouldn't stop like we did before (previously, we were throwing an exception). It will be useful for people if we check all the data and return **all** errors that were encountered. For example, for a string array shape our errors could end up being something like this which would tell our users which elements did not decode successfully.
 
-This is one approach to implementing this. This is an "imperative" approach, which is completely fine by me, as JavaScript/TypeScript support multiple paradigms.
+```typescript
+{
+  "9": "expected 'string', got 'null'",
+  "16": "expected 'string', got 'object'"
+}
+```
+
+<Spoiler summary="example - array decode implementation">
+
+Below is one approach to implementing this. This is an procedural/imperative approach using mutation, which is completely fine by me. JavaScript/TypeScript support multiple paradigms, and using more "functional" code isn't always the most readable in this language.
 
 ```typescript
 export function array<S extends Shape<unknown>>(elementShape: S): ShapeArray<S> {
@@ -485,6 +497,7 @@ export function array<S extends Shape<unknown>>(elementShape: S): ShapeArray<S> 
       }
 
       const errors: DecodeError = {}
+      // micro-optimization: preallocate because we know the length
       const output = Array<Infer<S>>(input.length)
 
       for (let i = 0; i < input.length; i++) {
@@ -506,13 +519,102 @@ export function array<S extends Shape<unknown>>(elementShape: S): ShapeArray<S> 
 }
 ```
 
-We can use the number `i` to index into an object because JavaScript [coerces properties to strings](https://262.ecma-international.org/#sec-topropertykey) when used in get or set operations.
+Fun Fact: We're allowed to use the **number** `i` to index into an object because JavaScript [coerces properties to strings](https://262.ecma-international.org/#sec-topropertykey) when used in get or set operations, so we don't have to coerce it ourselves. We could, if we wanted to.
 
 </Spoiler>
 
 ### Records
 
-As with Part 1, records and arrays are similar to each other<MarginNote id="exponential-types">The mathematical basis for this could be a topic for another article</MarginNote>.
+As with Part 1, records and arrays are similar to each other<MarginNote id="exponential-types">In type theory, both of these are [exponential types](https://josevillegas.substack.com/p/swift-sum-types-product-types), which is why the implementation for us is a similar idea. I couldn't find a source that directly writes about this, maybe a topic for a future article</MarginNote>.
+
+Similar to before, try implementing it yourself by updating what we have currently to an implementation that **collects** errors, and returns success if no errors were found.
+
+<Spoiler summary="example - record decode implementation">
+
+Very similar procedural/imperative implementation, the only difference is a string key is used rather than a numeric index.
+
+```typescript
+export function record<S extends Shape<unknown>>(valueShape: S): ShapeRecord<S> {
+  return {
+    __tag: 'record',
+    decode(input: unknown): DecodeResult<Record<string, Infer<S>>> {
+      if (!input || typeof input !== 'object' || Array.isArray(input)) {
+        return Result.error(`expected 'Object', got '${typeOf(input)}'`)
+      }
+
+      const errors: DecodeError = {}
+      const output: Record<string, Infer<S>> = {}
+
+      for (const [key, value] of Object.entries(input)) {
+        const result = valueShape.decode(value)
+        if (Result.isSuccess(result)) {
+          output[key] = result.value as Infer<S>
+        } else {
+          errors[key] = result.error
+        }
+      }
+
+      if (Object.keys(errors).length > 1) {
+        return Result.error(errors)
+      }
+
+      return Result.success(output)
+    },
+  } as const
+}
+```
+
+</Spoiler>
+
+### Structs
+
+Again, the runtime code for structs is similar to records because at runtime they are the same thing. The type annotations will be different because our distinction between these two concepts lives in the type context.
+
+Same idea as before - run the `record` decoder first to verify the incoming data is at least a record. Then, decode each field individually.
+
+<Spoiler summary="example - struct decode implementation">
+
+This implementation uses the `flatMap` that was an optional exercise earlier, so that's not mandatory. Instead of `flatMap`, you can manually check the result of the record decoder and return the error if it's an error, and otherwise unwrap the success value and pass it to the next computation. This is just a demonstration of how `flatMap` can help you **compose** operations together with less boilerplate<MarginNote id="different-style">It's a different style of programming that's not for everyone. It's worth trying in general to see if you like it or not</MarginNote>.
+
+```typescript
+const UnknownRecord = record(unknown)
+
+export function struct<Fields extends StructFields>(fieldShapes: Fields): ShapeStruct<Fields> {
+  return {
+    __tag: 'struct',
+    decode(input: unknown): DecodeResult<InferStruct<Fields>> {
+      return Result.flatMap(UnknownRecord.decode(input), record =>
+        decodeRecordToStruct(record, fieldShapes)
+      )
+    },
+  } as const
+}
+
+function decodeRecordToStruct<Fields extends StructFields>(
+  data: Record<string, unknown>,
+  fieldShapes: Fields
+): DecodeResult<InferStruct<Fields>> {
+  const output = {} as InferStruct<Fields>
+  const errors: DecodeError = {}
+
+  for (const [key, shape] of Object.entries(fieldShapes)) {
+    const result = shape.decode(data[key])
+    if (Result.isSuccess(result)) {
+      output[key as keyof Fields] = result.value as Infer<Fields[keyof Fields]>
+    } else {
+      errors[key] = result.error
+    }
+  }
+
+  if (Object.keys(errors).length > 1) {
+    return Result.error(errors)
+  }
+
+  return Result.success(output)
+}
+```
+
+</Spoiler>
 
 export default function ({ children }) {
   return <ArticlePage meta={meta}>{children}</ArticlePage>
