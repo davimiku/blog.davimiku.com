@@ -1,3 +1,5 @@
+import styles from './Figure.module.scss'
+
 export type FigureProps = {
   src: string
   caption: string
@@ -6,7 +8,7 @@ export type FigureProps = {
 
 export function Figure({ src, caption, alt }: FigureProps) {
   return (
-    <figure>
+    <figure className={styles['figure']}>
       <img src={src} alt={alt ?? caption} />
       <figcaption>{caption}</figcaption>
     </figure>
