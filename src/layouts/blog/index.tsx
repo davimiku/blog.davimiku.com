@@ -12,7 +12,7 @@ export type ArticlePageProps = {
 }
 
 export function ArticlePage({ children, meta }: ArticlePageProps) {
-  const { title, tagline, category, slug, publishedOn, updatedOn, ogImage } = meta
+  const { title, tagline, category, slug, publishedOn, updatedOn, ogImage, readingTime } = meta
   const imageUrl = ogImage
     ? `https://blog.davimiku.com/images/blog/${category}/${slug}/${ogImage}`
     : ''
@@ -32,21 +32,35 @@ export function ArticlePage({ children, meta }: ArticlePageProps) {
     },
   }
 
-  const published = publishedOn ? (
-    <p className={styles.timestamp}>Published: {publishedOn}</p>
-  ) : null
-  const updated = updatedOn ? <p className={styles.timestamp}>Last Updated: {updatedOn}</p> : null
-
   return (
     <Layout title={title} description={tagline}>
       <NextSeo {...seoProps} />
       <article>
         <h1>{title}</h1>
         <p className='subtitle'>{tagline}</p>
-        {published}
-        {updated}
+        <PublishedOn publishedOn={publishedOn} />
+        <UpdatedOn updatedOn={updatedOn} />
+        <ReadingTime minutes={readingTime} />
         <section>{children}</section>
       </article>
     </Layout>
   )
+}
+
+function PublishedOn({ publishedOn }: { publishedOn?: string }) {
+  if (!publishedOn) return null
+
+  return <p className={styles.timestamp}>📄 Published: {publishedOn}</p>
+}
+
+function UpdatedOn({ updatedOn }: { updatedOn?: string }) {
+  if (!updatedOn) return null
+
+  return <p className={styles.timestamp}>🛠️ Last Updated: {updatedOn}</p>
+}
+
+function ReadingTime({ minutes }: { minutes?: number }) {
+  if (!minutes) return null
+
+  return <p className={styles.timestamp}>☕ Estimated reading time: {minutes} minutes</p>
 }
