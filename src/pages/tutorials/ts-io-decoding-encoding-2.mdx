@@ -13,6 +13,7 @@ import Image from 'next/image'
 import { ArticlePage } from '../../layouts/blog'
 import {
   EmphasisBox,
+  Figure,
   KnowledgeCheck,
   NewConcept,
   Spoiler,
@@ -195,8 +196,9 @@ export function custom<T, Input>(decode: (input: Input) => T): ShapeCustom<T, In
 
 If you added the tests from Part 1 for the custom decoder, you should have type errors now (this is why we test all of our code, including our types!)<MarginNote id="may-or-may-not">Actually you may or may not have type errors, depending on your compiler configuration. More on that below.</MarginNote>.
 
-<img
+<Figure
   src='/images/blog/tutorials/ts-io-decoding-encoding-2/error_custom_shape_infer.png'
+  caption='The "input" parameter of the "decode" function does not satisfy the expected type'
   alt='Compiler error - ShapeCustom<Date, string> does not satisfy the constraint Shape. Types of property decode are incompatible. Type (input: string) => Date is not assignable to type (input: unknown) => unknown. Type unknown is not assignable to type string'
 />
 
