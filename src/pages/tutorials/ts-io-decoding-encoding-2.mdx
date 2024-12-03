@@ -342,6 +342,16 @@ export const unknown: ShapeUnknown = {
 } as const
 ```
 
+<EmphasisBox>
+
+Unlike Part 1, the test code won't be provided, but it's highly recommended to follow along by updating your tests as you go.
+
+However, for reference, feel free to check out the test code in the `part-2` tag of the repository: [https://github.com/davimiku/ts-io-decoding-encoding#part-2](https://github.com/davimiku/ts-io-decoding-encoding/tree/part-2).
+
+When writing your tests, make sure to add plenty of cases for the failure scenarios!
+
+</EmphasisBox>
+
 ### Booleans
 
 Now for the boolean decoder, it can only fail in one way, which is if the input is not a boolean. As we kind of hinted earlier, in **some** cases when there's only one mode of failure, you don't _have_ to provide any additional detail. However, here, we still should, because even though the boolean only has one mode of failure, it will be **composed** inside of other decoders and we should provide context for the user, especially because an array/record/struct can have multiple failures.
@@ -476,7 +486,7 @@ export function array<S extends Shape<unknown>>(elementShape: S): ShapeArray<S> 
 
 Try implementing this yourself, referencing the information from the beginning of this section. When you're finished, or if you're stuck, feel free to check the sample implementation in the spoiler below.
 
-If we encounter an error on the Xth element, we shouldn't stop like we did before (previously, we were throwing an exception). It will be useful for people if we check all the data and return **all** errors that were encountered. For example, for a string array shape our errors could end up being something like this which would tell our users which elements did not decode successfully.
+If we encounter an error on the Xth element, we shouldn't stop like we did before (previously, we were throwing an exception, which aborted the decoding). It will be useful for people if we check all the data and return **all** errors that were encountered. For example, for a string array shape our errors could end up being something like this which would tell our users which elements did not decode successfully.
 
 ```typescript
 {
@@ -511,7 +521,7 @@ export function array<S extends Shape<unknown>>(elementShape: S): ShapeArray<S> 
         }
       }
 
-      if (Object.keys(errors).length > 1) {
+      if (Object.keys(errors).length > 0) {
         return Result.error(errors)
       }
 
@@ -530,6 +540,12 @@ Fun Fact: We're allowed to use the **number** `i` to index into an object becaus
 As with Part 1, records and arrays are similar to each other<MarginNote id="exponential-types">In type theory, both of these are [exponential types](https://josevillegas.substack.com/p/swift-sum-types-product-types), which is why the implementation for us is a similar idea. I couldn't find a source that directly writes about this, maybe a topic for a future article</MarginNote>.
 
 Similar to before, try implementing it yourself by updating what we have currently to an implementation that **collects** errors, and returns success if no errors were found.
+
+For example, when decoding a record of number values, let's say we encountered a string value for the key "not a number", the error output would look like this:
+
+```js
+{ "not a number": "expected 'number', got 'string'" }
+```
 
 <Spoiler summary="example - record decode implementation">
 
@@ -556,7 +572,7 @@ export function record<S extends Shape<unknown>>(valueShape: S): ShapeRecord<S> 
         }
       }
 
-      if (Object.keys(errors).length > 1) {
+      if (Object.keys(errors).length > 0) {
         return Result.error(errors)
       }
 
@@ -572,11 +588,11 @@ export function record<S extends Shape<unknown>>(valueShape: S): ShapeRecord<S> 
 
 Again, the runtime code for structs is similar to records because at runtime they are the same thing. The type annotations will be different because our distinction between these two concepts lives in the type context.
 
-Same idea as before - run the `record` decoder first to verify the incoming data is at least a record. Then, decode each field individually.
+Same idea as in Part 1 - run the `record` decoder first to verify the incoming data is at least a record. Then, decode each field individually. The error output should be the same format as records, since the runtime code is basically the same thing.
 
 <Spoiler summary="example - struct decode implementation">
 
-This implementation uses the `flatMap` that was an optional exercise earlier, so that's not mandatory. Instead of `flatMap`, you can manually check the result of the record decoder and return the error if it's an error, and otherwise unwrap the success value and pass it to the next computation. This is just a demonstration of how `flatMap` can help you **compose** operations together with less boilerplate<MarginNote id="different-style">It's a different style of programming that's not for everyone. It's worth trying in general to see if you like it or not</MarginNote>.
+This implementation uses the `flatMap` that was an optional exercise earlier, so that's not mandatory. Instead of `flatMap`, you can manually check the result of the record decoder and return the error if it's an error, and otherwise unwrap the success value and pass it to the next computation. This is just a demonstration of how `flatMap` can help you **compose** operations together with less boilerplate<MarginNote id="different-style">It's a different style of programming that's not for everyone, but it's worth trying in general to see if you like it or not</MarginNote>.
 
 ```typescript
 const UnknownRecord = record(unknown)
@@ -608,7 +624,7 @@ function decodeRecordToStruct<Fields extends StructFields>(
     }
   }
 
-  if (Object.keys(errors).length > 1) {
+  if (Object.keys(errors).length > 0) {
     return Result.error(errors)
   }
 
@@ -617,6 +633,81 @@ function decodeRecordToStruct<Fields extends StructFields>(
 ```
 
 </Spoiler>
+
+<EmphasisBox>
+
+Should **extra** fields when decoding a struct be a failure?
+
+If not, should these extra fields be removed or copied into the decoded struct?
+
+What should the default behavior be? If a user wanted to opt-in to a different behavior, how could this library support that?
+
+</EmphasisBox>
+
+### Unions
+
+The actual validations have already been written in Part 1, but we need to modify it to return an error result rather than throwing for each case.
+
+On the happy path, after the tag has been determined, we need to make sure we run the decoder for the payload corresponding to the given tag, and make sure that error gets propagated appropriately.
+
+In this case, I choose to use the tag as the key of the error object, such that if the tag was `"click"` but the payload didn't successfully decode (let's say it was supposed to be a `ClickEvent` struct that was missing a field named `x`), then this error would be returned like:
+
+```js
+{
+  click: {
+    x: "expected 'number', got 'null'"
+  }
+}
+```
+
+<Spoiler summary="example - union decode implementation">
+
+This implementation makes use of the `Result.map` from the exercise earlier and a new `Result.mapError` that does the same thing but for the error variant. Similar to the previous note, it's not necessary to do this, you can "unwrap" / "re-wrap" the value or error as needed with only the capabilities provided in the tutorial.
+
+```typescript
+export function union<Variants extends UnionVariants>(variants: Variants): ShapeUnion<Variants> {
+  return {
+    __tag: 'union',
+    decode(input: unknown): DecodeResult<InferUnion<Variants>> {
+      if (!Array.isArray(input) || input.length !== 2) {
+        return Result.error('expected a 2-tuple with the tag as the first element')
+      }
+
+      const [tag, value] = input as [unknown, unknown]
+
+      if (typeof tag !== 'string') {
+        return Result.error(`expected the tag to be a 'string', got ${typeOf(tag)}`)
+      }
+
+      if (!Object.keys(variants).includes(tag)) {
+        return Result.error('expected the tag to match one of the provided variants')
+      }
+
+      const result = variants[tag].decode(value)
+
+      return Result.mapError(
+        Result.map(result, value => [tag, value as Infer<Variants[typeof tag]>]),
+        error => ({ [tag]: error })
+      )
+    },
+  }
+}
+```
+
+</Spoiler>
+
+### Custom Decoders
+
+No major change! We update the signature of the `custom` function and that's about it. The users of our library who define custom encoders are responsible for returning a `Result` depending on their use case.
+
+```typescript
+export function custom<T, Input>(decode: (input: Input) => DecodeResult<T>): ShapeCustom<T, Input> {
+  return {
+    __tag: 'custom',
+    decode,
+  }
+}
+```
 
 export default function ({ children }) {
   return <ArticlePage meta={meta}>{children}</ArticlePage>
