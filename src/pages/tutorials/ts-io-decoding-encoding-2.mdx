@@ -42,7 +42,7 @@ This could be for one or both of the following reasons:
 
 <EmphasisBox>
 
-A concrete example I had from a previous job is that we would get data from a bunch of different vendors that had to all be normalized into the same kind of struct. In particular, the date strings were wildly different from vendor to vendor, some actually used ISO 8601 like `YYYY-MM-DD` which was amazing but others used `MM/DD/YYYY`(🇺🇸), and if I recall some were `MM_DD_YYYY` and probably other even weirder formats.
+A concrete example I had from a previous job is that we would get data from a bunch of different vendors that had to all be normalized into the same kind of struct. In particular, the date strings were wildly different from vendor to vendor, some actually used ISO 8601 like `YYYY-MM-DD` which was nice but others used `MM/DD/YYYY`(🇺🇸), and if I recall some were `MM_DD_YYYY` and probably other even weirder formats.
 
 We made a custom decoder using [io-ts](https://www.npmjs.com/package/io-ts) that handled all of these cases and decoded it into a [Luxon DateTime](https://moment.github.io/luxon/#/), which was both of those use cases listed earlier. We then used the `DateTime` internally for our date-based business logic.
 
@@ -201,7 +201,7 @@ If you added the tests from Part 1 for the custom decoder, you should have type 
 
 <Figure
   src='/images/blog/tutorials/ts-io-decoding-encoding-2/error_custom_shape_infer.png'
-  caption='The "input" parameter of the "decode" function does not satisfy the expected type'
+  caption=''
   alt='Compiler error - ShapeCustom<Date, string> does not satisfy the constraint Shape. Types of property decode are incompatible. Type (input: string) => Date is not assignable to type (input: unknown) => unknown. Type unknown is not assignable to type string'
 />
 
@@ -216,7 +216,7 @@ When working with function types, such as `(a: A) => B`, we have two types that 
 1. Parameter/argument type `A`
 2. Return type `B`
 
-Let's say that the function has to be constrained to satisfy `A => B`, and we pass in `CoolA => CoolB`. What do we know about the constraints on `CoolA` and `CoolB`?
+Let's say that a function must satisfy the type `A => B`, and we pass in a function that is `CoolA => CoolB`. What do we know about the constraints on `CoolA` and `CoolB`?
 
 `B` is in the return position, which means its **covariant**. This means that `CoolB` can be `B` or any _subtype_ of `B`.
 
@@ -737,7 +737,7 @@ Is there anything that can be improved that would help make this easier? Documen
 
 ## Conclusion
 
-This wraps up Part 2! We added the ability to have custom decoders and improved the error handling. The library is fairly useful in its current state, but is still simplified for the sake of a tutorial (it's missing important functionality such as optional values<SideNote id="sample-optional-implementation">A sample implementation is available for reference in the source code</SideNote>).
+This wraps up Part 2! We added the ability to have custom decoders and improved the error handling. The library is fairly useful in its current state, but is still simplified for the sake of a tutorial (it's missing important functionality such as optional values).<SideNote id="sample-optional-implementation">A sample implementation is available for reference in the source code</SideNote>
 
 The next and final part of this series, Part 3, will implement the other half of the process, which is **encoding**.
 
