@@ -79,7 +79,7 @@ body {
   padding-left: 12.5%;
   font-family: et-book, Palatino, 'Palatino Linotype', 'Palatino LT STD', 'Book Antiqua', Georgia,
     serif;
-  background-color: light-dark(#fffff8, var(--color-off-black));
+  background-color: light-dark(var(--color-off-white), var(--color-off-black));
   color: light-dark(#111, #ddd);
   max-width: 1400px;
   counter-reset: sidenote-counter;
@@ -272,10 +272,11 @@ a:link,
 .hover-tufte-underline:hover {
   text-decoration: none;
   background:
-    -webkit-linear-gradient(#fffff8, #fffff8),
-    -webkit-linear-gradient(#fffff8, #fffff8),
+    -webkit-linear-gradient(var(--color-off-white), var(--color-off-white)),
+    -webkit-linear-gradient(var(--color-off-white), var(--color-off-white)),
     -webkit-linear-gradient(currentColor, currentColor);
-  background: linear-gradient(#fffff8, #fffff8), linear-gradient(#fffff8, #fffff8),
+  background: linear-gradient(var(--color-off-white), var(--color-off-white)),
+    linear-gradient(var(--color-off-white), var(--color-off-white)),
     linear-gradient(currentColor, currentColor);
   -webkit-background-size:
     0.05em 1px,
@@ -291,18 +292,18 @@ a:link,
     1px 1px;
   background-repeat: no-repeat, no-repeat, repeat-x;
   text-shadow:
-    0.03em 0 light-dark(#fffff8, var(--color-off-black)),
-    -0.03em 0 light-dark(#fffff8, var(--color-off-black)),
-    0 0.03em light-dark(#fffff8, var(--color-off-black)),
-    0 -0.03em light-dark(#fffff8, var(--color-off-black)),
-    0.06em 0 light-dark(#fffff8, var(--color-off-black)),
-    -0.06em 0 light-dark(#fffff8, var(--color-off-black)),
-    0.09em 0 light-dark(#fffff8, var(--color-off-black)),
-    -0.09em 0 light-dark(#fffff8, var(--color-off-black)),
-    0.12em 0 light-dark(#fffff8, var(--color-off-black)),
-    -0.12em 0 light-dark(#fffff8, var(--color-off-black)),
-    0.15em 0 light-dark(#fffff8, var(--color-off-black)),
-    -0.15em 0 light-dark(#fffff8, var(--color-off-black));
+    0.03em 0 light-dark(var(--color-off-white), var(--color-off-black)),
+    -0.03em 0 light-dark(var(--color-off-white), var(--color-off-black)),
+    0 0.03em light-dark(var(--color-off-white), var(--color-off-black)),
+    0 -0.03em light-dark(var(--color-off-white), var(--color-off-black)),
+    0.06em 0 light-dark(var(--color-off-white), var(--color-off-black)),
+    -0.06em 0 light-dark(var(--color-off-white), var(--color-off-black)),
+    0.09em 0 light-dark(var(--color-off-white), var(--color-off-black)),
+    -0.09em 0 light-dark(var(--color-off-white), var(--color-off-black)),
+    0.12em 0 light-dark(var(--color-off-white), var(--color-off-black)),
+    -0.12em 0 light-dark(var(--color-off-white), var(--color-off-black)),
+    0.15em 0 light-dark(var(--color-off-white), var(--color-off-black)),
+    -0.15em 0 light-dark(var(--color-off-white), var(--color-off-black));
   background-position:
     0% 93%,
     100% 93%,
