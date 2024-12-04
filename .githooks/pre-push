@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# Fail the pre-push check if the RSS feed refers to localhost
+# Run `npm run build` to generate the production RSS file
+grep -zqv 'localhost:3000' public/rss.xml || (echo "update rss.xml with a build" && exit 1)

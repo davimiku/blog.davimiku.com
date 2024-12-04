@@ -1,14 +1,12 @@
-import { projects } from 'data'
+import { projects } from 'data/projects'
 import Layout from 'layouts'
-import { ProjectDescription } from 'components/cards/project/ProjectDescription'
+import { ProjectSummaries } from 'components/summaries/ProjectSummaries'
 
 export default function Projects() {
   return (
     <Layout title='Projects' description='My Projects'>
       <h1>Projects</h1>
-      {projects.map(project => (
-        <ProjectDescription key={project.repo.name} project={project} />
-      ))}
+      <ProjectSummaries projects={projects} />
     </Layout>
   )
 }

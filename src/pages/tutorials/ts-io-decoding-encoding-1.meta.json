@@ -1,0 +1,14 @@
+{
+  "title": "Tutorial: I/O Data Decoding/Encoding Library from Scratch in TypeScript",
+  "category": "tutorials",
+  "type": "tutorial",
+  "slug": "ts-io-decoding-encoding-1",
+  "tagline": "Build your own library from scratch that decodes and encodes data. Deep-dive into TypeScript!",
+  "tags": ["TypeScript"],
+  "ogImageUrl": "banner.png",
+  "publishedOn": "2024-11-27",
+  "seriesName": "TypeScript Decoding/Encoding Library",
+  "seriesSlug": "ts-io-decoding-encoding",
+  "seriesIndex": 1,
+  "readingTime": 40
+}

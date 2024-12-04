@@ -1,8 +1,8 @@
 declare module '*.mdx' {
   import { ReactNode } from 'react'
-  import { PublishedArticleMeta } from './src/blog'
+  import type { ArticleMeta } from './src/data/articles'
 
-  export const meta: PublishedArticleMeta
+  export const meta: ArticleMeta
 
   const component: ReactNode
   export default ReactNode

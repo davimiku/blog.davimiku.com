@@ -8,8 +8,8 @@ export function Header() {
       <span>davimiku -- David's Blog</span>
       <ul className={styles['links']}>
         <HeaderNavLink href='/' linkText='home' />
-        <HeaderNavLink href='/projects' linkText='projects' />
         <HeaderNavLink href='/articles' linkText='articles' />
+        <HeaderNavLink href='/projects' linkText='projects' />
       </ul>
       <ColorSchemeToggle />
     </nav>

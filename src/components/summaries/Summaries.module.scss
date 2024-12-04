@@ -1,0 +1,24 @@
+.summary-list {
+  padding-left: 0;
+  width: var(--tufte-css-default-width);
+}
+
+.summary {
+  list-style: none;
+  padding-bottom: 2rem;
+  border-top: 1px dotted;
+  border-top-color: var(--color-border);
+
+  ul {
+    line-height: 1.5rem;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+
+  p {
+    margin-bottom: 0;
+    margin-top: 0.5rem;
+  }
+}

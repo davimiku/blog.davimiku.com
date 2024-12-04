@@ -1,0 +1,15 @@
+{
+  "title": "Tutorial: Writing a JSON Parser (Rust) - Part 2/2",
+  "category": "tutorials",
+  "type": "tutorial",
+  "slug": "json-parsing-rust-2",
+  "tagline": "Learn the fundamentals of parsing by building a JSON parser from scratch",
+  "tags": ["JSON", "Rust"],
+  "publishedOn": "2024-06-27",
+  "updatedOn": "2024-11-03",
+  "ogImageUrl": "banner.png",
+  "seriesName": "JSON Parsing (Rust)",
+  "seriesSlug": "json-parsing-rust",
+  "seriesIndex": 2,
+  "readingTime": 30
+}

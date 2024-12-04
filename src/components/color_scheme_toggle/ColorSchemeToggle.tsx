@@ -1,5 +1,4 @@
 import Toggle from 'react-toggle'
-import Image from 'next/legacy/image'
 
 import styles from './ColorSchemeToggle.module.scss'
 import React from 'react'

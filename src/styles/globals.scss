@@ -3,7 +3,7 @@
 
 :root {
   /* Align with the global styles provided by Tufte CSS */
-  --tufte-css-paragraph-width: 55%;
+  --tufte-css-default-width: 55%;
   --border-radius: 0.5rem;
 }
 
@@ -48,7 +48,7 @@ td > code,
 }
 
 section > pre {
-  width: var(--tufte-css-paragraph-width);
+  width: var(--tufte-css-default-width);
 
   @media (max-width: 760px) {
     & {

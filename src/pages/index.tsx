@@ -1,66 +1,84 @@
 import React from 'react'
+import type { GetStaticProps, InferGetStaticPropsType } from 'next'
 import Link from 'next/link'
 
-import { projects } from 'data'
+import { projects } from 'data/projects'
+import {
+  isFirstInSeries,
+  getPublishedArticlesStatic,
+  PublishedArticlesStaticProps,
+} from 'data/articles'
 import Layout from 'layouts'
 import { ExternalLink } from 'components/link/ExternalLink'
-import { ArticleSummary } from 'components/summaries/ArticleSummary'
-import { ProjectSummary } from 'components/summaries/ProjectSummary'
-import { articlesMeta } from './articles'
+import { ProjectSummaries } from 'components/summaries/ProjectSummaries'
+import { ArticleSummaries } from 'components/summaries/ArticleSummaries'
+
+export const getStaticProps =
+  getPublishedArticlesStatic satisfies GetStaticProps<PublishedArticlesStaticProps>
 
 /**
  * Component for the "home" page server at path '/'
  */
-export default function Home() {
-  const currentProjects = projects
-    .slice(0, 2)
-    .map(project => <ProjectSummary key={project.repo.name} project={project} />)
+export default function Home({
+  publishedArticles,
+}: InferGetStaticPropsType<typeof getStaticProps>) {
+  const currentProjects = projects.slice(0, 2)
+  const recentArticles = publishedArticles.filter(isFirstInSeries).slice(0, 3)
 
-  const recentArticles = articlesMeta
-    .slice(0, 3)
-    .sort((a, b) => b.publishedOn.localeCompare(a.publishedOn))
-    .map(meta => <ArticleSummary key={meta.slug} {...meta} />)
   return (
     <Layout title="David's Website" description='My Projects'>
       <h1>David's Website</h1>
 
-      <p>
-        Hello! My name is David and I am a software engineer who focuses on full-stack web
-        development. I generally work with Typescript and C#, though I enjoy learning and using new
-        languages and tools.
-      </p>
+      <section>
+        <p>
+          Hello! My name is David and I am a software engineer who focuses on full-stack web
+          development. I generally work with Typescript and C#, though I enjoy learning and using
+          new languages and tools.
+        </p>
 
-      <h2>About Me</h2>
+        <h2>About Me</h2>
 
-      <p>
-        At my day job, I work on a population health management platform for healthcare providers,
-        payors, and pharmacies.
-      </p>
+        <p>
+          At my day job, I work on a population health management platform for healthcare providers,
+          payors, and pharmacies.
+        </p>
 
-      <p>
-        I strive for a deep understanding of any topic that I am studying. Recently, I have become
-        interested in the topic of <em>compilers and interpreters</em>. The current project that I
-        am focusing on is an implementation of a{' '}
-        <ExternalLink href='https://github.com/davimiku/unknown-lang'>
-          statically-typed imperative programming language
-        </ExternalLink>{' '}
-        language in Rust. I have found that studying programming languages has brought me a deeper
-        understanding of how all software works.
-      </p>
+        <p>
+          I strive for a deep understanding of any topic that I am studying. Recently, I have become
+          interested in the topic of <em>compilers and interpreters</em>. The current project that I
+          am focusing on is an implementation of a{' '}
+          <ExternalLink href='https://github.com/davimiku/unknown-lang'>
+            statically-typed imperative programming language
+          </ExternalLink>{' '}
+          language in Rust. I have found that studying programming languages has brought me a deeper
+          understanding of how all software works.
+        </p>
+
+        <p>
+          I also write articles, tutorials, and essays intended for intermediate programmers and for
+          those improving to an intermediate level. I feel there is a lot of quality material for
+          the beginner level but comparatively less for intermediate. Check out some of those posts
+          below!
+        </p>
+      </section>
 
       <hr />
-      <h2>Recent Posts</h2>
-      <ol>{recentArticles}</ol>
-      <h3>
-        <Link href='/articles'>See all posts</Link>
-      </h3>
+      <section>
+        <h2>Recent Articles</h2>
+        <ArticleSummaries articles={recentArticles} />
+        <h3>
+          <Link href='/articles'>See all articles</Link>
+        </h3>
+      </section>
 
       <hr />
-      <h2>Current Projects</h2>
-      <ol>{currentProjects}</ol>
-      <h3>
-        <Link href='/projects'>See all projects</Link>
-      </h3>
+      <section>
+        <h2>Current Projects</h2>
+        <ProjectSummaries projects={currentProjects} />
+        <h3>
+          <Link href='/projects'>See all projects</Link>
+        </h3>
+      </section>
     </Layout>
   )
 }

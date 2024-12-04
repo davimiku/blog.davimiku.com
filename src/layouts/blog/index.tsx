@@ -4,7 +4,7 @@ import { ReactNode } from 'react'
 import Layout from 'layouts'
 
 import styles from './blog.module.scss'
-import type { ArticleMeta } from 'pages/articles'
+import type { ArticleMeta } from 'data/articles'
 
 export type ArticlePageProps = {
   children: ReactNode
@@ -12,9 +12,9 @@ export type ArticlePageProps = {
 }
 
 export function ArticlePage({ children, meta }: ArticlePageProps) {
-  const { title, tagline, category, slug, publishedOn, updatedOn, ogImage, readingTime } = meta
-  const imageUrl = ogImage
-    ? `https://blog.davimiku.com/images/blog/${category}/${slug}/${ogImage}`
+  const { title, tagline, category, slug, publishedOn, updatedOn, ogImageUrl, readingTime } = meta
+  const imageUrl = ogImageUrl
+    ? `https://blog.davimiku.com/images/blog/${category}/${slug}/${ogImageUrl}`
     : ''
   const seoProps: NextSeoProps = {
     title,

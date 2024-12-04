@@ -5,7 +5,7 @@
   margin-top: 1em;
   margin-bottom: 1em;
 
-  width: calc(var(--tufte-css-paragraph-width) + 2em);
+  width: calc(var(--tufte-css-default-width) + 2em);
 
   @media (max-width: 760px) {
     & {
