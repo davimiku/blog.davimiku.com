@@ -1,14 +1,12 @@
-import Layout from 'layouts'
-import {
-  isFirstInSeries,
-  getPublishedArticlesStatic,
-  PublishedArticlesStaticProps,
-} from 'data/articles'
-import { ArticleSummaries } from 'components/summaries/ArticleSummaries'
-import type { GetStaticProps, InferGetStaticPropsType } from 'next'
+import React from 'react'
+import type { InferGetStaticPropsType } from 'next'
+import fs from 'node:fs/promises'
 
-export const getStaticProps =
-  getPublishedArticlesStatic satisfies GetStaticProps<PublishedArticlesStaticProps>
+import Layout from 'layouts'
+import { isFirstInSeries, getPublishedArticles } from 'data/articles'
+import { ArticleSummaries } from 'components/summaries/ArticleSummaries'
+
+export const getStaticProps = () => getPublishedArticles(fs)
 
 export default function ArticleIndex({
   publishedArticles,

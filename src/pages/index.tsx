@@ -1,20 +1,17 @@
 import React from 'react'
-import type { GetStaticProps, InferGetStaticPropsType } from 'next'
+import type { InferGetStaticPropsType } from 'next'
 import Link from 'next/link'
 
+import fs from 'node:fs/promises'
+
 import { projects } from 'data/projects'
-import {
-  isFirstInSeries,
-  getPublishedArticlesStatic,
-  PublishedArticlesStaticProps,
-} from 'data/articles'
+import { isFirstInSeries, getPublishedArticles } from 'data/articles'
 import Layout from 'layouts'
 import { ExternalLink } from 'components/link/ExternalLink'
 import { ProjectSummaries } from 'components/summaries/ProjectSummaries'
 import { ArticleSummaries } from 'components/summaries/ArticleSummaries'
 
-export const getStaticProps =
-  getPublishedArticlesStatic satisfies GetStaticProps<PublishedArticlesStaticProps>
+export const getStaticProps = () => getPublishedArticles(fs)
 
 /**
  * Component for the "home" page server at path '/'

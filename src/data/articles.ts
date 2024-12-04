@@ -1,6 +1,4 @@
 import path from 'path'
-import * as fs from 'node:fs/promises'
-import type { GetStaticProps } from 'next'
 
 export const articleCategories = ['articles', 'tutorials'] as const
 export type ArticleCategory = (typeof articleCategories)[number]
@@ -55,9 +53,7 @@ export type PublishedArticlesStaticProps = {
   publishedArticles: PublishedArticleMeta[]
 }
 
-export async function getPublishedArticlesStatic(): Promise<{
-  props: PublishedArticlesStaticProps
-}> {
+export async function getPublishedArticles(fs: typeof import('fs/promises')) {
   const articleMetas: ArticleMeta[] = []
   let metaFilePaths: string[] = []
 

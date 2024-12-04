@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import RSS from 'rss'
-import { getPublishedArticlesStatic } from 'data/articles'
+import { getPublishedArticles } from 'data/articles'
 
 const siteUrl = 'https://blog.davimiku.com'
 
@@ -17,7 +17,7 @@ const feedOptions = {
 const feed = new RSS(feedOptions)
 
 ;(async function () {
-  const { props } = await getPublishedArticlesStatic()
+  const { props } = await getPublishedArticles(fs)
   const publishedArticles = props.publishedArticles
 
   publishedArticles.forEach(article => {
