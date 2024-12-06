@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Generate a RSS.xml file
-node --import=tsx scripts/rss.ts
+npm run build-rss
 
 # Add it to the current commit
 git add public/rss.xml
