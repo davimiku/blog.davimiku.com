@@ -3,8 +3,8 @@ import { ReactNode } from 'react'
 
 import Layout from 'layouts'
 
-import styles from './blog.module.scss'
-import type { ArticleMeta } from 'data/articles'
+import styles from './ArticlePage.module.scss'
+import { type ArticleMeta } from 'data/articles'
 
 export type ArticlePageProps = {
   children: ReactNode

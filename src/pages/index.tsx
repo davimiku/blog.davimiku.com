@@ -1,17 +1,24 @@
-import React from 'react'
-import type { InferGetStaticPropsType } from 'next'
-import Link from 'next/link'
-
-import fs from 'node:fs/promises'
-
-import { projects } from 'data/projects'
-import { isFirstInSeries, getPublishedArticles } from 'data/articles'
-import Layout from 'layouts'
 import { ExternalLink } from 'components/link/ExternalLink'
-import { ProjectSummaries } from 'components/summaries/ProjectSummaries'
 import { ArticleSummaries } from 'components/summaries/ArticleSummaries'
+import { ProjectSummaries } from 'components/summaries/ProjectSummaries'
+import { byPublishDate, isFirstInSeries, PublishedArticleMeta } from 'data/articles'
+import { extractPublishedMDXMeta } from 'data/extractMdxMeta'
+import { projects } from 'data/projects'
+import Layout from 'layouts'
+import type { GetStaticProps, InferGetStaticPropsType } from 'next'
+import Link from 'next/link'
+import { createReadStream } from 'node:fs'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import readline from 'node:readline'
 
-export const getStaticProps = () => getPublishedArticles(fs)
+export const getStaticProps = (async () => {
+  const publishedArticles = (
+    await extractPublishedMDXMeta(fs, readline, path, createReadStream)
+  ).toSorted(byPublishDate)
+
+  return { props: { publishedArticles } }
+}) satisfies GetStaticProps<{ publishedArticles: PublishedArticleMeta[] }>
 
 /**
  * Component for the "home" page server at path '/'

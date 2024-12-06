@@ -1,5 +1,3 @@
-import path from 'path'
-
 export const articleCategories = ['articles', 'tutorials'] as const
 export type ArticleCategory = (typeof articleCategories)[number]
 
@@ -53,30 +51,6 @@ export type PublishedArticlesStaticProps = {
   publishedArticles: PublishedArticleMeta[]
 }
 
-export async function getPublishedArticles(fs: typeof import('fs/promises')) {
-  const articleMetas: ArticleMeta[] = []
-  let metaFilePaths: string[] = []
-
-  for (const category of articleCategories) {
-    const folder = path.join('src', 'pages', category)
-    const filePaths = (await fs.readdir(folder, { withFileTypes: true }))
-      .filter(file => file.name.endsWith('.meta.json'))
-      .map(file => path.join(file.parentPath, file.name))
-
-    metaFilePaths = metaFilePaths.concat(filePaths)
-  }
-
-  for (const filePath of metaFilePaths) {
-    const metaJson = await fs.readFile(filePath, { encoding: 'utf-8' })
-    const meta: ArticleMeta = JSON.parse(metaJson)
-    articleMetas.push(meta)
-  }
-
-  const publishedArticles = articleMetas.filter(isPublished).map(withUrl).sort(byPublishDate)
-
-  return { props: { publishedArticles } }
-}
-
 /**
  * If the article is the first in the series or is not part of a series,
  * it should be listed in the general article lists such as the front page.
@@ -87,17 +61,17 @@ export function isFirstInSeries(meta: PublishedArticleMeta): boolean {
   return !meta.seriesIndex || meta.seriesIndex === 1
 }
 
-function isPublished(meta: ArticleMeta): meta is PublishedArticleMeta {
+export function isPublished(meta: ArticleMeta): meta is PublishedArticleMeta {
   return !!meta.publishedOn
 }
 
-function withUrl(meta: PublishedArticleMeta): PublishedArticleMeta {
+export function withUrl(meta: PublishedArticleMeta): PublishedArticleMeta {
   return {
     ...meta,
     relativeUrl: `/${meta.category}/${meta.slug}`,
   }
 }
 
-function byPublishDate(a: PublishedArticleMeta, z: PublishedArticleMeta): number {
+export function byPublishDate(a: PublishedArticleMeta, z: PublishedArticleMeta): number {
   return z.publishedOn.localeCompare(a.publishedOn)
 }

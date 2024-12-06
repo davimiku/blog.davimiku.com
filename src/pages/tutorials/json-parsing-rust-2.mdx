@@ -6,7 +6,7 @@ export const meta = {
   tagline: 'Learn the fundamentals of parsing by building a JSON parser from scratch',
   tags: ['JSON', 'Rust'],
   publishedOn: '2024-06-27',
-  updatedOn: '2024-11-03',
+  updatedOn: '2024-11-04',
   ogImageUrl: 'banner.png',
   seriesName: 'JSON Parsing (Rust)',
   seriesSlug: 'json-parsing-rust',
@@ -14,8 +14,8 @@ export const meta = {
   readingTime: 30,
 }
 
-import { ArticlePage } from '../../layouts/blog'
-import { EmphasisBox, KnowledgeCheck, NewConcept, Spoiler } from '../../components/blog'
+import { ArticlePage } from '../../layouts/ArticlePage'
+import { EmphasisBox, Figure, KnowledgeCheck, NewConcept, Spoiler } from '../../components/blog'
 
 <EmphasisBox>
 
@@ -55,7 +55,7 @@ This function uses the same kind of signature as our previous work from Part 1, 
 
 The way that we're going to parse these tokens is a straight-forward translation of the diagrams on [json.org](https://www.json.org), keep these diagrams handy.
 
-<img src='https://www.json.org/img/value.png' alt='flow diagram for JSON values' />
+<Figure src='https://www.json.org/img/value.png' alt='flow diagram for possible JSON values' />
 
 This diagram has a branch with seven possibilities, so our code will do the same:
 
@@ -277,56 +277,62 @@ Whether to alias a type or not is a matter of taste, and is a similar kind of qu
 We need to think through how escape sequences work in JSON. Back to the trusty [json.org](https://www.json.org), which lists out the escapes as:
 
 <table>
-  <tr>
-    <th>Sequence</th>
-    <th>Description</th>
-    <th>Unicode Value</th>
-  </tr>
-  <tr>
-    <td>`\"`</td>
-    <td>quotation mark</td>
-    <td>U+0022</td>
-  </tr>
-  <tr>
-    <td>`\\`</td>
-    <td>reverse solidus</td>
-    <td>U+005C</td>
-  </tr>
-  <tr>
-    <td>`\b`</td>
-    <td>backspace</td>
-    <td>U+0008</td>
-  </tr>
-  <tr>
-    <td>`\f`</td>
-    <td>form feed</td>
-    <td>U+000C</td>
-  </tr>
-  <tr>
-    <td>`\n`</td>
-    <td>line feed</td>
-    <td>U+000A</td>
-  </tr>
-  <tr>
-    <td>`\r`</td>
-    <td>carriage return</td>
-    <td>U+000D</td>
-  </tr>
-  <tr>
-    <td>`\t`</td>
-    <td>tab</td>
-    <td>U+0009</td>
-  </tr>
-  <tr>
-    <td>`\uXXXX`</td>
-    <td>(variable)</td>
-    <td>U+XXXX</td>
-  </tr>
+  <tbody>
+    <tr>
+      <th>Sequence</th>
+      <th>Description</th>
+      <th>Unicode Value</th>
+    </tr>
+    <tr>
+      <td>`\"`</td>
+      <td>quotation mark</td>
+      <td>U+0022</td>
+    </tr>
+    <tr>
+      <td>`\\`</td>
+      <td>reverse solidus</td>
+      <td>U+005C</td>
+    </tr>
+    <tr>
+      <td>`\b`</td>
+      <td>backspace</td>
+      <td>U+0008</td>
+    </tr>
+    <tr>
+      <td>`\f`</td>
+      <td>form feed</td>
+      <td>U+000C</td>
+    </tr>
+    <tr>
+      <td>`\n`</td>
+      <td>line feed</td>
+      <td>U+000A</td>
+    </tr>
+    <tr>
+      <td>`\r`</td>
+      <td>carriage return</td>
+      <td>U+000D</td>
+    </tr>
+    <tr>
+      <td>`\t`</td>
+      <td>tab</td>
+      <td>U+0009</td>
+    </tr>
+    <tr>
+      <td>`\uXXXX`</td>
+      <td>(variable)</td>
+      <td>U+XXXX</td>
+    </tr>
+  </tbody>
 </table>
+
+The `X` is any hexadecimal character, so 0-9 and A-F.
 
 <KnowledgeCheck>
 
-What does the specification say about JSON strings that use a backslash to "escape" a letter that doesn't need to be escaped?
+1.) Are the 6 letters included in hexadecimal case sensitive? i.e. are both a-f and A-F acceptable?
+
+2.) What does the specification say about JSON strings that use a backslash to "escape" a letter that doesn't need to be escaped?
 
 ```java
 "mind your \p and \q"
@@ -338,7 +344,7 @@ What does the specification say about JSON strings that use a backslash to "esca
 
 [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259) specifically lists the solidus (also known as "forward slash") in the grammar for escaping characters. However, earlier in that section it clearly lists that the characters that MUST be escaped are quotation mark, reverse solidus, and control characters (U+0000 through U+001F). The solidus **can** be escaped, in the same way that "p" and "q" **can** be escaped, as in the example above.
 
-In any case, when parsing if we see `\/`, `\p`, or `\q`, we would basically ignore the backslash and just store `/`, `p`, or `q` (respectively). This goes for any character not listed in the table above, which is why I did not list the solidus there.
+In any case, when parsing if we see `\/`, `\p`, or `\q`, we would basically ignore the backslash and just store `/`, `p`, or `q` (respectively). This goes for any character not listed in the table above, which is why I did not list the solidus there, even though it is listed in the RFC.
 
 </Spoiler>
 
@@ -511,13 +517,13 @@ JavaScript's escape syntax is the same as JSON (JSON is based on JavaScript):
 
 ```txt
 -- general format
-\uXXXX
+\​uXXXX
 
 -- example for ¥ (U+00A5)
-\u00A5
+\​u00A5
 
 -- example for 🌼 (U+1F33C)
-\uD83C\uDF3C
+\​uD83C\​uDF3C
 ```
 
 The 🌼 has to be broken up into two parts (surrogate pair) because only 4 hexadecimal digits are available. 4 digits = (16^4) = 65,536 possible values but there are more than 65k possible characters out there in the world. The current v15.0 specification of Unicode has 149,186 characters.
@@ -541,16 +547,16 @@ Java is similar to JSON (presumably JavaScript's syntax was based on Java), but 
 
 ```txt
 -- general format
-\uXXXX
+\​uXXXX
 
 -- you can have as many 'u' as you want and its the same
-\uuuuuuuuuuuuuuuuuuuuuXXXX
+\​uuuuuuuuuuuuuuuuuuuuuXXXX
 
 -- example for ¥ (U+00A5)
-\u00A5
+\​u00A5
 
 -- example for 🌼 (U+1F33C)
-\uD83C\uuuuuuuuuuDF3C
+\​uD83C\​uuuuuuuuuuDF3C
 ```
 
 I'm honestly not sure of the usecase for infinite `u` characters but it's likely not common.
@@ -558,16 +564,17 @@ I'm honestly not sure of the usecase for infinite `u` characters but it's likely
 Python (3) has two different representations:
 
 ```txt
-\uXXXX       -- up to (16^4) = 65,536
-\UXXXXXXXX   -- up to (16^8) = 4,294,967,296
+\​uXXXX       -- up to (16^4) = 65,536
+\​UXXXXXXXX   -- up to (16^8) = 4,294,967,296
 
 -- example for ¥ (U+00A5)
-\u00A5
+\​u00A5
 
 -- example for 🌼 (U+1F33C)
-\U0001F33C
+\​U0001F33C
 
--- surrogate pairs \uD83C\uDF3C is *not* a valid escape in a Python (3) string literal
+-- surrogate pairs \​uD83C\​uDF3C is *not* a valid escape
+-- in a Python3 string literal
 ```
 
 Note that we actually aren't going to handle surrogate pairs in this implementation. See the Appendix section for more details.
@@ -578,8 +585,8 @@ What we want to do is:
 
 1. Initialize a sum variable (integer, start at zero)
 2. Walk forwards by 4 characters
-   1. Convert the read character into a radix-16 digit (A=10, B=11, C=12, etc.)
-   2. Add it to the sum
+   - Convert the read character into a radix-16 digit (A=10, B=11, C=12, etc.)
+   - Add it to the sum
 3. Convert the sum from an integer (`u32`) to a `char`. Note that this can fail if the integer is larger than the maximum valid code point (U+10FFFF)
 4. Push this `char` to the current output
 
@@ -905,7 +912,7 @@ match &tokens[*index] {
 }
 ```
 
-In some cases, `if let` can be more concise. Another thing to consider with readability is _intent_, the `if let` syntax shows that one variant than the others, whereas in a `match`, all the variants are roughly "equal", so to speak.
+In some cases, `if let` can be more concise. Another thing to consider with readability is _intent_, the `if let` syntax shows that one variant is more "important" than the others, whereas in a `match`, all the variants are roughly "equal", so to speak.
 
 </NewConcept>
 

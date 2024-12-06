@@ -24,7 +24,7 @@ function toSummary(meta: PublishedArticleMeta): JSX.Element {
   const updated = updatedOn ? (
     <>
       <br />
-      Updated: <time dateTime={publishedOn}>{publishedOn}</time>
+      Updated: <time dateTime={updatedOn}>{updatedOn}</time>
     </>
   ) : null
 

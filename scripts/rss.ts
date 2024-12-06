@@ -1,6 +1,10 @@
-import fs from 'node:fs/promises'
+import * as fs from 'node:fs/promises'
+import { createReadStream } from 'node:fs'
+import * as path from 'node:path'
+import * as readline from 'node:readline'
 import RSS from 'rss'
-import { getPublishedArticles } from 'data/articles'
+import { isPublished, withUrl } from 'data/articles'
+import { extractMDXMeta } from '../src/data/extractMdxMeta'
 
 const siteUrl = 'https://blog.davimiku.com'
 
@@ -17,18 +21,18 @@ const feedOptions = {
 const feed = new RSS(feedOptions)
 
 ;(async function () {
-  const { props } = await getPublishedArticles(fs)
-  const publishedArticles = props.publishedArticles
-
-  publishedArticles.forEach(article => {
-    feed.item({
-      title: article.title,
-      description: article.tagline,
-      url: `${siteUrl}${article.relativeUrl}`,
-      date: article.publishedOn,
-      categories: article.tags,
-    })
-  })
+  const allArticleMeta = await extractMDXMeta(fs, readline, path, createReadStream)
+  for (const [filePath, articleMeta] of Object.entries(allArticleMeta)) {
+    if (isPublished(articleMeta)) {
+      feed.item({
+        title: articleMeta.title,
+        description: articleMeta.tagline,
+        url: `${siteUrl}${articleMeta.relativeUrl}`,
+        date: articleMeta.publishedOn,
+        categories: articleMeta.tags ?? [],
+      })
+    }
+  }
 
   // Write the RSS feed to a file as XML.
   await fs.writeFile('./public/rss.xml', feed.xml({ indent: true }))

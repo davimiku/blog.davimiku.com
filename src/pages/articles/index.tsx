@@ -1,12 +1,20 @@
-import React from 'react'
-import type { InferGetStaticPropsType } from 'next'
-import fs from 'node:fs/promises'
-
-import Layout from 'layouts'
-import { isFirstInSeries, getPublishedArticles } from 'data/articles'
 import { ArticleSummaries } from 'components/summaries/ArticleSummaries'
+import { byPublishDate, isFirstInSeries, PublishedArticleMeta } from 'data/articles'
+import { extractPublishedMDXMeta } from 'data/extractMdxMeta'
+import Layout from 'layouts'
+import type { GetStaticProps, InferGetStaticPropsType } from 'next'
+import { createReadStream } from 'node:fs'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import readline from 'node:readline'
 
-export const getStaticProps = () => getPublishedArticles(fs)
+export const getStaticProps = (async () => {
+  const publishedArticles = (
+    await extractPublishedMDXMeta(fs, readline, path, createReadStream)
+  ).toSorted(byPublishDate)
+
+  return { props: { publishedArticles } }
+}) satisfies GetStaticProps<{ publishedArticles: PublishedArticleMeta[] }>
 
 export default function ArticleIndex({
   publishedArticles,
