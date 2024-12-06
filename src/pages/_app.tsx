@@ -1,7 +1,6 @@
 import { AppProps } from 'next/app'
 import 'prism-themes/themes/prism-vsc-dark-plus.css'
 import '../styles/globals.scss'
-import '../styles/react-toggle.scss'
 
 import Head from 'next/head'
 

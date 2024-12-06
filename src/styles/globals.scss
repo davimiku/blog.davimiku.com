@@ -32,12 +32,10 @@
 
 // toggle
 :root {
-  --color-toggle-bg-default: #fbe4e2;
-  --color-toggle-bg-checked: #cce6d0;
+  --color-toggle-bg-off: var(--color-secondary);
+  --color-toggle-bg-on: var(--color-accent-darker);
   --color-toggle-border: rgba(0, 0, 0, 0.2);
   --color-toggle-focus-ring: #4c9aff;
-  --color-toggle-icon-checkmark: #006838;
-  --color-toggle-icon-cross: #9e1b1b;
 }
 
 @media (prefers-color-scheme: light) {
@@ -76,6 +74,6 @@ section > pre {
   }
 }
 
-.dark article img {
-  background-color: white;
+article img {
+  background-color: light-dark(black, white);
 }

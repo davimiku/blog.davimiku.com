@@ -9,10 +9,9 @@ export function ColorSchemeToggle() {
           type='checkbox'
           name='scheme-toggle'
           id='scheme-toggle'
-          className={styles['toggle__input']}
           aria-label='Toggle light and dark mode'
         />
-        <span className={styles['toggle__display']} hidden></span>
+        <span className={styles['display']} hidden></span>
       </label>
       <div className={`${styles['moon']} ${styles['icon']}`} />
     </div>
