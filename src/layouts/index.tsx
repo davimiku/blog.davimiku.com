@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react'
 
-import { Header } from 'components/layout/header'
+import { Header } from 'components/header/Header'
 
 export type LayoutProps = {
   title: string

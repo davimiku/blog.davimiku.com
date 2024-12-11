@@ -35,9 +35,9 @@ export function ArticlePage({ children, meta }: ArticlePageProps) {
   return (
     <Layout title={title} description={tagline}>
       <NextSeo {...seoProps} />
-      <article>
-        <h1>{title}</h1>
-        <p className='subtitle'>{tagline}</p>
+      <article className={styles['article']}>
+        <h1 className={styles['title']}>{title}</h1>
+        <p className={`subtitle ${styles['subtitle']}`}>{tagline}</p>
         <PublishedOn publishedOn={publishedOn} />
         <UpdatedOn updatedOn={updatedOn} />
         <ReadingTime minutes={readingTime} />

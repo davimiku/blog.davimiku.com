@@ -1,5 +1,14 @@
+.article {
+  padding-top: 0;
+}
+
 .timestamp {
   font-size: 1.4rem;
   margin-top: 0;
   margin-bottom: 0;
+}
+
+.title,
+.subtitle {
+  max-width: var(--main-content-default-width);
 }

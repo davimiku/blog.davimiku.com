@@ -9,9 +9,9 @@
             <link>https://blog.davimiku.com</link>
         </image>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Wed, 11 Dec 2024 18:50:42 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 11 Dec 2024 20:45:40 GMT</lastBuildDate>
         <atom:link href="https://blog.davimiku.com/rss.xml" rel="self" type="application/rss+xml"/>
-        <pubDate>Wed, 11 Dec 2024 18:50:42 GMT</pubDate>
+        <pubDate>Wed, 11 Dec 2024 20:45:40 GMT</pubDate>
         <copyright><![CDATA[All rights reserved 2024]]></copyright>
         <item>
             <title><![CDATA[Web Design: Responsiveness without breakpoints]]></title>

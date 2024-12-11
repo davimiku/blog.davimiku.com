@@ -3,8 +3,16 @@
 
 :root {
   /* Align with the global styles provided by Tufte CSS */
-  --tufte-css-default-width: 55%;
+  --main-content-default-width: 55%;
+  --pre-code-width: 55%;
   --border-radius: 0.5rem;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --main-content-default-width: 100%;
+    --pre-code-width: unset;
+  }
 }
 
 :root {
@@ -28,10 +36,8 @@
 
   --color-lighter: rgba(255, 255, 255, 0.2);
   --color-darker: rgba(0, 0, 0, 0.2);
-}
 
-// toggle
-:root {
+  // toggle
   --color-toggle-bg-off: var(--color-secondary);
   --color-toggle-bg-on: var(--color-accent-darker);
   --color-toggle-border: rgba(0, 0, 0, 0.2);
@@ -64,16 +70,15 @@ td > code,
 }
 
 section > pre {
-  width: var(--tufte-css-default-width);
+  width: var(--pre-code-width);
 
   @media (max-width: 760px) {
     & {
       font-size: 1rem;
-      width: unset;
     }
   }
 }
 
 article img {
-  background-color: light-dark(black, white);
+  background-color: white;
 }
