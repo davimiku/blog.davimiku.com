@@ -1,0 +1,509 @@
+export const meta = {
+  title: 'Tutorial: I/O Data Decoding/Encoding Library from Scratch in TypeScript (Part 3)',
+  category: 'tutorials',
+  type: 'tutorial',
+  slug: 'ts-io-decoding-encoding-3',
+  tagline:
+    'Build your own library from scratch that decodes and encodes data. Deep-dive into TypeScript!',
+  tags: ['TypeScript'],
+  ogImageUrl: 'banner.png',
+  publishedOn: '2024-12-11',
+  seriesName: 'TypeScript Decoding/Encoding Library',
+  seriesSlug: 'ts-io-decoding-encoding',
+  seriesIndex: 3,
+  readingTime: 25,
+}
+
+import Image from 'next/image'
+import { ArticlePage } from '../../layouts/ArticlePage'
+import {
+  EmphasisBox,
+  Figure,
+  KnowledgeCheck,
+  NewConcept,
+  Spoiler,
+  SideNote,
+  MarginNote,
+} from '../../components/blog'
+
+## Introduction
+
+This is Part 3 of a 3 part series.
+
+1. [Decoding](./ts-io-decoding-encoding-1)
+2. [Custom decoders and better errors](./ts-io-decoding-encoding-2)
+3. Encoding (this article)
+
+If you haven't started with [Part 1](./ts-io-decoding-encoding-1), go ahead and check it out now! That explains the motivation behind this tutorial and the goals of what we'll accomplish.
+
+## Encoding
+
+As a reminder, encoding is where we take the `T` that we have and turn it into some sort of `Output` type. This is often a string, but doesn't have to be (it could be a byte stream / byte array, or even some other kind of "object").
+
+<Figure
+  src='/images/blog/tutorials/ts-io-decoding-encoding-1/encode.svg'
+  caption='previous flow diagram of decoding with a new step added of encoding the data into an output format'
+/>
+
+Typically, encoding is paired with some previous decoding step - most programs read in data, do something with it, and write out data. However, it doesn't necessarily have to be that way, for example, if you were encoding to a JSON string you might find that the built-in `JSON.stringify` produces `{}` for `Map`, even for string keys that would be valid JSON. You could, for example, write an encoder for "Map -> JSON string".
+
+## Update the interface
+
+We'll start by adding a new `Output` type parameter and an `encode` function to the existing `Shape` interface.
+
+```typescript
+interface Shape<T, Input = unknown, Output = T> {
+  //                                ^^^^^^^^^^^
+  readonly __tag: ShapeTag
+  readonly decode: (input: Input) => DecodeResult<T>
+  readonly encode: (value: T) => Output
+  // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}
+```
+
+`Output` defaults to `T` for the primitive builtins (unknown/boolean/string/number/bigint). When we get to the more complex shapes, we'll need to do something else.
+
+There should be a **lot** of type errors<SideNote id="lot-of-errors">65 errors in my version, but will be more or less depending on how many tests and optional features were implemented</SideNote> in your editor right now, many because a new `encode` function is now added to the interface but none of the implementations have it yet. We'll resolve that soon, along with all of the other errors.
+
+If we wrote type tests, we'll have a bunch of errors in those tests too. Take a close look at those. Look familiar?
+
+<Figure
+  src='/images/blog/tutorials/ts-io-decoding-encoding-3/error_encode_contravariance.png'
+  caption=''
+  alt='Type `unknown` is not assignable to type `boolean`'
+/>
+
+It's the same issue from Part 2 - contravariance!
+
+<Figure
+  src='/images/blog/tutorials/ts-io-decoding-encoding-2/contravariance.png'
+  caption=''
+  alt='Spongebob creating a rainbow that says "contravariance"'
+/>
+
+Since we're doing `Input -> T -> Output` all in one shape, we're asking the type parameter `T` to do double-duty. Since return types are covariant and parameter types are contravariant, it has to represent both "subtype of all return types" and also "supertype of all parameter types" which is fundamentally at odds with each other. There's no type that satisfies these two constraints.
+
+We'll need to use `any` for this `T` constraint, which isn't a type but a way to turn off the type checker.
+
+<EmphasisBox>
+
+How could we solve this without `any`?
+
+We need to split the definition so that a single `T` type isn't doing double-duty. From the perspective of the overall decode+encode process it'll be the same `T`, but internally in our library it will be different types.
+
+i.e., instead of `Input -> T -> Output` we would split this to `Input -> T1` and `T2 -> Output`.
+
+```typescript
+type Shape<Input, T1, T2, Output> = Decoder<Input, T1> & Encoder<T2, Output>
+
+type Decoder<T1, Input = unknown> = {
+  readonly __tag: ShapeTag
+  readonly decode: (input: Input) => DecodeResult<T1>
+}
+
+type Encoder<T2, Output = unknown> = {
+  readonly __tag: ShapeTag
+  readonly encode: (value: T2) => Output
+}
+```
+
+The downstream effects of this change result in a lot more type-level code to keep everything straight, and we won't go down this path for this tutorial. However, if you would like to see it, check out the [four-type-parameters-no-any branch](https://github.com/davimiku/ts-io-decoding-encoding/tree/four-type-parameters-no-any) where I implemented it this way.
+
+</EmphasisBox>
+
+## Defining an alias for the "Base" shape
+
+First, we'll define an alias for `BaseShape` that other shapes can extend, to localize the `any`, along with a comment explaining why it's necessary<SideNote id="any-comment">This idea is from Rust code where comments are required by the default linter (clippy) to explain the safety of `unsafe` code</SideNote>.
+
+```typescript
+// `any` is used here for other shapes to extend this shape
+// so that any value can be used for `T` since subtyping is checked
+// both covariantly and contravariantly
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type BaseShape = Shape<any, unknown, unknown>
+```
+
+Go ahead and all of the relevant places to use this new `BaseShape`, look for places that previously constrained with `Shape<unknown>`. It should be the six places listed below:
+
+```typescript
+interface ShapeArray<S extends BaseShape> /* snip */ {}
+//                             ^^^^^^^^^
+
+interface ShapeRecord<S extends BaseShape> /* snip */ {}
+//                              ^^^^^^^^^
+
+type StructFields = Record<string, BaseShape>
+//                                 ^^^^^^^^^
+
+type UnionVariants = Record<string, BaseShape>
+//                                  ^^^^^^^^^
+
+export function array<S extends BaseShape>(elementShape: S): ShapeArray<S> {
+  //                            ^^^^^^^^^
+  /* snip */
+}
+
+export function record<S extends BaseShape>(valueShape: S): ShapeRecord<S> {
+  //                             ^^^^^^^^^
+  /* snip */
+}
+```
+
+One more place to update is the `Infer` utility type, though we'll come back to this in a later section on custom encoders.
+
+```typescript
+export type Infer<S extends BaseShape> = /* snip */
+//                          ^^^^^^^^^
+```
+
+## Implementing Encoding - Primitives
+
+We'll start by adding an [identity function](https://en.wikipedia.org/wiki/Identity_function), which will serve as the encoder for the primitive types. It's not strictly necessary to define this as a separate function, you could define this inline in each of the shapes, but it's an opportunity to learn a computer science concept if you haven't heard of it before.
+
+```typescript
+const identity = <T>(t: T) => t
+```
+
+<NewConcept title="identity function">
+
+`identity` is like the "zero value" for functions, kinda. If you're composing functions together, composing with the identity function doesn't change the result, like how adding zero to a number doesn't change that number.
+
+```
+// function 'f' composed with function 'identity' is equal to 'f'
+f ∘ identity == f
+```
+
+It's useful in the same way that zero is useful, sometimes you have to have something (defined by an interface, maybe) but if you only want a function that returns its input exactly, then that's where `identity` is useful.
+
+</NewConcept>
+
+Let's add this `identity` as the `encode` function for all the primitive shapes.
+
+```typescript
+const identity = <T>(t: T) => t
+
+export const unknown: ShapeUnknown = {
+  __tag: 'unknown',
+  decode: (input: unknown): DecodeResult<unknown> => {
+    /* snip */
+  },
+  encode: identity,
+  //      ^^^^^^^^
+} as const
+
+export const boolean: ShapeBoolean = {
+  __tag: 'boolean',
+  decode: (input: unknown): DecodeResult<boolean> => {
+    /* snip */
+  },
+  encode: identity,
+  //      ^^^^^^^^
+} as const
+
+export const number: ShapeNumber = {
+  __tag: 'number',
+  decode(input: unknown): DecodeResult<number> {
+    /* snip */
+  },
+  encode: identity,
+  //      ^^^^^^^^
+} as const
+
+export const string: ShapeString = {
+  __tag: 'string',
+  decode(input: unknown): DecodeResult<string> {
+    /* snip */
+  },
+  encode: identity,
+  //      ^^^^^^^^
+} as const
+
+export const bigint: ShapeBigInt = {
+  __tag: 'bigint',
+  decode(input: unknown): DecodeResult<bigint> {
+    /* snip */
+  },
+  encode: identity,
+  //      ^^^^^^^^
+} as const
+```
+
+That reduced the errors by quite a bit, but there are still more to go.
+
+## Implementing Encoding - Collections
+
+For the `Array` and `Record` collections, we **don't** want the encode function to be identity. That's because we want the encoded collection to be a new collection consisting of encoded **elements**. For example, someone could define an array of their custom shape, so the encoding of the array should call the custom shape's encoding function for each element.
+
+That means that the default for the `Output` parameter of `Shape` (`Output=T`) won't work here, so we need to define it explicitly.
+
+```typescript
+interface ShapeArray<S extends BaseShape>
+  extends Shape<Infer<S>[], unknown, ??????> {
+    //                               ^^^^^^
+  readonly __tag: 'array'
+}
+```
+
+But what should this `Output` parameter be? We need a utility type that takes in a `BaseShape` and spits out the `Output` parameter of that shape, i.e. the 3rd type parameter. Remember the `infer` keyword from Part 1?
+
+```typescript
+/**
+ * Given a `Shape` type, extracts the `Output` type from it
+ */
+type OutputOf<S extends BaseShape> =
+  S extends Shape<infer _T, infer _Input, infer Output> ? Output : never
+```
+
+<MarginNote id='unused-param-eslint-warnings'>
+  I used underscores for the unused parameters to silence ESLint warnings.
+</MarginNote>
+Now that we have this, we can properly type the encoding of an array!
+
+```typescript
+interface ShapeArray<S extends BaseShape> extends Shape<Infer<S>[], unknown, OutputOf<S>[]> {
+  //                               ^^^^^^^^^^^^^
+  readonly __tag: 'array'
+}
+```
+
+Pretty cool! So our Array shape takes `Input` of type `unknown`, the internal type `T` is inferred from whatever the user defined for the shape, and the `Output` type is inferred from the shape used for the elements of the array.
+
+It's essentially the same update for Record (the whole spiel from Part 2 about how Arrays and Records are the same kind of types, blah blah blah)
+
+{/* prettier-ignore */}
+```typescript
+interface ShapeRecord<S extends BaseShape>
+  extends Shape<
+    Record<string, Infer<S>>,
+    unknown,
+    Record<string, OutputOf<S>>
+    //             ^^^^^^^^^^^
+  > {
+  readonly __tag: 'record'
+}
+```
+
+Same deal here - decoding can take `unknown` input and produces a record type inferred by the shape provided for the values. The encoding produces a record type also based on the shape provided for the values.
+
+Time to implement the runtime code that encodes the values for these:
+
+```typescript
+export function array<S extends BaseShape>(elementShape: S): ShapeArray<S> {
+  return {
+    __tag: 'array',
+    decode(input: unknown) {
+      /* snip */
+    },
+    encode(array: Infer<S>[]) {
+      return array.map(element => elementShape.encode(element) as OutputOf<S>)
+    },
+  } as const
+}
+```
+
+This is pretty straight-forward, we're mapping into a new array with each element encoded. We use a type assertion to help the compiler out.
+
+Same idea for records, but as in the previous parts, since there isn't a nice way to map over a record, we'll use the fromEntries/entries technique:
+
+```typescript
+export function record<S extends BaseShape>(valueShape: S): ShapeRecord<S> {
+  return {
+    __tag: 'record',
+    decode(input: unknown) {
+      /* snip */
+    },
+    encode(record: Record<string, Infer<S>>): Record<string, OutputOf<S>> {
+      return Object.fromEntries(
+        Object.entries(record).map(([key, value]) => [key, valueShape.encode(value) as OutputOf<S>])
+      )
+    },
+  } as const
+}
+```
+
+## Implementing Encoding - Structs
+
+As in the previous parts, structs are the same as records _at runtime_, but have different semantics at compile-time, namely that the keys are known and that the value for each key can be a different type.
+
+The struct shape needs to be updated to have an output type:
+
+```typescript
+interface ShapeStruct<Fields extends StructFields>
+  extends Shape<InferStruct<Fields>, unknown, ????????> {
+    //                                        ^^^^^^^^
+  readonly __tag: 'struct'
+}
+```
+
+Similar to our `InferStruct` type, we need something to do the same for the encoded/output type.
+
+```typescript
+type OutputOfStruct<Fields extends StructFields> = {
+  [Key in keyof Fields]: OutputOf<Fields[Key]>
+}
+```
+
+Now, we can use this as the output type for struct shapes:
+
+```typescript
+interface ShapeStruct<Fields extends StructFields>
+  extends Shape<InferStruct<Fields>, unknown, OutputOfStruct<Fields>> {
+  //                                          ^^^^^^^^^^^^^^^^^^^^^^
+  readonly __tag: 'struct'
+}
+```
+
+Implementing the encode function for structs is the same runtime code as for records. The entries of the object are mapped so the value of the key/value pair is encoded with the respective encode function for that key.
+
+```typescript
+export function struct<Fields extends StructFields>(fieldShapes: Fields): ShapeStruct<Fields> {
+  return {
+    __tag: 'struct',
+    decode(input: unknown) {
+      /* snip */
+    },
+    encode(struct: InferStruct<Fields>) {
+      return Object.fromEntries(
+        Object.entries(struct).map(([key, value]) => {
+          return [key, fieldShapes[key].encode(value)]
+        })
+      ) as OutputOfStruct<Fields>
+    },
+  } as const
+}
+```
+
+## Implementing Encoding - Unions
+
+It's probably getting a little repetitive now. We create a utility type that extracts the encoded/output type for each variant of the union.
+
+```typescript
+type OutputOfUnion<Variants extends UnionVariants> = {
+  [Key in keyof Variants]: [Key, OutputOf<Variants[Key]>]
+}[keyof Variants]
+```
+
+Then that becomes the output type for the union shape generally:
+
+```typescript
+interface ShapeUnion<Variants extends UnionVariants>
+  extends Shape<InferUnion<Variants>, unknown, OutputOfUnion<Variants>> {
+  //                                           ^^^^^^^^^^^^^^^^^^^^^^^
+  readonly __tag: 'union'
+}
+```
+
+The implementation itself of encoding is very simple, since we only have a single value to encode, using the encode function corresponding to the tag of the tagged union.
+
+```typescript
+export function union<Variants extends UnionVariants>(variants: Variants): ShapeUnion<Variants> {
+  return {
+    __tag: 'union',
+    decode(input: unknown) {
+      /* snip */
+    },
+    encode(union: InferUnion<Variants>) {
+      const [tag, value] = union
+
+      return [tag, variants[tag].encode(value)] as OutputOfUnion<Variants>
+    },
+  }
+}
+```
+
+## Encoding for Custom Shapes
+
+Almost to the end, but this one is important! When creating custom shapes, our users need the ability to have an `Output` type that doesn't default to `T`. In the example given in Part 1 of the custom date shape, the decoding/encoding process was `string -> Date -> string`.
+
+First, we need the custom shape to carry through an `Output` type parameter.
+
+```typescript
+interface ShapeCustom<T, Input, Output> extends Shape<T, Input, Output> {
+  //                            ^^^^^^                          ^^^^^^
+  readonly __tag: 'custom'
+}
+```
+
+Adding a type parameter causes an error in the `Infer` utility type, so need to add that (unused) parameter inside the long conditional chain:
+
+```typescript
+export type Infer<S extends BaseShape> = S extends ShapeUnknown
+  /* ...snip... */
+    : S extends ShapeCustom<infer T, infer _Input, infer _Output>
+    //                                             ^^^^^^^^^^^^^
+      ? T
+      : never
+```
+
+Then, users need the ability to pass in their own `encode` function for their custom shapes.
+
+```typescript
+export function custom<T, Input, Output>(
+  decode: (input: Input) => DecodeResult<T>,
+  encode: (value: T) => Output
+): ShapeCustom<T, Input, Output> {
+  return {
+    __tag: 'custom',
+    decode,
+    encode,
+  }
+}
+```
+
+<KnowledgeCheck>
+
+If the `encode` parameter here was optional, what could we default it to?
+
+**Should** it be optional? How would that change how users interact with and use our library, does it make it simpler/easier or more complex/difficult?
+
+</KnowledgeCheck>
+
+Assuming you implemented the tests from the previous parts with the custom date shape, you should have two remaining errors. One is solved just be passing in a `Date -> string` encode function for the custom date shape.
+
+```typescript
+function customDateDecoder(input: string): DecodeResult<Date> {
+  /* ...snip... */
+}
+function customDateEncoder(date: Date): string {
+  return date.toISOString()
+}
+const CustomDate = custom(customDateDecoder, customDateEncoder)
+```
+
+The remaining error should look familiar again.
+
+<Figure
+  src='/images/blog/tutorials/ts-io-decoding-encoding-3/error_custom_date_contravariance.png'
+  caption=''
+  alt='Type `unknown` is not assignable to type `string`'
+/>
+
+It's the same thing yet again - contravariance!
+
+<Figure
+  src='/images/blog/tutorials/ts-io-decoding-encoding-2/contravariance.png'
+  caption=''
+  alt='Spongebob creating a rainbow that says "contravariance"'
+/>
+
+In addition to being able to produce any encoded/output type that the user desires, the custom shapes can also work with any input type that the user desires. The built-in shapes default the `Input` type to `unknown`, but we might want a custom shape with a stricter requirement.
+
+Since the `Input` type is a parameter (`Input -> T`), subtyping is checked **contravariantly**. Since we've already started down the `any` path, we can continue by changing the constraint of the `Input` type to `any`. That allows functions to be used with narrower parameter types which would otherwise be disallowed by normal subtype checking rules.
+
+```typescript
+// The `T` constraint is `any` so that the same `T` can be used in
+// both decoding and encoding.
+// The `Input` constraint is `any` for custom decoders (checked contravariantly)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Infer<S extends Shape<any, any, unknown>> = /* snip */
+```
+
+## Conclusion
+
+Congratulations! We made it to the end.
+
+Throughout this tutorial, a number of TypeScript concepts were described, plus a lot of open-ended questions about library design and what considerations are needed when building software used by other engineers that are a little bit different than the considerations we normally have as application developers building for end users.
+
+Hopefully you were able to understand beneath the surface level, we really did dive into the nitty gritty details with the entire decoding + encoding process, custom shapes, and proper error handling. The final result is a surprisingly useful library, though there would still be more needed to make it really "production ready" (optional types is the first thing that comes to mind).
+
+If you enjoyed this tutorial, [check out my other tutorials and articles](/articles)!

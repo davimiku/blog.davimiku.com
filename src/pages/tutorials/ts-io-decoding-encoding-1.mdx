@@ -56,7 +56,7 @@ This is split into three articles:
 
 1. Decoding (this article)
 2. [Custom decoders and better errors](./ts-io-decoding-encoding-2)
-3. Encoding (WIP - coming 2024-12-11)
+3. [Encoding](./ts-io-decoding-encoding-3)
 
 First off, what do these terms mean? Or more specifically, how will I, the author, use these terms?
 
@@ -237,6 +237,14 @@ interface Shape<T> {
 <Spoiler summary="`type` vs. `interface`">
 
 Though I prefer defining types with the `type` keyword, the `interface` keyword is used specifically here for a very subtle reason not defined anywhere in the documentation (as far as I know). More on that later, for now, this will have to be a cliffhanger to hold your attention!
+
+**Edit - 2024-12-08**
+
+In a draft version of the library while I was working on this tutorial I had to use `interface` for Shape instead of `type`. It appears evaluating `interface`s (in the type context) is done in 2 steps, declaration and then evaluation ("lazy") whereas `type` is done in a single step ("eager"). This should mean that there's more scenarios that recursive types would work with `interface` rather than `type`.
+
+However, whether it was due to refactoring, different version of TypeScript, or just something I misremembered, it appears that the `type` keyword can be used in this situation after all.
+
+To avoid changing the tutorial, the `interface` keyword will still be used for `Shape`.
 
 </Spoiler>
 

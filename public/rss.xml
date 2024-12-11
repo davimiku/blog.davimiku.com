@@ -9,9 +9,9 @@
             <link>https://blog.davimiku.com</link>
         </image>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Fri, 06 Dec 2024 20:40:37 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 11 Dec 2024 03:37:12 GMT</lastBuildDate>
         <atom:link href="https://blog.davimiku.com/rss.xml" rel="self" type="application/rss+xml"/>
-        <pubDate>Fri, 06 Dec 2024 20:40:37 GMT</pubDate>
+        <pubDate>Wed, 11 Dec 2024 03:37:12 GMT</pubDate>
         <copyright><![CDATA[All rights reserved 2024]]></copyright>
         <item>
             <title><![CDATA[Web Design: Responsiveness without breakpoints]]></title>
@@ -55,6 +55,14 @@
             <guid isPermaLink="true">https://blog.davimiku.comundefined</guid>
             <category><![CDATA[TypeScript]]></category>
             <pubDate>Wed, 04 Dec 2024 00:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[Tutorial: I/O Data Decoding/Encoding Library from Scratch in TypeScript (Part 3)]]></title>
+            <description><![CDATA[Build your own library from scratch that decodes and encodes data. Deep-dive into TypeScript!]]></description>
+            <link>https://blog.davimiku.comundefined</link>
+            <guid isPermaLink="true">https://blog.davimiku.comundefined</guid>
+            <category><![CDATA[TypeScript]]></category>
+            <pubDate>Wed, 11 Dec 2024 00:00:00 GMT</pubDate>
         </item>
     </channel>
 </rss>
