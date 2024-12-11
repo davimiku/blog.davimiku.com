@@ -2,46 +2,62 @@
 
 const CSS_VAR_COLOR_SCHEME = '--color-scheme'
 
+let savedColorScheme = getSavedColorScheme()
+
+if (savedColorScheme) {
+  setColorScheme(savedColorScheme)
+} else {
+  const lightMediaQuery = window.matchMedia('(prefers-color-scheme: light)')
+  if (lightMediaQuery.matches) {
+    setColorScheme('light')
+  } else {
+    setColorScheme('dark')
+  }
+}
+
 window.addEventListener('load', () => {
-  // setTimeout=1 makes sure the elements are ready after client-side hydration
+  // setTimeout waits for element to be ready after client-side hydration
+  // right now, it's an estimated number, need to dig into the NextJS lifecycle for a better way
   window.setTimeout(() => {
     const schemeToggle = /** @type {HTMLInputElement} */ (document.getElementById('scheme-toggle'))
     schemeToggle.addEventListener('change', toggleColorScheme)
 
-    let savedColorScheme = /** @type {"light" | "dark" | null} */ (
-      window.localStorage.getItem('color-scheme')
-    )
-    // if somehow this got set to anything but 'light' or 'dark'
-    if (savedColorScheme && savedColorScheme !== 'light' && savedColorScheme !== 'dark') {
-      savedColorScheme = null
-      window.localStorage.removeItem('color-scheme')
-    }
-
-    if (savedColorScheme) {
-      setColorScheme(savedColorScheme)
-    } else {
-      const lightMediaQuery = window.matchMedia('(prefers-color-scheme: light)')
-      if (lightMediaQuery.matches) {
-        setColorScheme('light')
-      } else {
-        setColorScheme('dark')
-      }
-    }
-  }, 1)
+    const savedColorScheme = getSavedColorScheme()
+    setColorScheme(savedColorScheme)
+  }, 200)
 })
 
 /**
- * @param {"light" | "dark"} colorScheme
+ *
+ * @returns {"light" | "dark" | null}
+ */
+function getSavedColorScheme() {
+  let savedColorScheme = window.localStorage.getItem('color-scheme')
+  if (savedColorScheme && (savedColorScheme === 'light' || savedColorScheme === 'dark')) {
+    return savedColorScheme
+  }
+  // if somehow this got set to anything but 'light' or 'dark'
+  if (savedColorScheme) {
+    window.localStorage.removeItem('color-scheme')
+  } 
+
+  return null
+}
+
+/**
+ * @param {"light" | "dark" | null} colorScheme
  */
 function setColorScheme(colorScheme) {
+  if (!colorScheme) return
+  
   const root = /** @type {HTMLElement} */ (document.querySelector(':root'))
   const schemeToggle = /** @type {HTMLInputElement} */ (document.getElementById('scheme-toggle'))
   window.localStorage.setItem('color-scheme', colorScheme)
   if (colorScheme === 'light') {
-    schemeToggle.checked = false
+    if (schemeToggle) schemeToggle.checked = false
     root.style.setProperty(CSS_VAR_COLOR_SCHEME, 'light')
   } else {
-    schemeToggle.checked = true
+    if (schemeToggle) schemeToggle.checked = true
     root.style.setProperty(CSS_VAR_COLOR_SCHEME, 'dark')
   }
 }
