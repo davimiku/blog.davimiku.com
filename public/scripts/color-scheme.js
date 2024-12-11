@@ -2,29 +2,32 @@
 
 const CSS_VAR_COLOR_SCHEME = '--color-scheme'
 
-window.addEventListener('DOMContentLoaded', () => {
-  const schemeToggle = /** @type {HTMLInputElement} */ (document.getElementById('scheme-toggle'))
-  schemeToggle.addEventListener('change', toggleColorScheme)
+window.addEventListener('load', () => {
+  // setTimeout=1 makes sure the elements are ready after client-side hydration
+  window.setTimeout(() => {
+    const schemeToggle = /** @type {HTMLInputElement} */ (document.getElementById('scheme-toggle'))
+    schemeToggle.addEventListener('change', toggleColorScheme)
 
-  let savedColorScheme = /** @type {"light" | "dark" | null} */ (
-    window.localStorage.getItem('color-scheme')
-  )
-  // if somehow this got set to anything but 'light' or 'dark'
-  if (savedColorScheme && savedColorScheme !== 'light' && savedColorScheme !== 'dark') {
-    savedColorScheme = null
-    window.localStorage.removeItem('color-scheme')
-  }
-
-  if (savedColorScheme) {
-    setColorScheme(savedColorScheme)
-  } else {
-    const lightMediaQuery = window.matchMedia('(prefers-color-scheme: light)')
-    if (lightMediaQuery.matches) {
-      setColorScheme('light')
-    } else {
-      setColorScheme('dark')
+    let savedColorScheme = /** @type {"light" | "dark" | null} */ (
+      window.localStorage.getItem('color-scheme')
+    )
+    // if somehow this got set to anything but 'light' or 'dark'
+    if (savedColorScheme && savedColorScheme !== 'light' && savedColorScheme !== 'dark') {
+      savedColorScheme = null
+      window.localStorage.removeItem('color-scheme')
     }
-  }
+
+    if (savedColorScheme) {
+      setColorScheme(savedColorScheme)
+    } else {
+      const lightMediaQuery = window.matchMedia('(prefers-color-scheme: light)')
+      if (lightMediaQuery.matches) {
+        setColorScheme('light')
+      } else {
+        setColorScheme('dark')
+      }
+    }
+  }, 1)
 })
 
 /**
