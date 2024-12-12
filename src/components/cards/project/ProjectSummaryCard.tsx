@@ -1,10 +1,9 @@
-import React from 'react'
 import { FaGithub } from 'react-icons/fa'
 
-import { Card } from 'components/cards/card'
-import { Project } from 'types/projects'
 import { TechnologyBadge } from 'components/badges/technology'
+import { Card } from 'components/cards/card'
 import { ExternalLink } from 'components/link/ExternalLink'
+import { Project } from 'types/projects'
 
 export type ProjectSummaryCardProps = {
   project: Project

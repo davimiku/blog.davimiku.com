@@ -1,5 +1,3 @@
-import React from 'react'
-
 export type SideNoteProps = React.PropsWithChildren<{
   id: string
 }>

@@ -1,8 +1,8 @@
-import React from 'react'
+import { type ReactNode } from 'react'
 
 export type FootnoteProps = {
   index: string
-  children?: React.ReactNode
+  children?: ReactNode
 }
 
 /**
@@ -28,10 +28,7 @@ export function Footnote({ index, children }: FootnoteProps) {
     <li id={bottomId}>
       <sup>{index}</sup>&nbsp;
       {children}
-      <a
-        href={'#' + returnId}
-        title={`return to the article at footnote reference ${index}`}
-      >
+      <a href={'#' + returnId} title={`return to the article at footnote reference ${index}`}>
         &nbsp;↩︎&nbsp;
       </a>
     </li>

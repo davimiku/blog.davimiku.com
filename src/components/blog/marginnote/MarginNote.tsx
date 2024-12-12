@@ -1,6 +1,6 @@
-import React from 'react'
+import { type PropsWithChildren } from 'react'
 
-export type MarginNoteProps = React.PropsWithChildren<{
+export type MarginNoteProps = PropsWithChildren<{
   id: string
 }>
 

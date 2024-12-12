@@ -2,6 +2,8 @@ import type { PublishedArticleMeta } from 'data/articles'
 import styles from './Summaries.module.scss'
 import Link from 'next/link'
 
+import type { JSX } from "react";
+
 export type ArticleSummariesProps = {
   articles: PublishedArticleMeta[]
 }

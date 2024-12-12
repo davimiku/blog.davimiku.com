@@ -1,4 +1,3 @@
-import React from 'react'
 import { IoIosConstruct } from 'react-icons/io'
 
 import { Badge } from 'components/badges'

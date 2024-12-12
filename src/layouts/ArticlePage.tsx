@@ -1,6 +1,6 @@
 import { NextSeo, NextSeoProps } from 'next-seo'
 import Link from 'next/link'
-import { ReactNode } from 'react'
+import { ReactNode, type JSX } from 'react';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
 import { type ArticleMeta } from 'data/articles'
