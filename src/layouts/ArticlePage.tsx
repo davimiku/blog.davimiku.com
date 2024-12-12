@@ -1,6 +1,6 @@
 import { NextSeo, NextSeoProps } from 'next-seo'
 import Link from 'next/link'
-import { ReactNode, type JSX } from 'react';
+import { ReactNode, type JSX } from 'react'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
 import { type ArticleMeta } from 'data/articles'
@@ -78,17 +78,25 @@ function PreviousNext({ meta }: PreviousNextProps) {
     if (meta.seriesIndex > 1) {
       const previousIndex = meta.seriesIndex - 1
       previous = (
-        <Link className={styles['previous']} href={`${meta.seriesSlug}-${previousIndex}`}>
+        <Link
+          className={`no-tufte-underline ${styles['previous']}`}
+          href={`${meta.seriesSlug}-${previousIndex}`}
+        >
           <FaArrowLeft />
-          <span>Previous ({previousIndex})</span>
+          <span>Previous (Part {previousIndex})</span>
         </Link>
       )
     }
 
-    if (meta.seriesNextIndex) {
+    const hasNext = meta.seriesLastIndex - meta.seriesIndex > 0
+    if (hasNext) {
+      const nextIndex = meta.seriesIndex + 1
       next = (
-        <Link className={styles['next']} href={`${meta.seriesSlug}-${meta.seriesNextIndex}`}>
-          <span>Next ({meta.seriesNextIndex})</span>
+        <Link
+          className={`no-tufte-underline ${styles['next']}`}
+          href={`${meta.seriesSlug}-${nextIndex}`}
+        >
+          <span>Next (Part {nextIndex})</span>
           <FaArrowRight />
         </Link>
       )

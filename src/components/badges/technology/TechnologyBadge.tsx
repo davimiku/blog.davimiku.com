@@ -1,8 +1,8 @@
 import { FaPython, FaReact, FaSass } from 'react-icons/fa'
-import { SiRust, SiTypescript, SiCss3 } from 'react-icons/si'
 import { IoLogoVercel } from 'react-icons/io5'
+import { SiCss3, SiRust, SiTypescript } from 'react-icons/si'
 
-import { Badge } from 'components/badges'
+import { Badge } from 'components/badges/badge/Badge'
 import { IconType } from 'react-icons'
 
 type Technology = 'Rust' | 'Python' | 'SCSS' | 'CSS' | 'TypeScript' | 'React' | 'Next.js'

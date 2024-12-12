@@ -1,8 +1,9 @@
 import type { PublishedArticleMeta } from 'data/articles'
-import styles from './Summaries.module.scss'
 import Link from 'next/link'
+import styles from './Summaries.module.scss'
 
-import type { JSX } from "react";
+import { Badge } from 'components/badges/badge/Badge'
+import type { JSX } from 'react'
 
 export type ArticleSummariesProps = {
   articles: PublishedArticleMeta[]
@@ -43,6 +44,25 @@ function toSummary(meta: PublishedArticleMeta): JSX.Element {
           <li key={tag}>{tag}</li>
         ))}
       </ul>
+      <ul className={styles['series-links']}>{seriesLinks(meta)}</ul>
     </li>
   )
+}
+
+const seriesLinks = (meta: PublishedArticleMeta) => {
+  if (!meta.seriesIndex) return null
+
+  const { relativeUrl } = meta
+  const seriesItems = new Array(meta.seriesLastIndex).fill(0).map((_, i) => i + 1)
+
+  return seriesItems.map(i => {
+    const href = relativeUrl.slice(0, relativeUrl.length - 2) + '-' + i
+    return (
+      <li key={href}>
+        <Link className='no-tufte-underline' href={href}>
+          <Badge>Part {i}</Badge>
+        </Link>
+      </li>
+    )
+  })
 }

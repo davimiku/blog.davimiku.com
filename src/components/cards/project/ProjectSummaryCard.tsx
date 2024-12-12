@@ -1,6 +1,6 @@
 import { FaGithub } from 'react-icons/fa'
 
-import { TechnologyBadge } from 'components/badges/technology'
+import { TechnologyBadge } from 'components/badges/technology/TechnologyBadge'
 import { Card } from 'components/cards/card'
 import { ExternalLink } from 'components/link/ExternalLink'
 import { Project } from 'types/projects'

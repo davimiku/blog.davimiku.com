@@ -49,8 +49,8 @@ type ArticleSeriesMeta =
       seriesSlug: string
       /** If the article is part of a series, its index number in the series (1-based) */
       seriesIndex: number
-      /** If the article has a subsequent article in the series */
-      seriesNextIndex?: number
+      /** The final number in the series */
+      seriesLastIndex: number
     }
   | { seriesName?: never; seriesSlug?: never; seriesIndex?: never; seriesNextIndex?: never }
 
