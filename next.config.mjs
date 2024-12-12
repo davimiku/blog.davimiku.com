@@ -1,15 +1,7 @@
 // @ts-check
 
-import createMDX from '@next/mdx'
 import rehypePrism from '@mapbox/rehype-prism'
-
-const withMDX = createMDX({
-  options: {
-    remarkPlugins: [],
-    rehypePlugins: [rehypePrism],
-    providerImportSource: '@mdx-js/react',
-  },
-})
+import createMDX from '@next/mdx'
 
 /**
  * @type {import('next').NextConfig}
@@ -22,5 +14,13 @@ const nextConfig = {
     unoptimized: true,
   },
 }
+
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: [],
+    rehypePlugins: [rehypePrism],
+    providerImportSource: '@mdx-js/react',
+  },
+})
 
 export default withMDX(nextConfig)
