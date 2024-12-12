@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, useLayoutEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import styles from './ColorSchemeToggle.module.scss'
 
 const CSS_VAR = '--color-scheme'
@@ -9,7 +9,7 @@ const LOCAL_STORAGE_KEY = 'color-scheme'
 export function ColorSchemeToggle() {
   const [isDarkMode, setIsDarkMode] = useState(getSavedColorScheme() === 'dark')
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const colorScheme = getSavedColorScheme()
     setIsDarkMode(colorScheme === 'dark')
   }, [])
