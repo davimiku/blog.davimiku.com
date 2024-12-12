@@ -1,7 +1,12 @@
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import { FaGithub, FaRss } from 'react-icons/fa'
 import styles from './Header.module.scss'
-import { ColorSchemeToggle } from 'components/color_scheme_toggle/ColorSchemeToggle'
-import { FaRss, FaGithub } from 'react-icons/fa'
+
+const ColorSchemeToggle = dynamic(
+  () => import('../color_scheme_toggle/ColorSchemeToggle').then(module => module.ColorSchemeToggle),
+  { ssr: false }
+)
 
 export function Header() {
   return (

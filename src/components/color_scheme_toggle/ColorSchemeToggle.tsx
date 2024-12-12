@@ -1,18 +1,13 @@
 'use client'
 
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 import styles from './ColorSchemeToggle.module.scss'
 
 const CSS_VAR = '--color-scheme'
 const LOCAL_STORAGE_KEY = 'color-scheme'
 
 export function ColorSchemeToggle() {
-  const [isDarkMode, setIsDarkMode] = useState(getSavedColorScheme() === 'dark')
-
-  useEffect(() => {
-    const colorScheme = getSavedColorScheme()
-    setIsDarkMode(colorScheme === 'dark')
-  }, [])
+  const [isDarkMode, setIsDarkMode] = useState(initializeColorScheme() === 'dark')
 
   function handleChange({ target: { checked } }: ChangeEvent<HTMLInputElement>) {
     setIsDarkMode(checked)
@@ -28,7 +23,7 @@ export function ColorSchemeToggle() {
           type='checkbox'
           name='scheme-toggle'
           id='scheme-toggle'
-          aria-label='Toggle light and dark mode'
+          aria-label={`Click to turn on ${isDarkMode ? 'light' : 'dark'} mode`}
           onChange={handleChange}
         />
         <span className={styles['display']} hidden></span>
@@ -38,11 +33,10 @@ export function ColorSchemeToggle() {
   )
 }
 
-function getSavedColorScheme(): 'light' | 'dark' {
-  if (typeof window === 'undefined') return 'light'
-
+function initializeColorScheme(): 'light' | 'dark' {
   const savedColorScheme = window.localStorage.getItem(LOCAL_STORAGE_KEY)
   if (savedColorScheme && (savedColorScheme === 'light' || savedColorScheme === 'dark')) {
+    setGlobalColorScheme(savedColorScheme)
     return savedColorScheme
   }
 
@@ -62,8 +56,6 @@ function getSavedColorScheme(): 'light' | 'dark' {
 }
 
 function prefersDarkMode(): boolean {
-  if (typeof window === 'undefined') return false
-
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
   return mediaQuery.matches
 }
@@ -73,6 +65,7 @@ function prefersDarkMode(): boolean {
  */
 function setGlobalColorScheme(colorScheme: 'light' | 'dark') {
   window.localStorage.setItem(LOCAL_STORAGE_KEY, colorScheme)
+
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- root will exist
   const root: HTMLElement = document.querySelector(':root')!
   root.style.setProperty(CSS_VAR, colorScheme)
