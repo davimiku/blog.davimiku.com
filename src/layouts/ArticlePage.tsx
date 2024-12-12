@@ -1,4 +1,3 @@
-import { NextSeo, NextSeoProps } from 'next-seo'
 import Link from 'next/link'
 import { ReactNode, type JSX } from 'react'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
@@ -15,30 +14,11 @@ export type ArticlePageProps = {
 }
 
 export function ArticlePage({ children, meta }: ArticlePageProps) {
+  const { title, tagline, publishedOn, updatedOn, readingTime } = meta
   const components = useMDXComponents({})
-  const { title, tagline, category, slug, publishedOn, updatedOn, ogImageUrl, readingTime } = meta
-  const imageUrl = ogImageUrl
-    ? `https://blog.davimiku.com/images/blog/${category}/${slug}/${ogImageUrl}`
-    : ''
-  const seoProps: NextSeoProps = {
-    title,
-    description: tagline,
-    openGraph: {
-      url: `https://blog.davimiku.com/${category}/${slug}`,
-      type: 'website',
-      title: title,
-      description: tagline,
-      images: [
-        {
-          url: imageUrl,
-        },
-      ],
-    },
-  }
 
   return (
-    <Layout title={title} description={tagline}>
-      <NextSeo {...seoProps} />
+    <Layout title={title} description={tagline} meta={meta}>
       <article className={styles['article']}>
         <h1 className={styles['title']}>{title}</h1>
         <p className={`subtitle ${styles['subtitle']}`}>{tagline}</p>

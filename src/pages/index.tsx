@@ -30,7 +30,7 @@ export default function Home({
   const recentArticles = publishedArticles.filter(isFirstInSeries).slice(0, 3)
 
   return (
-    <Layout title="David's Website" description='My Projects'>
+    <Layout title='Home' description="David's Software">
       <h1>David's Website</h1>
 
       <section>

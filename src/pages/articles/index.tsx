@@ -9,9 +9,9 @@ import path from 'node:path'
 import readline from 'node:readline'
 
 export const getStaticProps = (async () => {
-  const publishedArticles = (
-    await extractPublishedMDXMeta(fs, readline, path, createReadStream)
-  ).toSorted(byPublishDate)
+  const publishedArticles = (await extractPublishedMDXMeta(fs, readline, path, createReadStream))
+    .filter(isFirstInSeries)
+    .toSorted(byPublishDate)
 
   return { props: { publishedArticles } }
 }) satisfies GetStaticProps<{ publishedArticles: PublishedArticleMeta[] }>
@@ -19,10 +19,8 @@ export const getStaticProps = (async () => {
 export default function ArticleIndex({
   publishedArticles,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const articles = publishedArticles.filter(isFirstInSeries)
-
   return (
-    <Layout title='Blogs' description='Blog Posts'>
+    <Layout title='Articles' description='Articles about programming and software engineering'>
       <h1>Articles</h1>
       <section>
         <p>
@@ -36,7 +34,7 @@ export default function ArticleIndex({
         </p>
       </section>
       <section>
-        <ArticleSummaries articles={articles} />
+        <ArticleSummaries articles={publishedArticles} />
       </section>
     </Layout>
   )

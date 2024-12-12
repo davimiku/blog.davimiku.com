@@ -1,3 +1,4 @@
+import { FaGithub } from 'react-icons/fa'
 import { Project } from 'types/projects'
 import styles from './Summaries.module.scss'
 
@@ -13,8 +14,8 @@ export function ProjectSummaries({ projects }: ProjectSummariesProps) {
           <header>
             <h2>
               <a href={project.repo.url}>{project.name}</a>
+              <FaGithub />
             </h2>
-            {/* <p className='subtitle'>Published: {publishedOn}</p> */}
           </header>
           <p>{project.tagline}</p>
         </li>

@@ -10,7 +10,8 @@ export const projects: Project[] = [
       name: 'blog.davimiku.com',
       path: 'davimiku/blog.davimiku.com',
       url: 'https://github.com/davimiku/blog.davimiku.com',
-      description: 'My personal website',
+      description:
+        'My personal website, including writing articles and tutorials on programming and software engineering',
     },
   },
   {
