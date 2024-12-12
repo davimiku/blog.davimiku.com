@@ -3,8 +3,10 @@ import Link from 'next/link'
 import { ReactNode, type JSX } from 'react'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
+import { MDXProvider } from '@mdx-js/react'
 import { type ArticleMeta } from 'data/articles'
 import Layout from 'layouts'
+import { useMDXComponents } from 'mdx-components'
 import styles from './ArticlePage.module.scss'
 
 export type ArticlePageProps = {
@@ -13,6 +15,7 @@ export type ArticlePageProps = {
 }
 
 export function ArticlePage({ children, meta }: ArticlePageProps) {
+  const components = useMDXComponents({})
   const { title, tagline, category, slug, publishedOn, updatedOn, ogImageUrl, readingTime } = meta
   const imageUrl = ogImageUrl
     ? `https://blog.davimiku.com/images/blog/${category}/${slug}/${ogImageUrl}`
@@ -42,7 +45,9 @@ export function ArticlePage({ children, meta }: ArticlePageProps) {
         <PublishedOn publishedOn={publishedOn} />
         <UpdatedOn updatedOn={updatedOn} />
         <ReadingTime minutes={readingTime} />
-        <section>{children}</section>
+        <MDXProvider components={components}>
+          <section>{children}</section>
+        </MDXProvider>
         <PreviousNext meta={meta} />
       </article>
     </Layout>
