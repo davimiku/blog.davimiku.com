@@ -17,6 +17,8 @@
 
 /** Ensure that the smaller width isn't double-applied */
 .box > details,
-details .box {
+details .box,
+.box > figure {
   width: unset;
+  max-width: unset;
 }

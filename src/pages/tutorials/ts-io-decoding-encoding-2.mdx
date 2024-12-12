@@ -253,7 +253,7 @@ Feel free to use that approach to suppress errors, but just note that this can c
 
 ```typescript
 export type Infer<S extends Shape<unknown, never>> = S extends ShapeUnknown
-//                                       ^^^^^^^
+//                                         ^^^^^
 // ...snip...
 ```
 
@@ -287,7 +287,7 @@ A more important point for me is that types are supposed to model possible data,
 3. T null, Err null ❓
 4. T not null, Err not null ❓
 
-\#3 and #4 are invalid but are allowed by the type system, indicating this is not a good type to model the data.
+\#3 and #4 are invalid but are allowed by the type system, indicating this is not a good type to model the data<SideNote id="golang-errors">This is how Go models errors, which is incorrect</SideNote>.
 
 ### A `Result` tagged union
 

@@ -53,7 +53,7 @@ We'll start by adding a new `Output` type parameter and an `encode` function to 
 
 ```typescript
 interface Shape<T, Input = unknown, Output = T> {
-  //                                ^^^^^^^^^^^
+  //                                ^^^^^^^^^^
   readonly __tag: ShapeTag
   readonly decode: (input: Input) => DecodeResult<T>
   readonly encode: (value: T) => Output
@@ -254,14 +254,13 @@ type OutputOf<S extends BaseShape> =
   S extends Shape<infer _T, infer _Input, infer Output> ? Output : never
 ```
 
-<MarginNote id='unused-param-eslint-warnings'>
-  I used underscores for the unused parameters to silence ESLint warnings.
-</MarginNote>
-Now that we have this, we can properly type the encoding of an array!
+<MarginNote id='unused-param-eslint-warnings'>I used underscores for the unused parameters to silence ESLint warnings.</MarginNote>Now that we have this, we can properly type the encoding of an array!
 
+{/* prettier-ignore */}
 ```typescript
-interface ShapeArray<S extends BaseShape> extends Shape<Infer<S>[], unknown, OutputOf<S>[]> {
-  //                               ^^^^^^^^^^^^^
+interface ShapeArray<S extends BaseShape> 
+  extends Shape<Infer<S>[], unknown, OutputOf<S>[]> {
+  //                                 ^^^^^^^^^^^^^
   readonly __tag: 'array'
 }
 ```
@@ -454,7 +453,7 @@ export function custom<T, Input, Output>(
 
 If the `encode` parameter here was optional, what could we default it to?
 
-**Should** it be optional? How would that change how users interact with and use our library, does it make it simpler/easier or more complex/difficult?
+**Should** it be optional? How would that change how users interact with and use our library, does it make it simpler/easier or more complex/difficult for our users?
 
 </KnowledgeCheck>
 
