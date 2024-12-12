@@ -12,3 +12,41 @@
 .subtitle {
   max-width: var(--main-content-default-width);
 }
+
+.previous-next-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  width: var(--main-content-default-width);
+
+  a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    white-space: nowrap;
+
+    font-size: 1.5rem;
+    padding: 2rem;
+    border: 1px solid var(--color-border);
+
+    &:hover {
+      background-color: var(--color-background-hover);
+    }
+
+    span {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  .previous {
+    grid-area: 1 / 1;
+  }
+
+  .next {
+    grid-area: 1 / 3;
+  }
+}

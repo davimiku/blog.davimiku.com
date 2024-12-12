@@ -6,46 +6,53 @@ export type PublishedArticleMeta = ArticleMeta & {
   relativeUrl: string
 }
 
-export type ArticleMeta = {
-  /** Title of the article */
-  title: string
+export type ArticleMeta = Readonly<
+  {
+    /** Title of the article */
+    title: string
 
-  /** Category - part of the URL */
-  category: ArticleCategory
+    /** Category - part of the URL */
+    category: ArticleCategory
 
-  /** URL slug */
-  slug: string
+    /** URL slug */
+    slug: string
 
-  /** Short description, shown as a subtitle and in social media posts */
-  tagline: string
+    /** Short description, shown as a subtitle and in social media posts */
+    tagline: string
 
-  /** Additional categorization, currently unused and may be removed */
-  type: string
+    /** Additional categorization, currently unused and may be removed */
+    type: string
 
-  /** Tags to show topics of the article, and possibly for filtering in the future */
-  tags: string[]
+    /** Tags to show topics of the article, and possibly for filtering in the future */
+    tags: string[]
 
-  /** Date the article was published */
-  publishedOn?: string
+    /** Date the article was published */
+    publishedOn?: string
 
-  /** Most recent date the article was updated */
-  updatedOn?: string
+    /** Most recent date the article was updated */
+    updatedOn?: string
 
-  /** Image URL for social media */
-  ogImageUrl?: string
+    /** Image URL for social media */
+    ogImageUrl?: string
 
-  /** Minutes to read the article */
-  readingTime?: number
+    /** Minutes to read the article */
+    readingTime?: number
+  } & ArticleSeriesMeta
+>
 
-  /** If the article is part of a series, the user-readable name of the series */
-  seriesName?: string
-
-  /** If the article is part of a series, the slug used in the URL for the series homepage */
-  seriesSlug?: string
-
-  /** If the article is part of a series, its index number in the series (1-based) */
-  seriesIndex?: number
-}
+/** The article is part of a series or it's not */
+type ArticleSeriesMeta =
+  | {
+      /** If the article is part of a series, the user-readable name of the series */
+      seriesName: string
+      /** If the article is part of a series, the slug used in the URL for the series homepage */
+      seriesSlug: string
+      /** If the article is part of a series, its index number in the series (1-based) */
+      seriesIndex: number
+      /** If the article has a subsequent article in the series */
+      seriesNextIndex?: number
+    }
+  | { seriesName?: never; seriesSlug?: never; seriesIndex?: never; seriesNextIndex?: never }
 
 export type PublishedArticlesStaticProps = {
   publishedArticles: PublishedArticleMeta[]

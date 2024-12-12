@@ -1,10 +1,11 @@
 import { NextSeo, NextSeoProps } from 'next-seo'
+import Link from 'next/link'
 import { ReactNode } from 'react'
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
-import Layout from 'layouts'
-
-import styles from './ArticlePage.module.scss'
 import { type ArticleMeta } from 'data/articles'
+import Layout from 'layouts'
+import styles from './ArticlePage.module.scss'
 
 export type ArticlePageProps = {
   children: ReactNode
@@ -42,6 +43,7 @@ export function ArticlePage({ children, meta }: ArticlePageProps) {
         <UpdatedOn updatedOn={updatedOn} />
         <ReadingTime minutes={readingTime} />
         <section>{children}</section>
+        <PreviousNext meta={meta} />
       </article>
     </Layout>
   )
@@ -63,4 +65,40 @@ function ReadingTime({ minutes }: { minutes?: number }) {
   if (!minutes) return null
 
   return <p className={styles.timestamp}>☕ Estimated reading time: {minutes} minutes</p>
+}
+
+type PreviousNextProps = {
+  meta: ArticleMeta
+}
+
+function PreviousNext({ meta }: PreviousNextProps) {
+  let previous: JSX.Element | null = null
+  let next: JSX.Element | null = null
+  if (meta.seriesIndex) {
+    if (meta.seriesIndex > 1) {
+      const previousIndex = meta.seriesIndex - 1
+      previous = (
+        <Link className={styles['previous']} href={`${meta.seriesSlug}-${previousIndex}`}>
+          <FaArrowLeft />
+          <span>Previous ({previousIndex})</span>
+        </Link>
+      )
+    }
+
+    if (meta.seriesNextIndex) {
+      next = (
+        <Link className={styles['next']} href={`${meta.seriesSlug}-${meta.seriesNextIndex}`}>
+          <span>Next ({meta.seriesNextIndex})</span>
+          <FaArrowRight />
+        </Link>
+      )
+    }
+  }
+
+  return (
+    <div className={styles['previous-next-container']}>
+      {previous}
+      {next}
+    </div>
+  )
 }

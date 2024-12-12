@@ -17,8 +17,10 @@
 
 :root {
   // Theme colors
-  --color-off-white: #f7f7f7;
-  --color-off-black: #151515;
+  --color-off-white: rgb(247, 247, 247);
+  --color-off-white-darker: rgb(235, 235, 235);
+  --color-off-black: rgb(21, 21, 21);
+  --color-off-black-lighter: rgb(33, 33, 33);
 
   --color-primary: rgb(35, 87, 132);
   --color-primary-lighter: rgba(35, 87, 132, 0.8);
@@ -36,6 +38,11 @@
 
   --color-lighter: rgba(255, 255, 255, 0.2);
   --color-darker: rgba(0, 0, 0, 0.2);
+
+  --color-background-hover: light-dark(
+    var(--color-off-white-darker),
+    var(--color-off-black-lighter)
+  );
 
   // toggle
   --color-toggle-bg-off: var(--color-secondary);
@@ -58,27 +65,4 @@
 
 :root {
   color-scheme: var(--color-scheme);
-}
-
-p > code,
-li > code,
-td > code,
-.marginnote > code,
-.sidenote > code {
-  color: var(--color-code);
-  background-color: var(--color-code-background);
-}
-
-section > pre {
-  width: var(--pre-code-width);
-
-  @media (max-width: 760px) {
-    & {
-      font-size: 1rem;
-    }
-  }
-}
-
-article img {
-  background-color: white;
 }

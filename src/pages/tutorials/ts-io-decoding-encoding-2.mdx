@@ -11,6 +11,7 @@ export const meta = {
   seriesName: 'TypeScript Decoding/Encoding Library',
   seriesSlug: 'ts-io-decoding-encoding',
   seriesIndex: 2,
+  seriesNextIndex: 3,
   readingTime: 25,
 }
 
@@ -32,7 +33,7 @@ This is Part 2 of a 3 part series.
 
 1. [Decoding](./ts-io-decoding-encoding-1)
 2. Custom decoders and better errors (this article)
-3. Encoding (WIP - coming 2024-12-11)
+3. [Encoding](./ts-io-decoding-encoding-3)
 
 If you haven't started with [Part 1](./ts-io-decoding-encoding-1), go ahead and check it out now! That explains the motivation behind this tutorial and the goals of what we'll accomplish.
 
@@ -287,7 +288,7 @@ A more important point for me is that types are supposed to model possible data,
 3. T null, Err null ❓
 4. T not null, Err not null ❓
 
-\#3 and #4 are invalid but are allowed by the type system, indicating this is not a good type to model the data<SideNote id="golang-errors">This is how Go models errors, which is incorrect</SideNote>.
+\#3 and #4 are invalid but are allowed by the type system, indicating this is not a good type to model the data<SideNote id="golang-errors">Interestingly, this is actually how errors are typically modeled in [Go](https://go.dev/wiki/Errors)</SideNote>.
 
 ### A `Result` tagged union
 

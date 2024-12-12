@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useLayoutEffect, useRef } from 'react'
+import { ChangeEvent, useEffect, useRef } from 'react'
 import styles from './ColorSchemeToggle.module.scss'
 
 const CSS_VAR_COLOR_SCHEME = '--color-scheme'
