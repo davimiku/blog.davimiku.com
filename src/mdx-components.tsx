@@ -15,7 +15,7 @@ function a(props: JSX.IntrinsicElements['a']) {
   const { children, href } = props
   if (href!.startsWith('https')) {
     return (
-      <a {...props} rel='noreferrer'>
+      <a {...props} rel='noreferrer' style={{ whiteSpace: 'nowrap' }}>
         {children}
         <span style={{ marginLeft: '0.25rem', verticalAlign: '0.25rem', fontSize: '0.75rem' }}>
           <FaExternalLinkAlt />
