@@ -1,7 +1,7 @@
 'use client'
 
 import { ChangeEvent, useState } from 'react'
-import styles from './ColorSchemeToggle.module.scss'
+import styles from './ColorSchemeToggle.module.css'
 
 const CSS_VAR = '--color-scheme'
 const LOCAL_STORAGE_KEY = 'color-scheme'

@@ -6,7 +6,7 @@ details .figure {
   display: flex;
   flex-direction: column;
 
-  figcaption {
+  & figcaption {
     clear: none;
     max-width: unset;
   }

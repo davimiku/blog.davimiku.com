@@ -28,7 +28,7 @@
   position: relative;
   cursor: pointer;
 
-  input {
+  & input {
     position: absolute;
     opacity: 0;
     width: 100%;

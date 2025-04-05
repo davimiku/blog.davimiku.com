@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { FaGithub, FaRss } from 'react-icons/fa'
-import styles from './Header.module.scss'
+import styles from './Header.module.css'
 
 const ColorSchemeToggle = dynamic(
   () => import('../color_scheme_toggle/ColorSchemeToggle').then(module => module.ColorSchemeToggle),

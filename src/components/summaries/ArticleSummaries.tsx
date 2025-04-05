@@ -1,6 +1,6 @@
 import type { PublishedArticleMeta } from 'data/articles'
 import Link from 'next/link'
-import styles from './Summaries.module.scss'
+import styles from './Summaries.module.css'
 
 import { Badge } from 'components/badges/badge/Badge'
 import type { JSX } from 'react'

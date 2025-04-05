@@ -7,8 +7,8 @@
 
   padding: 0.25rem 0.5rem;
 
-  svg {
-    // Push the logo slightly up to align with the text
+  & svg {
+    /* Push the logo slightly up to align with the text */
     vertical-align: middle;
     margin-bottom: 2px;
   }

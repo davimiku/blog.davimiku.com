@@ -1,4 +1,4 @@
-import styles from './Figure.module.scss'
+import styles from './Figure.module.css'
 
 export type FigureProps = {
   src: string

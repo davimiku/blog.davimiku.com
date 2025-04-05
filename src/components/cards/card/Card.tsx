@@ -1,6 +1,6 @@
-import { HTMLAttributes, PropsWithChildren, ReactNode } from 'react'
-import styles from './Card.module.scss'
 import Link from 'next/link'
+import { HTMLAttributes, PropsWithChildren, ReactNode } from 'react'
+import styles from './Card.module.css'
 
 export function Card({ children, ...rest }: PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
   return (

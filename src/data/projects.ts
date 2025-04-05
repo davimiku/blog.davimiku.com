@@ -4,7 +4,7 @@ export const projects: Project[] = [
   {
     name: 'blog.davimiku.com',
     tagline: 'A static website for writing blog articles and tutorials',
-    technologies: ['TypeScript', 'Next.js', 'React', 'SCSS'],
+    technologies: ['TypeScript', 'Next.js', 'React', 'CSS'],
     topics: ['static site generation', 'fluid design', 'blog'],
     repo: {
       name: 'blog.davimiku.com',

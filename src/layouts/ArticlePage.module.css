@@ -21,7 +21,7 @@
   grid-row-gap: 0px;
   width: var(--main-content-default-width);
 
-  a {
+  & a {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -38,7 +38,7 @@
       background-color: var(--color-background-hover);
     }
 
-    span {
+    & span {
       padding-left: 1rem;
       padding-right: 1rem;
     }

@@ -1,4 +1,4 @@
-import styles from './BlockQuote.module.scss'
+import styles from './BlockQuote.module.css'
 
 export type BlockQuoteProps = {
   content: string

@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react'
-import styles from './Spoiler.module.scss'
+import styles from './Spoiler.module.css'
 
 export type SpoilerProps = {
   summary: string

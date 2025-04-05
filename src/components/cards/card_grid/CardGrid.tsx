@@ -1,4 +1,4 @@
-import styles from './CardGrid.module.scss'
+import styles from './CardGrid.module.css'
 
 export type CardGridProps = {
   cards: React.ReactNode[]

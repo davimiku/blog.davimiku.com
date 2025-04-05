@@ -1,5 +1,5 @@
-@use './overrides/tufte-override.scss';
-@use './overrides/prism-override.scss';
+@import url('./overrides/tufte-override.css');
+@import url('./overrides/prism-override.css');
 
 :root {
   /* Align with the global styles provided by Tufte CSS */
@@ -16,7 +16,7 @@
 }
 
 :root {
-  // Theme colors
+  /* Theme colors */
   --color-off-white: rgb(247, 247, 247);
   --color-off-white-darker: rgb(235, 235, 235);
   --color-off-black: rgb(21, 21, 21);
@@ -44,7 +44,7 @@
     var(--color-off-black-lighter)
   );
 
-  // toggle
+  /* toggle */
   --color-toggle-bg-off: var(--color-secondary);
   --color-toggle-bg-on: var(--color-accent-darker);
   --color-toggle-border: rgba(0, 0, 0, 0.2);

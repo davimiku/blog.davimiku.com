@@ -1,6 +1,6 @@
 import { FaGithub } from 'react-icons/fa'
 import { Project } from 'types/projects'
-import styles from './Summaries.module.scss'
+import styles from './Summaries.module.css'
 
 export type ProjectSummariesProps = {
   projects: Project[]

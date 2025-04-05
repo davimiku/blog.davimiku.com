@@ -6,7 +6,7 @@ import { MDXProvider } from '@mdx-js/react'
 import { type ArticleMeta } from 'data/articles'
 import Layout from 'layouts'
 import { useMDXComponents } from 'mdx-components'
-import styles from './ArticlePage.module.scss'
+import styles from './ArticlePage.module.css'
 
 export type ArticlePageProps = {
   children: ReactNode

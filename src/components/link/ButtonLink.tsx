@@ -1,7 +1,7 @@
 import { HTMLAttributeAnchorTarget, PropsWithChildren } from 'react'
 
 import { IoArrowForward } from 'react-icons/io5'
-import styles from './ButtonLink.module.scss'
+import styles from './ButtonLink.module.css'
 
 export type ButtonLink = {
   href: string
