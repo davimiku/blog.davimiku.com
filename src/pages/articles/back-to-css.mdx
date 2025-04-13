@@ -1,0 +1,112 @@
+export const meta = {
+  title: 'Back to CSS',
+  category: 'articles',
+  type: 'thoughts',
+  slug: 'back-to-css',
+  tagline: 'Moving back to plain CSS from SCSS for this blog',
+  publishedOn: '2025-04-13',
+  tags: ['CSS', 'SCSS'],
+}
+
+import { ArticlePage } from '../../layouts/ArticlePage'
+import { EmphasisBox, Spoiler } from '../../components/blog'
+
+Some thoughts about SCSS, CSS, and why I [converted back to plain CSS](https://github.com/davimiku/blog.davimiku.com/commit/4ab06a4381ab079f7ed095aa10390d9fa4620a01).
+
+## Why do we use SCSS?
+
+My first foray into programming was similar to many other people, building web pages with HTML and CSS. I still think this is a wonderful way to introduce people to programming, because it provides the ability to declare to the machine what you'd like to happen, and to immediately see the result.
+
+When I was learning, it seemed that every tutorial beyond the basics went immediately into using SCSS (or SASS) for styling, it's just what you did. SCSS and SASS were the same semantically, but differed in syntax. SASS used whitespace, indenting, newlines, etc. that "felt" more like Ruby (or CoffeeScript). SCSS on the other hand is a superset of plain CSS, using the same curly brace syntax.
+
+The main reasons at the time to use one of these pre-processors over plain CSS were:
+
+1. variables
+2. nesting
+3. mixins
+4. functions
+
+### Variables
+
+Variables in SCSS/SASS are declared with a `$` prefix and then can be used later. 
+
+```scss
+$primary-color: rgb(30, 190, 130);
+h1 {
+    color: $primary-color;
+}
+```
+
+If you had to support Internet Explorer, then this simple feature was one that you couldn't live without for basically any webpage. The ability to associate names with values and then later use those names is essential.
+
+Nowadays, we have [CSS Custom Properties](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_cascading_variables/Using_CSS_custom_properties) (aka "variables") with different syntax of course, though there is a significant semantic difference as well. SCSS/SASS variables "exist" only at compile-time and compile to the value directly in the CSS output. This makes these variables more like "constants" than variables, as they can't actually _vary_ at runtime. It seems you can, however, change the value of the variable at compile-time and some instances of that variable will be compiled with one value and some with another - which could be quite confusing if common variables are imported and modified across different files.
+
+The [SASS documentation says about this](https://sass-lang.com/documentation/variables/):
+
+> Sass variables are imperative, which means if you use a variable and then change its value, the earlier use will stay the same.
+
+So if you don't rely on this behavior, which I don't, using CSS Custom Properties should be a drop-in replacement. Also, since these values can vary at runtime, you can change the values as a result of user actions. For example, [toggling the color mode](https://github.com/davimiku/blog.davimiku.com/blob/710271a728cb8bf73f33e694a11297a42e0e6b9e/src/components/color_scheme_toggle/ColorSchemeToggle.tsx#L70) at the top of this page changes a CSS Custom Property for dark mode or light mode.
+
+## Nesting
+
+Nesting is "just" a quality of life feature, but not having it is a dealbreaker for me. Nesting allows for style rules like this:
+
+```scss
+.container {
+  /* ... */
+  
+  .inner-class-a {
+    /* ... */
+  }
+
+  .inner-class-b {
+    /* ... */
+  }
+}
+```
+
+Rather than having to write this:
+
+```scss
+.container {
+  /* ... */
+}
+  
+.container .inner-class-a {
+  /* ... */
+}
+
+.container .inner-class-b {
+  /* ... */
+}
+```
+ 
+In a small example like this it may not look like much, but it helps greatly with organizing CSS rules at scale.
+
+CSS Nesting is now supported as a [Baseline Feature](https://caniuse.com/css-nesting) across today's browsers, so SCSS isn't necessary anymore to achieve this.
+
+### Mixins and Fuctions
+
+I wasn't using either [mixins](https://sass-lang.com/documentation/at-rules/mixin/) or [functions](https://sass-lang.com/documentation/at-rules/function/) in this blog website, so the "migration" to CSS was easy, you could say. I have used mixins at a past job with Angular Material, which heavily uses mixins (and change from version to version), and I confess that I never really understood how this particular setup worked.
+
+Mixins themselves are relatively simple, it's similar to a macro in some programming languages that substitutes the macro/mixin "call" with the text output of that macro/mixin at compile time. For example, if you find yourself constantly writing `display: flex; justify-content: center; align-items: center`, this could instead be written as a mixin that can be `@use` in another stylesheet and `@include` into a CSS rule, which will output that text. There are more advanced features to mixins as well. However, as with any abstraction, trade-offs apply that people need to know when an abstraction exists for their use case, and in some cases need to understand the implementation to know how to use it. 
+
+I don't think I've ever used a SCSS/SASS function, it seems to provide the ability to abstract out calculations that you might do several times. I haven't needed this on static content, but it could be useful for more artistic and creative web sites that require more math.
+
+## My Migration Steps
+
+This blog website is a small project and I was barely using any SCSS features previously, so the migration was:
+
+1. Rename `.scss` to `.css`
+2. Change `@use '...'` to `@import url('...')` in my global stylesheets
+3. Change `// ...` comment syntax to `/* ... */`
+4. Add `&` nesting selector in some places
+  - This is a specific requirement of CSS Modules, which is a CSS preprocessor that I'm still using which scopes/encapsulates CSS rules within components
+
+## Conclusion
+
+This isn't a recommendation of converting your code from SCSS/SASS to CSS, just an explanation for why I did it for this blog. It could be a benefit in terms of simplifying the build/compile process, potentially speed up the build including for dev server hot reloads, and reduce the number of technologies used which can help newcomers or those with less experience. However, consider the downsides of any migration, which is the potential to break something that previously worked. Styling changes are especially difficult in this regard because they are often not covered by automated testing for regressions.
+
+export default function ({ children }) {
+  return <ArticlePage meta={meta}>{children}</ArticlePage>
+}

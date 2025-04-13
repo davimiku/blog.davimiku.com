@@ -1,6 +1,9 @@
 /**
  * Home-baked script to extract the metadata from all MDX artcicles
  * in the repository.
+ *
+ * Certainly there's a better way, but it wasn't too hard to write this
+ * script and I learned about `acorn` from doing that.
  */
 
 import type { Expression } from 'acorn'
