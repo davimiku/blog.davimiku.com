@@ -1,9 +1,9 @@
-import * as fs from 'node:fs/promises'
+import { isPublished, withUrl } from 'data/articles'
 import { createReadStream } from 'node:fs'
+import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import * as readline from 'node:readline'
 import RSS from 'rss'
-import { isPublished, withUrl } from 'data/articles'
 import { extractMDXMeta } from '../src/data/extractMdxMeta'
 
 const siteUrl = 'https://blog.davimiku.com'
@@ -22,14 +22,15 @@ const feed = new RSS(feedOptions)
 
 ;(async function () {
   const allArticleMeta = await extractMDXMeta(fs, readline, path, createReadStream)
-  for (const [filePath, articleMeta] of Object.entries(allArticleMeta)) {
+  for (const articleMeta of Object.values(allArticleMeta)) {
     if (isPublished(articleMeta)) {
+      const publishedArticleMeta = withUrl(articleMeta)
       feed.item({
-        title: articleMeta.title,
-        description: articleMeta.tagline,
-        url: `${siteUrl}${articleMeta.relativeUrl}`,
-        date: articleMeta.publishedOn,
-        categories: articleMeta.tags ?? [],
+        title: publishedArticleMeta.title,
+        description: publishedArticleMeta.tagline,
+        url: `${siteUrl}${publishedArticleMeta.relativeUrl}`,
+        date: publishedArticleMeta.publishedOn,
+        categories: publishedArticleMeta.tags ?? [],
       })
     }
   }
