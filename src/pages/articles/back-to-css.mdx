@@ -9,8 +9,8 @@ export const meta = {
   ogImageUrl: 'banner.png',
 }
 
-import { ArticlePage } from '../../layouts/ArticlePage'
 import { EmphasisBox, Spoiler } from '../../components/blog'
+import { ArticlePage } from '../../layouts/ArticlePage'
 
 Some thoughts about SCSS, CSS, and why I [converted back to plain CSS](https://github.com/davimiku/blog.davimiku.com/commit/4ab06a4381ab079f7ed095aa10390d9fa4620a01).
 
@@ -108,6 +108,6 @@ This blog website is a small project and I was barely using any SCSS features pr
 
 This isn't a recommendation of converting your code from SCSS/SASS to CSS, just an explanation for why I did it for this blog. It could be a benefit in terms of simplifying the build/compile process, potentially speed up the build including for dev server hot reloads, and reduce the number of technologies used which can help newcomers or those with less experience. However, consider the downsides of any migration, which is the potential to break something that previously worked. Styling changes are especially difficult in this regard because they are often not covered by automated testing for regressions.
 
-export default function ({ children }) {
+export default function BackToCss({ children }) {
   return <ArticlePage meta={meta}>{children}</ArticlePage>
 }
