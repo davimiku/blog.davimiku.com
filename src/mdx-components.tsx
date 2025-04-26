@@ -37,14 +37,12 @@ function h2(props: JSX.IntrinsicElements['h2']) {
     const href = `#${id}`
 
     return (
-      <>
-        <h2 id={id}>
-          {children}
-          <Link className='no-tufte-underline' href={href}>
-            <span style={{ fontSize: '1.5rem' }}>🔗</span>
-          </Link>{' '}
-        </h2>
-      </>
+      <h2 id={id}>
+        {children}
+        <Link className='no-tufte-underline' href={href}>
+          <span style={{ fontSize: '1.5rem' }}>🔗</span>
+        </Link>{' '}
+      </h2>
     )
   }
 

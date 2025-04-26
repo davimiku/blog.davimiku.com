@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+# check the types
+npm run build
