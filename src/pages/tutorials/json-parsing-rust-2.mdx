@@ -1,18 +1,18 @@
-export const meta = {
-    title: 'Tutorial: Writing a JSON Parser (Rust) - Part 2/2',
-    category: 'tutorials',
-    type: 'tutorial',
-    slug: 'json-parsing-rust-2',
-    tagline: 'Learn the fundamentals of parsing by building a JSON parser from scratch',
-    tags: ['JSON', 'Rust'],
-    publishedOn: '2024-06-27',
-    updatedOn: '2024-11-04',
-    ogImageUrl: 'banner.png',
-    seriesName: 'JSON Parsing (Rust)',
-    seriesSlug: 'json-parsing-rust',
-    seriesIndex: 2,
-    readingTime: 30,
-}
+---
+title: "Tutorial: Writing a JSON Parser (Rust) - Part 2/2"
+category: tutorials
+type: tutorial
+slug: json-parsing-rust-2
+tagline: Learn the fundamentals of parsing by building a JSON parser from scratch
+tags: JSON, Rust
+publishedOn: 2024-06-27
+updatedOn: 2024-11-04
+ogImageUrl: banner.png
+seriesName: JSON Parsing (Rust)
+seriesSlug: json-parsing-rust
+seriesIndex: 2
+readingTime: 30
+---
 
 import { EmphasisBox, Figure, KnowledgeCheck, NewConcept, Spoiler } from '../../components/blog'
 import { ArticlePage } from '../../layouts/ArticlePage'
@@ -1216,5 +1216,5 @@ Another interesting note from RFC 8259:
 > Implementations MUST NOT add a byte order mark (U+FEFF) to the beginning of a networked-transmitted JSON text. In the interests of interoperability, implementations that parse JSON texts MAY ignore the presence of a byte order mark rather than treating it as an error.
 
 export default function JsonParsingRust2({ children }) {
-    return <ArticlePage meta={meta}>{children}</ArticlePage>
+    return <ArticlePage frontmatter={frontmatter}>{children}</ArticlePage>
 }

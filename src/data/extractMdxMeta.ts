@@ -1,15 +1,14 @@
 /**
- * Home-baked script to extract the metadata from all MDX artcicles
- * in the repository.
- *
- * Certainly there's a better way, but it wasn't too hard to write this
- * script and I learned about `acorn` from doing that.
+ * Extract metadata from MDX frontmatter
  */
 
-import type { Expression } from 'acorn'
-import { parseExpressionAt } from 'acorn'
+import { fromMarkdown } from 'mdast-util-from-markdown'
+import { frontmatterFromMarkdown } from 'mdast-util-frontmatter'
+import { frontmatter } from 'micromark-extension-frontmatter'
+
 import {
   articleCategories,
+  isArticleMeta,
   isPublished,
   PublishedArticleMeta,
   withUrl,
@@ -18,17 +17,16 @@ import {
 
 export async function extractPublishedMDXMeta(
   fs: typeof import('node:fs/promises'),
-  readline: typeof import('node:readline'),
-  path: typeof import('node:path'),
-  createReadStream: typeof import('node:fs').createReadStream
+  path: typeof import('node:path')
 ): Promise<PublishedArticleMeta[]> {
-  const allMeta = await extractMDXMeta(fs, readline, path, createReadStream)
+  const allMeta = await extractMDXMeta(fs, path)
 
   return allMeta.filter(meta => isPublished(meta)).map(withUrl)
 }
 
 export async function extractMDXMeta(
-  ...[fs, readline, path, createReadStream]: Parameters<typeof extractPublishedMDXMeta>
+  fs: typeof import('node:fs/promises'),
+  path: typeof import('node:path')
 ): Promise<ArticleMeta[]> {
   const allMetadata: ArticleMeta[] = []
   let articleFilePaths: string[] = []
@@ -43,82 +41,65 @@ export async function extractMDXMeta(
   }
 
   for (const filePath of articleFilePaths) {
-    const metaString = await extractMetaString(filePath, readline, createReadStream)
-    const metaObject = parseStringToObject(metaString)
-    // TODO - implement better input parsing
-    const articleMeta = metaObject as ArticleMeta
-    allMetadata.push(articleMeta)
+    const metaObject = await extractMeta(filePath, fs)
+    if (isArticleMeta(metaObject)) {
+      allMetadata.push(metaObject)
+    }
   }
 
   return allMetadata
 }
 
-const EXPORT_CONST_META = 'export const meta ='
-
-async function extractMetaString(
+async function extractMeta(
   filePath: string,
-  readline: typeof import('node:readline'),
-  createReadStream: typeof import('node:fs').createReadStream
-): Promise<string> {
-  let output = ''
-  const fileStream = createReadStream(filePath, { encoding: 'utf-8' })
-  const rl = readline.createInterface({
-    input: fileStream,
+  fs: typeof import('node:fs/promises')
+): Promise<Record<string, unknown>> {
+  const doc = await fs.readFile(filePath)
+
+  const tree = fromMarkdown(doc, {
+    extensions: [frontmatter()],
+    mdastExtensions: [frontmatterFromMarkdown()],
   })
 
-  for await (const line of rl) {
-    if (line.startsWith(EXPORT_CONST_META)) {
-      output += line.replace(EXPORT_CONST_META, '')
-    } else {
-      output += line
+  const nodes = tree.children.filter(child => child.type === 'yaml')
+  const frontMatterNode = nodes[0]
+
+  if (!frontMatterNode) return {}
+
+  const pairs: [string, string][] = []
+  for (const line of frontMatterNode.value.split('\n')) {
+    // the value may have a ':' character
+    const [key, ...values] = line.split(':')
+    let value = values.join(':')
+    value = value.trim()
+    // some values may have been formatted explicitly with quotes
+    if (value.startsWith('"')) {
+      value = value.slice(1, value.length - 1)
     }
-    if (line.trim() === '}') {
-      break
+    if (key && value) {
+      pairs.push([key.trim(), value])
     }
   }
 
-  return output
+  const metaObject: Record<string, unknown> = Object.fromEntries(pairs)
+  parseMetaFields(metaObject)
+  return metaObject
 }
 
-function parseStringToObject(input: string): Record<string, unknown> {
-  const output: Record<string, unknown> = {}
-
-  const node = parseExpressionAt(input, 0, {
-    ecmaVersion: 2022,
-    sourceType: 'module',
-  })
-
-  if (node.type === 'ObjectExpression') {
-    node.properties.forEach(prop => {
-      if (prop.type === 'Property') {
-        let key = ''
-        let value: unknown = ''
-        if (prop.key.type === 'Identifier') {
-          key = prop.key.name
-        }
-        if (prop.value.type === 'Literal') {
-          value = prop.value.value
-        }
-        if (prop.value.type === 'ArrayExpression') {
-          value = parseArray(prop.value.elements as Expression[])
-        }
-
-        if (key && value) {
-          output[key] = value
-        }
-      }
-    })
+function parseMetaFields(obj: Record<string, unknown>) {
+  if (typeof obj.tags === 'string') {
+    obj.tags = obj.tags.split(',').map((each: string) => each.trim())
+  } else {
+    obj.tags = []
   }
-  return output
-}
-
-function parseArray(expressions: Expression[]): string[] {
-  return expressions
-    .map(expression => {
-      if (expression.type === 'Literal') {
-        return expression.value as string
+  for (const intField of ['seriesIndex', 'seriesLastIndex', 'readingTime']) {
+    if (typeof obj[intField] === 'string') {
+      const int = Number.parseInt(obj[intField])
+      if (Number.isNaN(int)) {
+        delete obj[intField]
+      } else {
+        obj[intField] = int
       }
-      return ''
-    })
-    .filter(Boolean)
+    }
+  }
 }

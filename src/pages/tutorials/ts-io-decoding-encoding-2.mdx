@@ -1,19 +1,18 @@
-export const meta = {
-  title: 'Tutorial: I/O Data Decoding/Encoding Library from Scratch in TypeScript (Part 2)',
-  category: 'tutorials',
-  type: 'tutorial',
-  slug: 'ts-io-decoding-encoding-2',
-  tagline:
-    'Build your own library from scratch that decodes and encodes data. Deep-dive into TypeScript!',
-  tags: ['TypeScript'],
-  ogImageUrl: 'banner.png',
-  publishedOn: '2024-12-04',
-  seriesName: 'TypeScript Decoding/Encoding Library',
-  seriesSlug: 'ts-io-decoding-encoding',
-  seriesIndex: 2,
-  seriesLastIndex: 3,
-  readingTime: 25,
-}
+---
+title: "Tutorial: I/O Data Decoding/Encoding Library from Scratch in TypeScript (Part 2)"
+category: tutorials
+type: tutorial
+slug: ts-io-decoding-encoding-2
+tagline: Build your own library from scratch that decodes and encodes data. Deep-dive into TypeScript!
+tags: TypeScript
+ogImageUrl: banner.png
+publishedOn: 2024-12-04
+seriesName: TypeScript Decoding/Encoding Library
+seriesSlug: ts-io-decoding-encoding
+seriesIndex: 2
+seriesLastIndex: 3
+readingTime: 25
+---
 
 import Image from 'next/image'
 import {
@@ -754,5 +753,5 @@ This wraps up Part 2! We added the ability to have custom decoders and improved 
 The next and final part of this series, Part 3, will implement the other half of the process, which is **encoding**.
 
 export default function TsIoDecodingEncoding2({ children }) {
-  return <ArticlePage meta={meta}>{children}</ArticlePage>
+  return <ArticlePage frontmatter={frontmatter}>{children}</ArticlePage>
 }

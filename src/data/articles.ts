@@ -24,7 +24,7 @@ export type ArticleMeta = Readonly<
     type: string
 
     /** Tags to show topics of the article, and possibly for filtering in the future */
-    tags: string[]
+    tags?: string[]
 
     /** Date the article was published */
     publishedOn?: string
@@ -39,6 +39,16 @@ export type ArticleMeta = Readonly<
     readingTime?: number
   } & ArticleSeriesMeta
 >
+
+export function isArticleMeta(input: Record<string, unknown>): input is ArticleMeta {
+  return (
+    'title' in input &&
+    'category' in input &&
+    'slug' in input &&
+    'tagline' in input &&
+    'type' in input
+  )
+}
 
 /** The article is part of a series or it's not */
 type ArticleSeriesMeta =

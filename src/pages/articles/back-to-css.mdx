@@ -1,13 +1,13 @@
-export const meta = {
-  title: 'Back to CSS',
-  category: 'articles',
-  type: 'thoughts',
-  slug: 'back-to-css',
-  tagline: 'Moving back to plain CSS from SCSS for this blog',
-  publishedOn: '2025-04-13',
-  tags: ['CSS', 'SCSS'],
-  ogImageUrl: 'banner.png',
-}
+---
+title: Back to CSS
+category: articles
+type: thoughts
+slug: back-to-css
+tagline: Moving back to plain CSS from SCSS for this blog
+publishedOn: 2025-04-13
+tags: CSS, SCSS
+ogImageUrl: banner.png
+---
 
 import { EmphasisBox, Spoiler } from '../../components/blog'
 import { ArticlePage } from '../../layouts/ArticlePage'
@@ -109,5 +109,5 @@ This blog website is a small project and I was barely using any SCSS features pr
 This isn't a recommendation of converting your code from SCSS/SASS to CSS, just an explanation for why I did it for this blog. It could be a benefit in terms of simplifying the build/compile process, potentially speed up the build including for dev server hot reloads, and reduce the number of technologies used which can help newcomers or those with less experience. However, consider the downsides of any migration, which is the potential to break something that previously worked. Styling changes are especially difficult in this regard because they are often not covered by automated testing for regressions.
 
 export default function BackToCss({ children }) {
-  return <ArticlePage meta={meta}>{children}</ArticlePage>
+  return <ArticlePage frontmatter={frontmatter}>{children}</ArticlePage>
 }

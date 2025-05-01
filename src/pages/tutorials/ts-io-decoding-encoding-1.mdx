@@ -1,19 +1,18 @@
-export const meta = {
-  title: 'Tutorial: I/O Data Decoding/Encoding Library from Scratch in TypeScript',
-  category: 'tutorials',
-  type: 'tutorial',
-  slug: 'ts-io-decoding-encoding-1',
-  tagline:
-    'Build your own library from scratch that decodes and encodes data. Deep-dive into TypeScript!',
-  tags: ['TypeScript'],
-  ogImageUrl: 'banner.png',
-  publishedOn: '2024-11-27',
-  seriesName: 'TypeScript Decoding/Encoding Library',
-  seriesSlug: 'ts-io-decoding-encoding',
-  seriesIndex: 1,
-  seriesLastIndex: 3,
-  readingTime: 40,
-}
+---
+title: "Tutorial: I/O Data Decoding/Encoding Library from Scratch in TypeScript"
+category: tutorials
+type: tutorial
+slug: ts-io-decoding-encoding-1
+tagline: Build your own library from scratch that decodes and encodes data. Deep-dive into TypeScript!
+tags: TypeScript
+ogImageUrl: banner.png
+publishedOn: 2024-11-27
+seriesName: TypeScript Decoding/Encoding Library
+seriesSlug: ts-io-decoding-encoding
+seriesIndex: 1
+seriesLastIndex: 3
+readingTime: 40
+---
 
 import Image from 'next/image'
 import {
@@ -1455,5 +1454,5 @@ How would you support this? If you think about it, it's similar to our existing 
 Try implementing it, and see what additional questions come up.
 
 export default function TsIoDecodingEncoding1({ children }) {
-  return <ArticlePage meta={meta}>{children}</ArticlePage>
+  return <ArticlePage frontmatter={frontmatter}>{children}</ArticlePage>
 }

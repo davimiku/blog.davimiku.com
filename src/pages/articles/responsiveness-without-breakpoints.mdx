@@ -1,13 +1,13 @@
-export const meta = {
-  title: 'Web Design: Responsiveness without breakpoints',
-  category: 'articles',
-  type: 'thoughts',
-  slug: 'responsiveness-without-breakpoints',
-  tagline: 'An experiment in responsive design without breakpoints',
-  publishedOn: '2023-06-10',
-  updatedOn: '2024-06-06',
-  tags: ['CSS', 'Responsive Design'],
-}
+---
+title: "Web Design: Responsiveness without breakpoints"
+category: articles
+type: thoughts
+slug: responsiveness-without-breakpoints
+tagline: An experiment in responsive design without breakpoints
+publishedOn: 2023-06-10
+updatedOn: 2024-06-06
+tags: CSS, Responsive Design
+---
 
 import { EmphasisBox, Spoiler } from '../../components/blog'
 import { ArticlePage } from '../../layouts/ArticlePage'
@@ -147,5 +147,5 @@ I am **definitely not** a UI or CSS expert, these are just some neat tricks that
 I used this as an opportunity to learn about the real purpose of media queries and what we can do with them (and just as importantly, what we can do **without** them). The best part about all this is there is **_significantly less_** CSS that I have to write and maintain with the fluid design than with the "traditional" breakpoint approach. Gone are the days of adjusting fonts at every breakpoint, embrace robust and maintainable styling!
 
 export default function ResponsivenessWithoutBreakpoints({ children }) {
-  return <ArticlePage meta={meta}>{children}</ArticlePage>
+  return <ArticlePage frontmatter={frontmatter}>{children}</ArticlePage>
 }

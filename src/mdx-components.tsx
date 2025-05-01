@@ -3,9 +3,8 @@ import Link from 'next/link'
 import { type JSX } from 'react'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
-export function useMDXComponents(components: MDXComponents): MDXComponents {
+export function useMDXComponents(): MDXComponents {
   return {
-    ...components,
     a,
     h2,
   }

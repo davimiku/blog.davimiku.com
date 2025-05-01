@@ -1,19 +1,19 @@
-export const meta = {
-    title: 'Tutorial: Implementing JSON parsing (Rust)',
-    category: 'tutorials',
-    type: 'tutorial',
-    slug: 'json-parsing-rust-1',
-    tagline: 'Learn the fundamentals of parsing by implementing JSON parsing from scratch',
-    tags: ['JSON', 'Rust'],
-    publishedOn: '2024-06-27',
-    updatedOn: '2024-11-21',
-    ogImageUrl: 'banner.png',
-    seriesName: 'JSON Parsing (Rust)',
-    seriesSlug: 'json-parsing-rust',
-    seriesIndex: 1,
-    seriesLastIndex: 2,
-    readingTime: 40,
-}
+---
+title: "Tutorial: Implementing JSON parsing (Rust)"
+category: tutorials
+type: tutorial
+slug: json-parsing-rust-1
+tagline: Learn the fundamentals of parsing by implementing JSON parsing from scratch
+tags: JSON, Rust
+publishedOn: 2024-06-27
+updatedOn: 2024-11-21
+ogImageUrl: banner.png
+seriesName: JSON Parsing (Rust)
+seriesSlug: json-parsing-rust
+seriesIndex: 1
+seriesLastIndex: 2
+readingTime: 40
+---
 
 import Image from 'next/image'
 import {
@@ -1585,5 +1585,5 @@ Throughout this tutorial, you have learned \_\_ new concepts! (plus or minus a f
 The [next and last article](./json-parsing-rust-2) in this series will contain much more code than this article, but fewer new concepts because most were learned already.
 
 export default function JsonParsingRust1({ children }) {
-    return <ArticlePage meta={meta}>{children}</ArticlePage>
+    return <ArticlePage frontmatter={frontmatter}>{children}</ArticlePage>
 }

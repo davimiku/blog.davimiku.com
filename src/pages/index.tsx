@@ -7,15 +7,11 @@ import { projects } from 'data/projects'
 import Layout from 'layouts'
 import type { GetStaticProps, InferGetStaticPropsType } from 'next'
 import Link from 'next/link'
-import { createReadStream } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import readline from 'node:readline'
 
 export const getStaticProps = (async () => {
-  const publishedArticles = (
-    await extractPublishedMDXMeta(fs, readline, path, createReadStream)
-  ).toSorted(byPublishDate)
+  const publishedArticles = (await extractPublishedMDXMeta(fs, path)).toSorted(byPublishDate)
 
   return { props: { publishedArticles } }
 }) satisfies GetStaticProps<{ publishedArticles: PublishedArticleMeta[] }>

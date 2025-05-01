@@ -1,19 +1,18 @@
-export const meta = {
-  title: 'Tutorial: I/O Data Decoding/Encoding Library from Scratch in TypeScript (Part 3)',
-  category: 'tutorials',
-  type: 'tutorial',
-  slug: 'ts-io-decoding-encoding-3',
-  tagline:
-    'Build your own library from scratch that decodes and encodes data. Deep-dive into TypeScript!',
-  tags: ['TypeScript'],
-  ogImageUrl: 'banner.png',
-  publishedOn: '2024-12-11',
-  seriesName: 'TypeScript Decoding/Encoding Library',
-  seriesSlug: 'ts-io-decoding-encoding',
-  seriesIndex: 3,
-  seriesLastIndex: 3,
-  readingTime: 25,
-}
+---
+title: "Tutorial: I/O Data Decoding/Encoding Library from Scratch in TypeScript (Part 3)"
+category: tutorials
+type: tutorial
+slug: ts-io-decoding-encoding-3
+tagline: Build your own library from scratch that decodes and encodes data. Deep-dive into TypeScript!
+tags: TypeScript
+ogImageUrl: banner.png
+publishedOn: 2024-12-11
+seriesName: TypeScript Decoding/Encoding Library
+seriesSlug: ts-io-decoding-encoding
+seriesIndex: 3
+seriesLastIndex: 3
+readingTime: 25
+---
 
 import Image from 'next/image'
 import {
@@ -509,5 +508,5 @@ Hopefully you were able to understand beneath the surface level, we really did d
 If you enjoyed this tutorial, [check out my other tutorials and articles](/articles)!
 
 export default function TsIoDecodingEncoding3({ children }) {
-  return <ArticlePage meta={meta}>{children}</ArticlePage>
+  return <ArticlePage frontmatter={frontmatter}>{children}</ArticlePage>
 }

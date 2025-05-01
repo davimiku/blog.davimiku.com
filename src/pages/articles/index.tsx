@@ -3,13 +3,11 @@ import { byPublishDate, isFirstInSeries, PublishedArticleMeta } from 'data/artic
 import { extractPublishedMDXMeta } from 'data/extractMdxMeta'
 import Layout from 'layouts'
 import type { GetStaticProps, InferGetStaticPropsType } from 'next'
-import { createReadStream } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import readline from 'node:readline'
 
 export const getStaticProps = (async () => {
-  const publishedArticles = (await extractPublishedMDXMeta(fs, readline, path, createReadStream))
+  const publishedArticles = (await extractPublishedMDXMeta(fs, path))
     .filter(isFirstInSeries)
     .toSorted(byPublishDate)
 

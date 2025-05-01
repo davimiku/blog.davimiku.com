@@ -5,20 +5,20 @@ import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 import { MDXProvider } from '@mdx-js/react'
 import { type ArticleMeta } from 'data/articles'
 import Layout from 'layouts'
-import { useMDXComponents } from 'mdx-components'
+import { useMDXComponents } from '../mdx-components'
 import styles from './ArticlePage.module.css'
 
 export type ArticlePageProps = {
   children: ReactNode
-  meta: ArticleMeta
+  frontmatter: ArticleMeta | Record<string, never>
 }
 
-export function ArticlePage({ children, meta }: ArticlePageProps) {
-  const { title, tagline, publishedOn, updatedOn, readingTime } = meta
-  const components = useMDXComponents({})
+export function ArticlePage({ children, frontmatter = {} }: ArticlePageProps) {
+  const { title, tagline, publishedOn, updatedOn, readingTime } = frontmatter
+  const components = useMDXComponents()
 
   return (
-    <Layout title={title} description={tagline} meta={meta}>
+    <Layout title={title} description={tagline} meta={frontmatter}>
       <article className={styles['article']}>
         <h1 className={styles['title']}>{title}</h1>
         <p className={`subtitle ${styles['subtitle']}`}>{tagline}</p>
@@ -28,7 +28,7 @@ export function ArticlePage({ children, meta }: ArticlePageProps) {
         <MDXProvider components={components}>
           <section>{children}</section>
         </MDXProvider>
-        <PreviousNext meta={meta} />
+        <PreviousNext meta={frontmatter} />
       </article>
     </Layout>
   )
@@ -53,7 +53,7 @@ function ReadingTime({ minutes }: { minutes?: number }) {
 }
 
 type PreviousNextProps = {
-  meta: ArticleMeta
+  meta: ArticleMeta | Record<string, never>
 }
 
 function PreviousNext({ meta }: PreviousNextProps) {

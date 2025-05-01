@@ -6,7 +6,7 @@ import { type PropsWithChildren } from 'react'
 export type LayoutProps = {
   title: string
   description: string
-  meta?: ArticleMeta
+  meta?: ArticleMeta | Record<string, never>
 }
 
 // TODO: investigate using pages/_document.tsx for anything common across all pages
@@ -36,7 +36,7 @@ export default function Layout({
         authors: ['davimiku'],
         publishedTime: publishedOn,
         modifiedTime: updatedOn,
-        tags,
+        tags: tags ?? [],
       },
       images: [
         {

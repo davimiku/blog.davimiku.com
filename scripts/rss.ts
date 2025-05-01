@@ -1,8 +1,6 @@
 import { isPublished, withUrl } from 'data/articles'
-import { createReadStream } from 'node:fs'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
-import * as readline from 'node:readline'
 import RSS from 'rss'
 import { extractMDXMeta } from '../src/data/extractMdxMeta'
 
@@ -21,7 +19,7 @@ const feedOptions = {
 const feed = new RSS(feedOptions)
 
 ;(async function () {
-  const allArticleMeta = await extractMDXMeta(fs, readline, path, createReadStream)
+  const allArticleMeta = await extractMDXMeta(fs, path)
   for (const articleMeta of Object.values(allArticleMeta)) {
     if (isPublished(articleMeta)) {
       const publishedArticleMeta = withUrl(articleMeta)

@@ -1,10 +1,10 @@
-export const meta = {
-  title: "Tutorial: TypeScript's Type Manipulation",
-  category: 'tutorial',
-  slug: 'ts-type-manipulation',
-  tagline: "Learn all of TypeScript's techniques for type manipulation in a single example",
-  tags: ['TypeScript', 'type manipulation'],
-}
+---
+title: Tutorial TypeScript Type Manipulation
+category: tutorial
+slug: ts-type-manipulation
+tagline: Learn all TypeScript techniques for type manipulation in a single example
+tags: TypeScript
+---
 
 import { ArticlePage } from '../../layouts/ArticlePage'
 import { EmphasisBox, Spoiler } from '../../components/blog'
@@ -654,4 +654,6 @@ interpolateMessage(withTwoVariables, { bad1: 'Ada', bad2: 'Bob' })
 
 [TypeScript Handbook - Template Literal Types](https://www.typescriptlang.org/docs/handbook/2/template-literal-types.html)
 
-export default ({ children }) => <ArticlePage meta={meta}>{children}</ArticlePage>
+export default function TsTypeManipulation({ children }) {
+  return <ArticlePage frontmatter={frontmatter}>{children}</ArticlePage>
+}
